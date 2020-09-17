@@ -17,6 +17,5 @@
 const Route = use('Route')
 
 Route.on('/').render('welcome')
-Route.on('/api').render(function(req, res){
-    res.send("Rota da api")
-})
+Route.on('/add').render('form_stablishment')
+Route.get('/establishment', 'EstablishmentController.index')
