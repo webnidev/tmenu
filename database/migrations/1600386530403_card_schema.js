@@ -10,9 +10,9 @@ class CardSchema extends Schema {
       table.datetime('hour')
       table.string('message')
       table.float('value')
-      table.boolean('status')
+      table.boolean('status').notNullable()
       table.timestamps()
-      table.integer('table_id')
+      table.integer('table_id').notNullable()
       table.foreign('table_id').references('tables.id').onDelete('cascade')
     })
   }
