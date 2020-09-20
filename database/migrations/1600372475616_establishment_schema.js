@@ -7,10 +7,13 @@ class EstablishmentSchema extends Schema {
   up () {
     this.create('establishments', (table) => {
       table.increments()
-      table.string('name').unique()
-      table.string('address')
-      table.float('rate')
+      table.string('name').unique().notNullable()
+      table.string('address').notNullable()
+      table.string('cnpj')
+      table.float('rate').notNullable()
       table.timestamps()
+      table.integer('user_id').notNullable()
+      table.foreign('user_id').references('users.id').onDelete('cascade')
     })
   }
 

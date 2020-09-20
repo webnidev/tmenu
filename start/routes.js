@@ -18,4 +18,7 @@ const Route = use('Route')
 
 Route.on('/').render('welcome')
 Route.on('/add').render('form_stablishment')
-Route.get('/establishment', 'EstablishmentController.index')
+Route.get('/:establishment', 'EstablishmentController.index')
+Route.get('/:establishment/:mesa/','EstablishmentController.show')
+//Route.get('/:establishment/:id', 'TableController.index')
+//Route.get('/:establishment/panel', 'EstablishmentController.index')
