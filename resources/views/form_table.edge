@@ -1,0 +1,14 @@
+@if(tables)
+<h2>Relação de Mesas</h2>
+    <ul>
+    @each(table in tables)
+    <li>Mesa número {{ table.number }}</li>
+    @endeach
+    </ul>
+@endif
+<form action="{{ route('tables.store') }}" method="post">
+    {{ csrfField() }}
+    <label >Numero da mesa</label>
+    <input type="text" name="number" id="">
+    <input type="submit" value="Criar mesa">
+</form>

@@ -1,19 +1,16 @@
 'use strict'
-
-const Table = use('App/Models/Table')
-const Establishment = use('App/Models/Establishment')
-
+const User = use('App/Models/User')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with tables
+ * Resourceful controller for interacting with users
  */
-class TableController {
+class UserController {
   /**
-   * Show a list of all tables.
-   * GET tables
+   * Show a list of all users.
+   * GET users
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -21,44 +18,40 @@ class TableController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-    const tables = await Table.all()
-    return view.render('form_table', {tables: tables.toJSON()})
   }
 
   /**
-   * Render a form to be used for creating a new table.
-   * GET tables/create
+   * Render a form to be used for creating a new user.
+   * GET users/create
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ view }) {
-    return view.render('form_table')
+  async create ({ request, response, view }) {
+    const user = await User.create({
+      username: request.input('username'),
+      email: request.input('email'),
+      password: request.input('password')
+    })
+    return response.redirect('/user')
   }
 
   /**
-   * Create/save a new table.
-   * POST tables
+   * Create/save a new user.
+   * POST users
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response, auth }) {
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
-    const table = await Table.create({
-      number: request.input('number'),
-      status: false,
-      establishment_id: establishment.id
-    })
-      return response.redirect('/tables')
+  async store ({ request, response }) {
   }
 
   /**
-   * Display a single table.
-   * GET tables/:id
+   * Display a single user.
+   * GET users/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -69,8 +62,8 @@ class TableController {
   }
 
   /**
-   * Render a form to update an existing table.
-   * GET tables/:id/edit
+   * Render a form to update an existing user.
+   * GET users/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -81,8 +74,8 @@ class TableController {
   }
 
   /**
-   * Update table details.
-   * PUT or PATCH tables/:id
+   * Update user details.
+   * PUT or PATCH users/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -92,8 +85,8 @@ class TableController {
   }
 
   /**
-   * Delete a table with id.
-   * DELETE tables/:id
+   * Delete a user with id.
+   * DELETE users/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -103,4 +96,4 @@ class TableController {
   }
 }
 
-module.exports = TableController
+module.exports = UserController
