@@ -22,22 +22,10 @@ class TableController {
    */
   async index ({ request, response, view }) {
     const tables = await Table.all()
-    return view.render('form_table', {tables: tables.toJSON()})
+    return response.send({tables})
   }
 
-  /**
-   * Render a form to be used for creating a new table.
-   * GET tables/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ view }) {
-    return view.render('form_table')
-  }
-
+  
   /**
    * Create/save a new table.
    * POST tables
@@ -66,18 +54,6 @@ class TableController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-  }
-
-  /**
-   * Render a form to update an existing table.
-   * GET tables/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
   }
 
   /**

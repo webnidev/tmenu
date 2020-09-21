@@ -44,7 +44,7 @@ class LoginController {
     await auth.attempt(request.input('email'), request.input('password'))
 
     session.flash({ successMessage: 'You have logged in successfully!' })
-    return response.route('welcome')
+    return response.route('/establishments')
   }
 
   /**
@@ -92,7 +92,7 @@ class LoginController {
    */
   async destroy ({ params, request, response, auth }) {
     await auth.logout()
-    return response.route('welcome')
+    return response.route('/establishments')
   }
 }
 

@@ -19,21 +19,19 @@ const EstablishmentController = require('../app/Controllers/Http/EstablishmentCo
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.on('/login').render('login')
-Route.get('/logout', 'LoginController.destroy').as('logout.destroy')
-Route.post('/login', 'LoginController.store').as('login.store')
-
-/*Route.get('/','EstablishmentController.index')
-Route.on('/add').render('form_stablishment')
-Route.on('/user').render('add_user')
-Route.post('/user', 'UserController.create').as('user.create')
-Route.post('/add', 'EstablishmentController.create').as('establishment.create')
-Route.get('/:establishment', 'EstablishmentController.index')
-Route.get('/:establishment/:mesa/','EstablishmentController.show')*/
-//Route.get('/:establishment/:id', 'TableController.index')
-//Route.get('/:establishment/panel', 'EstablishmentController.index')
-
+//Route.on('/login').render('login')
+//Route.get('/logout', 'LoginController.destroy').as('logout.destroy')
+//Route.post('/login', 'LoginController.store').as('login.store')
+//Route.get('/users', 'UserController.create')
+//Route.post('/users', 'UserController.store').as('users.stores')
 
 Route.group(()=>{
-    Route.resource("tables", "TableController")
-}).middleware("auth")
+    Route.resource("tables", "TableController").apiOnly()
+    Route.resource("establishments", "EstablishmentController").apiOnly()
+    Route.resource("categories", "CategoryController").apiOnly()
+    Route.resource("attributies", "AttributeController").apiOnly()
+    Route.resource("clients", "ClientController").apiOnly()
+    Route.resource("cards", "CardController").apiOnly()
+    Route.resource("products", "ProductController").apiOnly()
+    Route.resource("waiters", "WaiterController").apiOnly()
+})//.middleware("auth")
