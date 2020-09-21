@@ -30,12 +30,7 @@ class UserController {
    * @param {View} ctx.view
    */
   async create ({ request, response, view }) {
-    const user = await User.create({
-      username: request.input('username'),
-      email: request.input('email'),
-      password: request.input('password')
-    })
-    return response.redirect('/user')
+    return view.render('add_user')
   }
 
   /**
@@ -47,6 +42,12 @@ class UserController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    const user = await User.create({
+      username: request.input('username'),
+      email: request.input('email'),
+      password: request.input('password')
+    })
+    return response.redirect('/users')
   }
 
   /**

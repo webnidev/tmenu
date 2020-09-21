@@ -1,5 +1,5 @@
 'use strict'
-
+const Product = use('App/Models/Product')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -18,6 +18,8 @@ class ProductController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
+    const products = await Product.all()
+    return response.send({products})
   }
 
   /**
