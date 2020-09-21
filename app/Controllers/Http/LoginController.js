@@ -1,19 +1,16 @@
 'use strict'
 
-const Table = use('App/Models/Table')
-const Establishment = use('App/Models/Establishment')
-
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with tables
+ * Resourceful controller for interacting with logins
  */
-class TableController {
+class LoginController {
   /**
-   * Show a list of all tables.
-   * GET tables
+   * Show a list of all logins.
+   * GET logins
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -21,44 +18,38 @@ class TableController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-    const tables = await Table.all()
-    return view.render('form_table', {tables: tables.toJSON()})
   }
 
   /**
-   * Render a form to be used for creating a new table.
-   * GET tables/create
+   * Render a form to be used for creating a new login.
+   * GET logins/create
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ view }) {
-    return view.render('form_table')
+  async create ({ request, response, view }) {
   }
 
   /**
-   * Create/save a new table.
-   * POST tables
+   * Create/save a new login.
+   * POST logins
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response, auth }) {
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
-    const table = await Table.create({
-      number: request.input('number'),
-      status: false,
-      establishment_id: establishment.id
-    })
-      return response.redirect('/tables')
+  async store ({ request, auth, session, response }) {
+    await auth.attempt(request.input('email'), request.input('password'))
+
+    session.flash({ successMessage: 'You have logged in successfully!' })
+    return response.route('welcome')
   }
 
   /**
-   * Display a single table.
-   * GET tables/:id
+   * Display a single login.
+   * GET logins/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -69,8 +60,8 @@ class TableController {
   }
 
   /**
-   * Render a form to update an existing table.
-   * GET tables/:id/edit
+   * Render a form to update an existing login.
+   * GET logins/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -81,8 +72,8 @@ class TableController {
   }
 
   /**
-   * Update table details.
-   * PUT or PATCH tables/:id
+   * Update login details.
+   * PUT or PATCH logins/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -92,15 +83,17 @@ class TableController {
   }
 
   /**
-   * Delete a table with id.
-   * DELETE tables/:id
+   * Delete a login with id.
+   * DELETE logins/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params, request, response, auth }) {
+    await auth.logout()
+    return response.route('welcome')
   }
 }
 
-module.exports = TableController
+module.exports = LoginController

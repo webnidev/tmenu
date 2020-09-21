@@ -1,0 +1,6 @@
+<form action="{{ route('login.store') }}" method="post">
+    {{ csrfField() }}
+    <input type="text" name="email" id="">
+    <input type="password" name="password" id="">
+    <input type="submit" value="entrar">
+</form>

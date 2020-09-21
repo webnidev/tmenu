@@ -1,1 +1,11 @@
 <h1>Formulario</h1>
+<form action="{{route('establishment.create')}}" method="post">
+    {{ csrfField() }}
+    <label>Nome</label>
+    <input type="text" name="name" id="">
+    <label>Endereço</label>
+    <input type="text" name="address" id="">
+    <label>CNPJ</label>
+    <input type="text" name="cnpj" id="">
+    <input type="submit" value="Cadastra">
+</form>
