@@ -12,7 +12,6 @@ class WaiterSchema extends Schema {
       table.integer('establishment_id').notNullable()
       table.foreign('user_id').references('users.id').onDelete('cascade')
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
-      
     })
   }
 

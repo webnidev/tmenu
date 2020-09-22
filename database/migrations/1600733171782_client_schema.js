@@ -13,7 +13,6 @@ class ClientSchema extends Schema {
       table.timestamps()
       table.integer('user_id').notNullable()
       table.foreign('user_id').references('users.id').onDelete('cascade')
-   
     })
   }
 

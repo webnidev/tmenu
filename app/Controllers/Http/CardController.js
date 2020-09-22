@@ -1,5 +1,5 @@
 'use strict'
-const Card = use('App/Models/Card')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -18,8 +18,6 @@ class CardController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-    const cards = await Card.all()
-    return response.send({cards})
   }
 
   /**

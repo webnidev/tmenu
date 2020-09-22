@@ -1,8 +1,5 @@
 'use strict'
 
-const Table = use('App/Models/Table')
-const Establishment = use('App/Models/Establishment')
-
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -21,11 +18,20 @@ class TableController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-    const tables = await Table.all()
-    return response.send({tables})
   }
 
-  
+  /**
+   * Render a form to be used for creating a new table.
+   * GET tables/create
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async create ({ request, response, view }) {
+  }
+
   /**
    * Create/save a new table.
    * POST tables
@@ -34,14 +40,7 @@ class TableController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response, auth }) {
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
-    const table = await Table.create({
-      number: request.input('number'),
-      status: false,
-      establishment_id: establishment.id
-    })
-      return response.redirect('/tables')
+  async store ({ request, response }) {
   }
 
   /**
@@ -54,6 +53,18 @@ class TableController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
+  }
+
+  /**
+   * Render a form to update an existing table.
+   * GET tables/:id/edit
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async edit ({ params, request, response, view }) {
   }
 
   /**

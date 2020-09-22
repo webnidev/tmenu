@@ -1,18 +1,16 @@
 'use strict'
-const User = use('App/Models/User')
-const { validateAll } = use('Validator') 
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with users
+ * Resourceful controller for interacting with clienteles
  */
-class UserController {
+class ClienteleController {
   /**
-   * Show a list of all users.
-   * GET users
+   * Show a list of all clienteles.
+   * GET clienteles
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -23,8 +21,8 @@ class UserController {
   }
 
   /**
-   * Render a form to be used for creating a new user.
-   * GET users/create
+   * Render a form to be used for creating a new clientele.
+   * GET clienteles/create
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -32,46 +30,22 @@ class UserController {
    * @param {View} ctx.view
    */
   async create ({ request, response, view }) {
-    return view.render('add_user')
   }
 
   /**
-   * Create/save a new user.
-   * POST users
+   * Create/save a new clientele.
+   * POST clienteles
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
-    try {
-      const erroMessage = {
-        'username.required':'É obrigatório criar um nome de usuário',
-        'username.unique':'Esse nome já esta em uso',
-        'username.min':'O nome de usuário deve ter no minimo 6 caracteres'
-      }
-      const validation = await validateAll(request.all(),{
-        username: 'required|min:6|unique:users',
-        email: 'required|email|unique:users',
-        password: 'required|min:6'
-      }, erroMessage)
-      if(validation.fails()){
-        return response.status(401).send({message: validation.messages()})
-      }
-      const data = request.only(['username', 'email', 'password'])
-      const user = await User.create(data)
-      return response.send({user})
-      
-    } catch (error) {
-      response.status(500).send({
-        error:`Error: ${error.message}`
-      })
-    }
   }
 
   /**
-   * Display a single user.
-   * GET users/:id
+   * Display a single clientele.
+   * GET clienteles/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -82,8 +56,8 @@ class UserController {
   }
 
   /**
-   * Render a form to update an existing user.
-   * GET users/:id/edit
+   * Render a form to update an existing clientele.
+   * GET clienteles/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -94,8 +68,8 @@ class UserController {
   }
 
   /**
-   * Update user details.
-   * PUT or PATCH users/:id
+   * Update clientele details.
+   * PUT or PATCH clienteles/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -105,8 +79,8 @@ class UserController {
   }
 
   /**
-   * Delete a user with id.
-   * DELETE users/:id
+   * Delete a clientele with id.
+   * DELETE clienteles/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -116,4 +90,4 @@ class UserController {
   }
 }
 
-module.exports = UserController
+module.exports = ClienteleController

@@ -4,50 +4,90 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
-
-const Establishment = use('App/Models/Establishment')
+/**
+ * Resourceful controller for interacting with establishments
+ */
 class EstablishmentController {
   /**
-   * Show a list of all todos.
-   * GET todos
+   * Show a list of all establishments.
+   * GET establishments
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
+  async index ({ request, response, view }) {
+  }
 
+  /**
+   * Render a form to be used for creating a new establishment.
+   * GET establishments/create
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async create ({ request, response, view }) {
+  }
 
-   async index({request, response, auth}){
-        //if(auth.user){
-            //const establishment = await Establishment.findBy('user_id',auth.user.id)
-            const establishments = await Establishment.all()
-            console.log(establishments)
-            //return view.render('establishment',{establishment, user:auth.user})
-            return response.send({establishments})
-        //}
-        
-    }
-   /**
-   * Create/save a new table.
-   * POST tables
+  /**
+   * Create/save a new establishment.
+   * POST establishments
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response, auth }) {
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
-    const table = await Table.create({
-      number: request.input('number'),
-      status: false,
-      establishment_id: establishment.id
-    })
-      return response.redirect('/tables')
+  async store ({ request, response }) {
   }
 
-    async show({request, response}){
-    }
+  /**
+   * Display a single establishment.
+   * GET establishments/:id
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async show ({ params, request, response, view }) {
+  }
+
+  /**
+   * Render a form to update an existing establishment.
+   * GET establishments/:id/edit
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async edit ({ params, request, response, view }) {
+  }
+
+  /**
+   * Update establishment details.
+   * PUT or PATCH establishments/:id
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   */
+  async update ({ params, request, response }) {
+  }
+
+  /**
+   * Delete a establishment with id.
+   * DELETE establishments/:id
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   */
+  async destroy ({ params, request, response }) {
+  }
 }
 
 module.exports = EstablishmentController

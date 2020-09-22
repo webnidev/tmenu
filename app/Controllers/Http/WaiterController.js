@@ -1,5 +1,5 @@
 'use strict'
-const Waiter = use('App/Models/Waiter')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -18,8 +18,6 @@ class WaiterController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-    const waiters = await Waiter.all()
-    return response.send({waiters})
   }
 
   /**

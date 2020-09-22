@@ -6,7 +6,7 @@ const Schema = use('Schema')
 class ComboSchema extends Schema {
   up () {
     this.create('combos', (table) => {
-      table.increments()
+      able.increments()
       table.timestamps()
       table.integer('product_combo_id').notNullable()
       table.integer('product_id').notNullable()

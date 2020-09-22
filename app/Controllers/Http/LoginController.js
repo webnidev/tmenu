@@ -41,10 +41,15 @@ class LoginController {
    * @param {Response} ctx.response
    */
   async store ({ request, auth, session, response }) {
-    await auth.attempt(request.input('email'), request.input('password'))
-
-    session.flash({ successMessage: 'You have logged in successfully!' })
-    return response.route('/establishments')
+    try {
+      const { email, password } = request.all()
+      const validaToken = await auth.attempt(email, password)
+      return validaToken
+    } catch (error) {
+      response.status(500).send({
+        error:`Error: ${error.message}`
+      })
+    }
   }
 
   /**
