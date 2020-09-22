@@ -1,6 +1,4 @@
 'use strict'
-const Category = use('App/Models/Category')
-const Establishment = use('App/Models/Establishment')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -19,11 +17,20 @@ class CategoryController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response }) {
-    const categories = await Category.all()
-    return response.send({categories})
+  async index ({ request, response, view }) {
   }
 
+  /**
+   * Render a form to be used for creating a new category.
+   * GET categories/create
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async create ({ request, response, view }) {
+  }
 
   /**
    * Create/save a new category.
@@ -33,13 +40,7 @@ class CategoryController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response, auth }) {
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
-    const category = Category.create({
-      name: request.input('name'),
-      establishment_id: establishment.id
-    })
-    return response.redirect('/categories')
+  async store ({ request, response }) {
   }
 
   /**
@@ -53,6 +54,19 @@ class CategoryController {
    */
   async show ({ params, request, response, view }) {
   }
+
+  /**
+   * Render a form to update an existing category.
+   * GET categories/:id/edit
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async edit ({ params, request, response, view }) {
+  }
+
   /**
    * Update category details.
    * PUT or PATCH categories/:id

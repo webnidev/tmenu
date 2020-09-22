@@ -20,12 +20,6 @@ class EstablishmentSchema extends Schema {
   down () {
     this.drop('establishments')
   }
-
-  tables(){
-    return this.hasMany('App/Models/Table')
-  }
-
-
 }
 
 module.exports = EstablishmentSchema

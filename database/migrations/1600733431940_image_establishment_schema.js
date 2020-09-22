@@ -3,25 +3,20 @@
 /** @type {import('@adonisjs/lucid/src/Schema')} */
 const Schema = use('Schema')
 
-class Table extends Schema {
+class ImageEstablishmentSchema extends Schema {
   up () {
-    this.create('tables', (table) => {
+    this.create('image_establishments', (table) => {
       table.increments()
-      table.integer('number').notNullable()
-      table.boolean('status').notNullable().defaultTo(false)
+      table.string('path').notNullable()
       table.timestamps()
       table.integer('establishment_id').notNullable()
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
     })
   }
 
-  cards(){
-     return this.hasMany('App/Models/Card')
-  }
-  
   down () {
-    this.drop('tables')
+    this.drop('image_establishments')
   }
 }
 
-module.exports = Table
+module.exports = ImageEstablishmentSchema
