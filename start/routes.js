@@ -16,16 +16,4 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.post('/login', 'LoginController.store').as('login.store')
-
-Route.group(()=>{
-  Route.resource("tables", "TableController").apiOnly()
-  Route.resource("establishments", "EstablishmentController").apiOnly()
-  Route.resource("categories", "CategoryController").apiOnly()
-  Route.resource("attributies", "AttributeController").apiOnly()
-  Route.resource("clients", "ClientController").apiOnly()
-  Route.resource("cards", "CardController").apiOnly()
-  Route.resource("products", "ProductController").apiOnly()
-  Route.resource("waiters", "WaiterController").apiOnly()
-  Route.resource("users", "UserController").apiOnly()
-})//.middleware("auth")
+Route.post('login','LoginController')
