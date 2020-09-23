@@ -9,6 +9,11 @@ class Establishment extends Model {
     tables(){
         return this.hasMany('App/Models/Table')
     }
+    waiters(){
+        return this.hasMany('App/Models/Waiter')
+    }
+    
+
 }
 
 module.exports = Establishment

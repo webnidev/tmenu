@@ -1,5 +1,6 @@
 'use strict'
 const Table = use('App/Models/Table')
+const Establishment = use('App/Models/Establishment')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,7 +18,13 @@ class TableController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    const tables = await Table.query()
+    .where('establishment_id', establishment.id)
+    .with('cards')
+    .fetch()
+    return response.send({tables})
   }
 
   /**
@@ -28,9 +35,11 @@ class TableController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
-    const data = request.only(["number","establishment_id"])
-    const table = await Table.create({...data, status: false})
+  async store ({ request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    console.log(establishment)
+    const data = request.only(["number"])
+    const table = await Table.create({...data, status: false, establishment_id: establishment.id})
     return response.send({table})
   }
 
@@ -55,6 +64,7 @@ class TableController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+
   }
 
   /**
