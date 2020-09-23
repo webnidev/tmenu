@@ -3,22 +3,24 @@
 /** @type {import('@adonisjs/lucid/src/Schema')} */
 const Schema = use('Schema')
 
-class WaiterSchema extends Schema {
+class BillingSchema extends Schema {
   up () {
-    this.create('waiters', (table) => {
+    this.create('billings', (table) => {
       table.increments()
+      table.string('description')
+      table.date('due_date')
+      table.float('value')
+      table.enu('status',['NÃO ENVIADA','ENVIADA','PAGA','VENCIDA','CANCELADA'])
+      table.string('billing_link')
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
-      table.integer('user_id').notNullable()
       table.integer('establishment_id').notNullable()
-      table.foreign('user_id').references('users.id').onDelete('cascade')
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
     })
   }
-
   down () {
-    this.drop('waiters')
+    this.drop('billings')
   }
 }
 
-module.exports = WaiterSchema
+module.exports = BillingSchema
