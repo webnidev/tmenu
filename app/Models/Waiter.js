@@ -4,6 +4,10 @@
 const Model = use('Model')
 
 class Waiter extends Model {
+
+    establishment(){
+        return this.belongsTo('App/Models/Establishment')
+    }
 }
 
 module.exports = Waiter

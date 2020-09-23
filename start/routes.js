@@ -22,7 +22,7 @@ Route.group(()=>{
     Route.resource('/establishment','EstablishmentController').apiOnly().middleware('auth')
     Route.resource('/client','ClientController').apiOnly()
     Route.resource('/waiter','WaiterController').apiOnly()
-    Route.resource('/table','TableController').apiOnly()
+    Route.resource('/table','TableController').apiOnly().middleware('auth')
     Route.resource('/card', 'CardController').apiOnly()
     Route.resource('/category','CategoryController').apiOnly()
     Route.resource('/product','ProductController').apiOnly()
