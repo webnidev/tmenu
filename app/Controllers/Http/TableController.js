@@ -1,6 +1,7 @@
 'use strict'
 const Table = use('App/Models/Table')
 const Establishment = use('App/Models/Establishment')
+const Libs = use('App/Utils/Libs')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -36,10 +37,12 @@ class TableController {
    * @param {Response} ctx.response
    */
   async store ({ request, response, auth }) {
+    const libs = new Libs
     const establishment = await Establishment.query().where('user_id', auth.user.id).first()
-    console.log(establishment)
     const data = request.only(["number"])
-    const table = await Table.create({...data, status: false, establishment_id: establishment.id})
+    const table = await Table.create({...data, status: false, 
+      establishment_id: establishment.id,
+      hashcode:libs.hash()})
     return response.send({table})
   }
 

@@ -8,10 +8,9 @@ class AttributeSchema extends Schema {
     this.create('attributes', (table) => {
       table.increments()
       table.timestamps()
-      table.string('description').notNullable()
-      table.float('additional_value')
-      table.integer('product_id').notNullable()
-      table.foreign('product_id').references('products.id').onDelete('cascade')
+      table.string('description', 256).notNullable()
+      table.integer('establishment_id').notNullable()
+      table.foreign('establishment_id').references('establishments.id').onDelete('cascade').onUpdate('cascade')
     })
   }
 

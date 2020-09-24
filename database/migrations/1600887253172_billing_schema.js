@@ -7,7 +7,7 @@ class BillingSchema extends Schema {
   up () {
     this.create('billings', (table) => {
       table.increments()
-      table.string('description')
+      table.string('description',256)
       table.date('due_date')
       table.float('value')
       table.enu('status',['NÃO ENVIADA','ENVIADA','PAGA','VENCIDA','CANCELADA'])

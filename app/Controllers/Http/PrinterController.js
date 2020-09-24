@@ -1,50 +1,51 @@
 'use strict'
-const Establishment = use('App/Models/Establishment')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with establishments
+ * Resourceful controller for interacting with printers
  */
-class EstablishmentController {
+class PrinterController {
   /**
-   * Show a list of all establishments.
-   * GET establishments
+   * Show a list of all printers.
+   * GET printers
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
-    const establishments = await Establishment.query()
-    .where('user_id', auth.user.id)
-    .with(['tables'])
-    .with(['waiters'])
-    .fetch()
-    return response.send({establishments})
+  async index ({ request, response, view }) {
   }
 
+  /**
+   * Render a form to be used for creating a new printer.
+   * GET printers/create
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async create ({ request, response, view }) {
+  }
 
   /**
-   * Create/save a new establishment.
-   * POST establishments
+   * Create/save a new printer.
+   * POST printers
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response, auth }) {
-    const { id } = auth.user
-    const data  = request.only(["name","address","cnpj"])
-    const establishment = await Establishment.create({...data, user_id:id,rate:2.00})
-    return response.send({establishment})
+  async store ({ request, response }) {
   }
 
   /**
-   * Display a single establishment.
-   * GET establishments/:id
+   * Display a single printer.
+   * GET printers/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -55,8 +56,8 @@ class EstablishmentController {
   }
 
   /**
-   * Render a form to update an existing establishment.
-   * GET establishments/:id/edit
+   * Render a form to update an existing printer.
+   * GET printers/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -67,8 +68,8 @@ class EstablishmentController {
   }
 
   /**
-   * Update establishment details.
-   * PUT or PATCH establishments/:id
+   * Update printer details.
+   * PUT or PATCH printers/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -78,8 +79,8 @@ class EstablishmentController {
   }
 
   /**
-   * Delete a establishment with id.
-   * DELETE establishments/:id
+   * Delete a printer with id.
+   * DELETE printers/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -89,4 +90,4 @@ class EstablishmentController {
   }
 }
 
-module.exports = EstablishmentController
+module.exports = PrinterController

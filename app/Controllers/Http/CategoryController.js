@@ -1,5 +1,6 @@
 'use strict'
-
+const Category = use('App/Models/Category')
+const Establishment = use('App/Models/Establishment')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,20 +18,12 @@ class CategoryController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    const categories = await establishment.categories().fetch()
+    return response.send({categories})
   }
 
-  /**
-   * Render a form to be used for creating a new category.
-   * GET categories/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-  }
 
   /**
    * Create/save a new category.
@@ -40,7 +33,11 @@ class CategoryController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    const data = request.only(["name"])
+    const category = await Category.create({...data, establishment_id: establishment.id})
+    return response.send({category})
   }
 
   /**
