@@ -8,9 +8,15 @@ class ProductSchema extends Schema {
     this.create('products', (table) => {
       table.increments()
       table.timestamps()
-      table.string('name')
+      table.string('name', 100)
+      table.string('description', 256)
+      table.float('value')
+      table.boolean('pizza').notNullable().defaultTo(false)
+      table.boolean('combo').notNullable().defaultTo(false)
       table.integer('category_id').notNullable()
+      table.integer('printer_id')
       table.foreign('category_id').references('categories.id').onDelete('cascade')
+      table.foreign('printer_id').references('printers.id').onDelete('set null').onUpdate('cascade')
     })
   }
 

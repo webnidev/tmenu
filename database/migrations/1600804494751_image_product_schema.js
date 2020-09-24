@@ -8,7 +8,7 @@ class ImageProductSchema extends Schema {
     this.create('image_products', (table) => {
       table.increments()
       table.timestamps()
-      table.string('path').notNullable()
+      table.string('path',256).notNullable()
       table.integer('product_id').notNullable()
       table.foreign('product_id').references('products.id').onDelete('cascade')
     })

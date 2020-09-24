@@ -8,6 +8,7 @@ class TableSchema extends Schema {
     this.create('tables', (table) => {
       table.increments()
       table.integer('number').notNullable()
+      table.string('hashcode',64).notNullable().unique()
       table.boolean('status').notNullable().defaultTo(false)
       table.boolean('deleted').notNullable().defaultTo(false)
       table.timestamps()

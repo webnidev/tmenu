@@ -19,7 +19,10 @@ class WaiterController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-      const waiters = await Waiter.query().where('deleted',false).fetch()
+      const waiters = await Waiter.query()
+      .where('deleted',false)
+      .with('user')
+      .fetch()
       return response.send({waiters})
   }
 
@@ -83,8 +86,11 @@ class WaiterController {
   async destroy ({ params, request, response }) {
     const waiter = await Waiter.query().where('id', params.id).first()
     if(!waiter){
-      return response.status(404).send({})
+      return response.status(404).send({'error':'User not found'})
     }
+    waiter.deleted = true
+    waiter.save()
+    return response.status(200).send({'response':'user deleted'})
   }
 }
 

@@ -15,6 +15,9 @@ class Establishment extends Model {
     billings(){
         return this.hasMany('App/Models/Billing')
     }
+    categories(){
+        return this.hasMany('App/Models/Category')
+    }
     
 
 }

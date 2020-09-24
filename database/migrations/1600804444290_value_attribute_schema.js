@@ -7,7 +7,8 @@ class ValueAttributeSchema extends Schema {
   up () {
     this.create('value_attributes', (table) => {
       table.increments()
-      table.string('value')
+      table.string('value').notNullable()
+      table.float('additional_value')
       table.timestamps()
       table.integer('attribute_id').notNullable()
       table.foreign('attribute_id').references('attributes.id').onDelete('cascade')

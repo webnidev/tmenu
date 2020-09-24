@@ -8,10 +8,15 @@ class StockSchema extends Schema {
     this.create('stocks', (table) => {
       table.increments()
       table.timestamps()
-      table.integer('establishment_id').notNullable()
+      table.float('purchase_value')
+      table.float('sale_value')
+      table.date('entry_date').notNullable()
+      table.integer('quantity').notNullable().defaultTo(0)
       table.integer('product_id').notNullable()
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.integer('establishment_id').notNullable()
       table.foreign('product_id').references('products.id').onDelete('cascade')
+      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      
     })
   }
 
