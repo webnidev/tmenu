@@ -12,6 +12,7 @@ class EstablishmentSchema extends Schema {
       table.string('cnpj',20)
       table.float('rate').notNullable()
       table.timestamps()
+      table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('user_id').notNullable()
       table.foreign('user_id').references('users.id').onDelete('cascade')
     })

@@ -11,6 +11,7 @@ class ClientSchema extends Schema {
       table.string('cpf').notNullable()
       table.string('fone').notNullable()
       table.timestamps()
+      table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('user_id').notNullable()
       table.foreign('user_id').references('users.id').onDelete('cascade')
     })

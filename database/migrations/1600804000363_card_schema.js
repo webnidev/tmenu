@@ -12,6 +12,7 @@ class CardSchema extends Schema {
       table.float('value')
       table.boolean('status').notNullable()
       table.timestamps()
+      table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('table_id').notNullable()
       table.integer('client_id')
       table.integer('waiter_id')

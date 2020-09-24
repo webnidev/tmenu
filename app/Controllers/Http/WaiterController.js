@@ -1,5 +1,6 @@
 'use strict'
-
+const Waiter = use('App/Models/Waiter')
+const Establishment = use('App/Models/Establishment')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,20 +18,12 @@ class WaiterController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+      const waiters = await Waiter.query().where('deleted',false).fetch()
+      return response.send({waiters})
   }
 
-  /**
-   * Render a form to be used for creating a new waiter.
-   * GET waiters/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-  }
+
 
   /**
    * Create/save a new waiter.
@@ -40,7 +33,20 @@ class WaiterController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    const data = request.only(["user_id"])
+    const user = await Waiter.query().where('user_id',data.user_id).first()
+    if(user){
+      return response.send({'error':'Este usuário já está associado a um garçom'})
+    }   
+    try {
+      const establishment = await Establishment.query().where('user_id',auth.user.id).first()
+      const waiter = await Waiter.create({...data, establishment_id:establishment.id})
+      return response.send({waiter})
+    } catch (error) {
+      return response.send(error)
+    }
+    
   }
 
   /**
@@ -53,18 +59,6 @@ class WaiterController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-  }
-
-  /**
-   * Render a form to update an existing waiter.
-   * GET waiters/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
   }
 
   /**
@@ -87,6 +81,10 @@ class WaiterController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+    const waiter = await Waiter.query().where('id', params.id).first()
+    if(!waiter){
+      return response.status(404).send({})
+    }
   }
 }
 

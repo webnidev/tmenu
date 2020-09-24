@@ -8,6 +8,13 @@ class Waiter extends Model {
     establishment(){
         return this.belongsTo('App/Models/Establishment')
     }
+    user(){
+        return this.belongsTo('App/Models/User')
+    }
+
+    cards(){
+        return this.hasMany('App/Models/Card')
+    }
 }
 
 module.exports = Waiter
