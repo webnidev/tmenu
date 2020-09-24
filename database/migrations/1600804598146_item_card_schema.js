@@ -9,10 +9,12 @@ class ItemCardSchema extends Schema {
       table.increments()
       table.timestamps()
       table.integer('quantity').notNullable()
+      table.float('value').notNullable()
+      table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('card_id').notNullable()
       table.integer('product_id').notNullable()
-      table.foreign('card_id').references('cards.id').onDelete('cascade')
-      table.foreign('product_id').references('products.id').onDelete('cascade')
+      table.foreign('card_id').references('cards.id').onDelete('cascade').onUpdate('cascade')
+      table.foreign('product_id').references('products.id')
     })
   }
 
