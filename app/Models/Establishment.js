@@ -18,6 +18,10 @@ class Establishment extends Model {
     categories(){
         return this.hasMany('App/Models/Category')
     }
+
+    printers(){
+        return this.hasMany('App/Models/Printer')
+    }
     
 
 }
