@@ -1,5 +1,6 @@
 'use strict'
-
+const Establishment = use('App/Models/Establishment')
+const Product = use('App/Models/Product')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,19 +18,8 @@ class ProductController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
-
-  /**
-   * Render a form to be used for creating a new product.
-   * GET products/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
   }
 
   /**
@@ -41,6 +31,9 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    const data = request.only(["name","description","value","category_id","printer_id"])
+    const product = await Product.create({...data})
+    return response.send({product})
   }
 
   /**

@@ -17,6 +17,8 @@
 const Route = use('Route')
 
 Route.post('/login','LoginController.store')
+Route.get('/:slug', 'TableController.menu')
+
 Route.group(()=>{
     Route.resource('/user','UserController').apiOnly()
     Route.resource('/establishment','EstablishmentController').apiOnly().middleware('auth')
@@ -33,4 +35,5 @@ Route.group(()=>{
     Route.resource('/item-card','ItemCardController').apiOnly().middleware('auth')
     Route.resource('/image-establishment','ImageEstaablishmentController').apiOnly().middleware('auth')
     Route.resource('/billing', 'BillingController').apiOnly().middleware('auth')
+    Route.resource('/printer', 'PrinterController').apiOnly().middleware('auth')
 })

@@ -1,5 +1,6 @@
 'use strict'
-
+const Printer = use('App/Models/printer')
+const Establishmetn = use('App/Models/Establishment')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,20 +18,12 @@ class PrinterController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    const establishment = await Establishmetn.query().where('user_id', auth.user.id).first()
+    const printers = await establishment.printers().fetch()
+    return response.send({printers})
   }
 
-  /**
-   * Render a form to be used for creating a new printer.
-   * GET printers/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-  }
 
   /**
    * Create/save a new printer.
@@ -40,7 +33,11 @@ class PrinterController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    const establishment = await Establishmetn.query().where('user_id', auth.user.id).first()
+    const data = request.only(["name"])
+    const printer = await Printer.create({...data, establishment_id: establishment.id})
+    return response.send({printer})
   }
 
   /**
@@ -53,18 +50,6 @@ class PrinterController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-  }
-
-  /**
-   * Render a form to update an existing printer.
-   * GET printers/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
   }
 
   /**
