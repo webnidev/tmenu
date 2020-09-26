@@ -12,7 +12,7 @@ class TableSchema extends Schema {
       table.boolean('status').notNullable().defaultTo(false)
       table.boolean('deleted').notNullable().defaultTo(false)
       table.timestamps()
-      table.integer('establishment_id').notNullable()
+      table.integer('establishment_id')
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
     })
   }
