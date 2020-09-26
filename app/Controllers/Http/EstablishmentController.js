@@ -21,7 +21,7 @@ class EstablishmentController {
     const establishments = await Establishment.query()
     .where('user_id', auth.user.id)
     .with(['tables'])
-    .with(['waiters'])
+    //.with(['waiters'])
     .fetch()
     return response.send({establishments})
   }

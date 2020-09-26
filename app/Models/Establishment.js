@@ -10,8 +10,9 @@ class Establishment extends Model {
         return this.hasMany('App/Models/Table')
     }
     waiters(){
-        return this.hasMany('App/Models/Waiter')
+        return this.belongsToMany('App/Models/User').pivotTable('waiters')
     }
+
     billings(){
         return this.hasMany('App/Models/Billing')
     }
@@ -22,9 +23,9 @@ class Establishment extends Model {
     printers(){
         return this.hasMany('App/Models/Printer')
     }
-    user(){
-        return this.belongsTo('App/Models/User')
-    }
+    // user(){
+    //     return this.belongsTo('App/Models/User')
+    // }
     
 
 }
