@@ -4,6 +4,9 @@
 const Model = use('Model')
 
 class Printer extends Model {
+    establishment(){
+        return this.belongsTo('App/Models/Establishment')
+    }
 }
 
 module.exports = Printer

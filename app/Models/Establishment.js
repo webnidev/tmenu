@@ -22,6 +22,9 @@ class Establishment extends Model {
     printers(){
         return this.hasMany('App/Models/Printer')
     }
+    user(){
+        return this.belongsTo('App/Models/User')
+    }
     
 
 }

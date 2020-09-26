@@ -13,7 +13,7 @@ class EstablishmentSchema extends Schema {
       table.float('rate').notNullable().defaultTo(2.00)
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
-      table.integer('user_id').notNullable()
+      table.integer('user_id')
       table.foreign('user_id').references('users.id').onDelete('cascade')
     })
   }

@@ -9,7 +9,7 @@ class PrinterSchema extends Schema {
       table.increments()
       table.string('name',120)
       table.timestamps()
-      table.integer('establishment_id').notNullable()
+      table.integer('establishment_id')
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
     })
   }
