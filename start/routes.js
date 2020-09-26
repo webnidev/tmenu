@@ -17,7 +17,6 @@
 const Route = use('Route')
 
 Route.post('/login','LoginController.store')
-Route.get('/:slug', 'TableController.menu')
 
 Route.group(()=>{
     Route.resource('/user','UserController').apiOnly()
@@ -37,3 +36,5 @@ Route.group(()=>{
     Route.resource('/billing', 'BillingController').apiOnly().middleware('auth')
     Route.resource('/printer', 'PrinterController').apiOnly().middleware('auth')
 })
+
+Route.get('/:slug', 'TableController.menu')
