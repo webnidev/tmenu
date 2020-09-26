@@ -7,7 +7,7 @@
 /**
  * Resourceful controller for interacting with partproducts
  */
-class PartProductController {
+class PartPizzaController {
   /**
    * Show a list of all partproducts.
    * GET partproducts
@@ -90,4 +90,4 @@ class PartProductController {
   }
 }
 
-module.exports = PartProductController
+module.exports = PartPizzaController

@@ -1,5 +1,5 @@
 'use strict'
-const Printer = use('App/Models/printer')
+const Printer = use('App/Models/Printer')
 const Establishmetn = use('App/Models/Establishment')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */

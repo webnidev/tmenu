@@ -1,6 +1,7 @@
 'use strict'
 const Establishment = use('App/Models/Establishment')
 const Product = use('App/Models/Product')
+const Database = use('Database')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -20,6 +21,18 @@ class ProductController {
    */
   async index ({ request, response, auth }) {
     const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    const products = await Database.raw(`SELECT 
+    PRODUCTS.ID,
+    PRODUCTS.NAME,
+    PRODUCTS.DESCRIPTION,
+    PRODUCTS.VALUE,
+    PRODUCTS.CATEGORY_ID,
+    PRODUCTS.PRINTER_ID,
+    PRODUCTS.PIZZA,
+    PRODUCTS.COMBO
+     FROM CATEGORIES, PRODUCTS WHERE 
+    PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.ESTABLISHMENT_ID=?`,[establishment.id])
+    return response.send({"products":products.rows})
   }
 
   /**
@@ -45,21 +58,13 @@ class ProductController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
+    const product = await Product.query().where('id',params.id).first()
+    if(!product){
+      return response.status(404).send({"Error":"Porduct not found"})
+    }
+    return response.status(200).send({product})
   }
-
-  /**
-   * Render a form to update an existing product.
-   * GET products/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
   /**
    * Update product details.
    * PUT or PATCH products/:id
@@ -69,6 +74,12 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    const product = await Product.query().where('id',params.id).first()
+    if(!product){
+      return response.status(404).send({"Error":"Porduct not found"})
+    }
+    return response.status(200).send({"Wait":"In production"})
+    
   }
 
   /**
@@ -80,6 +91,12 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+    const product = await Product.query().where('id',params.id).first()
+    if(!product){
+      return response.status(404).send({"Error":"Porduct not found"})
+    }
+    product.delete()
+    return response.status(200).send({"Delete":"Product deleted"})
   }
 }
 

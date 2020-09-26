@@ -1,5 +1,9 @@
 'use strict'
 const Card = use('App/Models/Card')
+const Client = use('App/Models/Client')
+const Table = use('App/Models/Table')
+const Waiter = use('App/Models/Waiter')
+const Printer = use('App/Models/Printer')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -18,19 +22,13 @@ class CardController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    
-  }
-
-  /**
-   * Render a form to be used for creating a new card.
-   * GET cards/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+    const client = await Client.query().where('user_id',auth.user.id).first()
+    //const cards = await client.cards().fetch()
+    /*if(!cards){
+      return response.status(404).send({"Ops!":"Your dont have a card"})
+    }
+    return response.status(200).send({cards})*/
+    console.log(client)
   }
 
   /**
@@ -54,18 +52,7 @@ class CardController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-  }
 
-  /**
-   * Render a form to update an existing card.
-   * GET cards/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
   }
 
   /**
