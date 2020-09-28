@@ -14,7 +14,7 @@ class Card extends Model {
         return this.belongsTo('App/Models/Client')
     }
     itens(){
-        return this.hasMany('App/Models/ItemCard')
+        return this.belongsToMany('App/Models/Product').pivotTable('item_cards')
     }
 }
 

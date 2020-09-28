@@ -5,5 +5,6 @@ const Route = use('Route')
 
 
 Route.group(()=>{
-    Route.post('register','AuthController.register').as('auth.register')
+    Route.resource('user', 'UserController').apiOnly()
+    Route.resource('establishment', 'EstablishmentController').apiOnly()
 }).prefix('admin').namespace('Admin').middleware(['auth', 'is:admin'])

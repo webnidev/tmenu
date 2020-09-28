@@ -13,7 +13,7 @@ class ProductSchema extends Schema {
       table.float('value')
       table.boolean('pizza').notNullable().defaultTo(false)
       table.boolean('combo').notNullable().defaultTo(false)
-      table.integer('category_id').notNullable()
+      table.integer('category_id')
       table.integer('printer_id')
       table.foreign('category_id').references('categories.id').onDelete('cascade')
       table.foreign('printer_id').references('printers.id').onDelete('set null').onUpdate('cascade')

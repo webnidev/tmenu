@@ -22,13 +22,7 @@ class CardController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const client = await Client.query().where('user_id',auth.user.id).first()
-    //const cards = await client.cards().fetch()
-    /*if(!cards){
-      return response.status(404).send({"Ops!":"Your dont have a card"})
-    }
-    return response.status(200).send({cards})*/
-    console.log(client)
+    const cards = await Card
   }
 
   /**
