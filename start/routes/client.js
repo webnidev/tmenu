@@ -4,5 +4,6 @@
 const Route = use('Route')
 
 Route.group(()=>{
-
-}).prefix('client').namespace('Client')
+    Route.post('establishment', 'EstablishmentController.store').as('client.establishment.store')
+    Route.post('order', 'ItemCardController.store').as('order.store')
+}).prefix('client').namespace('Client').middleware(['auth','is:client'])

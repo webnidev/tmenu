@@ -16,7 +16,10 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
+Route.get('/:slug', 'Client/TableController.menu').as('menu')
+
 require('./auth')
 require('./admin')
 require('./manager')
 require('./client')
+require('./waiter')

@@ -1,5 +1,5 @@
 'use strict'
-
+const Card = use('App/Models/Card')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -21,18 +21,6 @@ class ItemCardController {
   }
 
   /**
-   * Render a form to be used for creating a new itemcard.
-   * GET itemcards/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-  }
-
-  /**
    * Create/save a new itemcard.
    * POST itemcards
    *
@@ -40,7 +28,9 @@ class ItemCardController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    console.log(auth.user)
+
   }
 
   /**
@@ -55,17 +45,6 @@ class ItemCardController {
   async show ({ params, request, response, view }) {
   }
 
-  /**
-   * Render a form to update an existing itemcard.
-   * GET itemcards/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
 
   /**
    * Update itemcard details.

@@ -5,5 +5,5 @@ const Route = use('Route')
 
 
 Route.group(()=>{
-    //Route.post('register','AuthController.register').as('auth.register')
-}).prefix('admin').namespace('Admin')
+    Route.post('register','AuthController.register').as('auth.register')
+}).prefix('admin').namespace('Admin').middleware(['auth', 'is:admin'])

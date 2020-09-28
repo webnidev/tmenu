@@ -1,5 +1,7 @@
 'use strict'
+const Database = use('Database')
 const Establishment = use('App/Models/Establishment')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -36,10 +38,19 @@ class EstablishmentController {
    * @param {Response} ctx.response
    */
   async store ({ request, response, auth }) {
-    const { id } = auth.user
-    const data  = request.only(["name","address","cnpj"])
-    const establishment = await Establishment.create({...data, user_id:id,rate:2.00})
-    return response.send({establishment})
+    const trx = await Database.beginTransaction()
+    try {
+      const user = auth.user
+      const data  = request.only(["name","address","cnpj"])
+      //const establishment = await Establishment.create({...data, user_id:user.id,rate:2.00})
+      const userRole = await Role.findBy('slug', 'manager')
+      console.log(user.roles())
+    } catch (error) {
+      
+    }
+    
+
+    return response.send({})
   }
 
   /**
