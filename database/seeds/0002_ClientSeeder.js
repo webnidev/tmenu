@@ -36,7 +36,7 @@ class ClientSeeder {
       password: '123456',
       name: 'Cícero Leonardo',
       cpf: '888.888.888-88',
-      fone: '88888-8888'
+      phone: '88888-8888'
     })
 
     await admin.roles().attach([roleAdmin.id])

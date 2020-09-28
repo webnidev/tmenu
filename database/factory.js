@@ -28,7 +28,7 @@ const Factory = use('Factory')
     password: '123456',
     name: faker.first(),
     cpf: faker.cpf(),
-    fone: faker.phone()
+    phone: faker.phone()
    }
  })
 
