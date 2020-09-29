@@ -18,6 +18,7 @@ const Route = use('Route')
 
 Route.get('/:slug', 'Client/TableController.menu').as('menu')
 
+
 require('./auth')
 require('./admin')
 require('./manager')
