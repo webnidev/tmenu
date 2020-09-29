@@ -42,7 +42,10 @@ class User extends Model {
 
   establishments(){
     return this.belongsToMany('App/Models/Establishment').pivotTable('waiters')
-}
+  }
+  cards(){
+    return this.hasMany('App/Models/Card')
+  }
 
 
   

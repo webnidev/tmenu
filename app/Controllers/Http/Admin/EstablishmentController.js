@@ -15,7 +15,8 @@ class EstablishmentController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-      const establishments = await Establishment.all()
+      const establishments = await Establishment.query()
+      .with('tables').fetch()
       return response.send({establishments})
 }
 
