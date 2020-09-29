@@ -10,8 +10,8 @@ class Card extends Model {
     table(){
         return this.belongsTo('App/Models/Table')
     }
-    client(){   
-        return this.belongsTo('App/Models/Client')
+    user(){   
+        return this.belongsTo('App/Models/User')
     }
     itens(){
         return this.belongsToMany('App/Models/Product').pivotTable('item_cards')

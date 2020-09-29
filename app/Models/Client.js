@@ -4,6 +4,7 @@
 const Model = use('Model')
 
 class Client extends Model {
+
     
 }
 

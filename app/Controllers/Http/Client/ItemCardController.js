@@ -6,7 +6,7 @@ const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
-
+const Database = use('Database')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -36,14 +36,19 @@ class ItemCardController {
    * @param {Response} ctx.response
    */
   async store ({ request, response, auth }) {
-    const { establishment_id, hashcode, product_id, quantity } = request.all()
-    const establishment = await Establishment.findBy('id', establishment_id)
-    let client = await Client.query().where('user_id', auth.user.id).first()
-    if(!client){
-      client = await Client.create({establishment_id:establishment.id, user_id: auth.user.id})
-    }
+    const trx = await Database.beginTransaction()
+    const { hashcode, product_id, quantity } = request.all()
     const table = await Table.findBy('hashcode', hashcode)
-    let card = await Card.query().where('client_id', client.id)
+    const product = await Product.findBy('id', product_id)
+    const establishment = await Establishment.findBy('id', table.establishment_id)
+    let client = await Client.query().where('user_id', auth.user.id)
+    .where('establishment_id', establishment.id)
+    .first()
+    try {
+      if(!client){
+        client = await Client.create({establishment_id:establishment.id, user_id: auth.user.id}, trx)
+      }
+      let card = await Card.query().where('user_id', auth.user.id)
     .where('table_id',table.id)
     .where('status', true)
     .first()
@@ -52,20 +57,38 @@ class ItemCardController {
         message:`${establishment.name} Cliente ${auth.user.name}`,
         value: 0,
         table_id: table.id,
-        client_id: client.id,
+        user_id: auth.user.id,
         printer_id: 1
-      })
+      }, trx)
     }
-    const product = await Product.findBy('id', product_id)
     const order = await ItemCard.create({
       quantity: quantity,
       value: (quantity * product.value),
       card_id: card.id,
       product_id: product.id
-    })
+    }, trx)
     card.value += order.value
     await card.save()
+    await trx.commit()
+    console.log("Enviado para a impressora "+String(product.printer_id))
     return response.send(order)
+
+    } catch (error) {
+      console.log(error)
+      await trx.rollback()
+      return response.status(400).send({message: "Erro ao realizar o pedido!"})      
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   }
 
   /**
