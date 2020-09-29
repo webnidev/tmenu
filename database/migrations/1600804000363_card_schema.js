@@ -7,7 +7,6 @@ class CardSchema extends Schema {
   up () {
     this.create('cards', (table) => {
       table.increments()
-      table.datetime('hour')
       table.string('message',512)
       table.float('value')
       table.boolean('status').notNullable().defaultTo(true)

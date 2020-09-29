@@ -78,6 +78,14 @@ class ClientSeeder {
             categories.map( async category => {
               category.establishment_id = establishment.id
               await category.save()
+              const products = await Factory.model('App/Models/Product').createMany(5)
+              await Promise.all(
+                products.map(async product =>{
+                  product.category_id = category.id
+                  product.printer_id = 1
+                await  product.save()
+                })
+              )
             })
           )
       })
