@@ -16,9 +16,14 @@ class CardController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-      const client = await Client.query().where('user_id', auth.user.id).first()
-      const cards = await Card.query().where('client_id',client.id).fetch()
-      return response.send({cards})
+      try{
+        const clients = await Client.query().where('user_id', auth.user.id)
+        .with('cards')
+        .fetch()
+        return response.send({clients})
+      }catch(error){
+        console.log(error)
+      }
 }
 
 /**
@@ -42,12 +47,9 @@ async store ({ request, response }) {
  * @param {View} ctx.view
  */
 async show ({ params, request, response, auth }) {
-    const client = await Client.findBy('user_id', auth.user.id)
-    const card = await Card.query().where('client_id',client.id)
-    .where('status',true)
-    .with('itens')
-    .first()
-    return response.send({card})    
+    const card = await Card.query().where('user_id', auth.user.id)
+    .where('staus', true).first() 
+    return response.send({card})
 }
 
 
@@ -63,7 +65,7 @@ async update ({ params, request, response }) {
     const card = await Card.findBy('id', params.id)
     card.status = false
     await card.save()
-    console.log("imprime Conta")
+    console.log("Fechou a conta e mandou para a impressora "+String(card.printer_id))
     return response.send({card})
 }
 
