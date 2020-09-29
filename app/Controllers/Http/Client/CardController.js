@@ -17,10 +17,11 @@ class CardController {
    */
   async index ({ request, response, auth }) {
       try{
-        const clients = await Client.query().where('user_id', auth.user.id)
-        .with('cards')
+        const cards = await Card.query()
+        .where('user_id', auth.user.id)
+        .orderBy('created_at', 'desc')
         .fetch()
-        return response.send({clients})
+        return response.send({cards})
       }catch(error){
         console.log(error)
       }
@@ -48,7 +49,7 @@ async store ({ request, response }) {
  */
 async show ({ params, request, response, auth }) {
     const card = await Card.query().where('user_id', auth.user.id)
-    .where('staus', true).first() 
+    .where('status', true).first() 
     return response.send({card})
 }
 

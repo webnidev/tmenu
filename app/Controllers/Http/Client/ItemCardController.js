@@ -41,6 +41,8 @@ class ItemCardController {
     const table = await Table.findBy('hashcode', hashcode)
     const product = await Product.findBy('id', product_id)
     const establishment = await Establishment.findBy('id', table.establishment_id)
+    const card_value = quantity * product.value
+
     let client = await Client.query().where('user_id', auth.user.id)
     .where('establishment_id', establishment.id)
     .first()
@@ -55,20 +57,22 @@ class ItemCardController {
     if(!card){
       card = await Card.create({
         message:`${establishment.name} Cliente ${auth.user.name}`,
-        value: 0,
+        value: card_value,
         table_id: table.id,
         user_id: auth.user.id,
         printer_id: 1
       }, trx)
+    }else{
+      card.value += card_value
+      await card.save()
     }
     const order = await ItemCard.create({
       quantity: quantity,
-      value: (quantity * product.value),
+      value: card_value,
       card_id: card.id,
       product_id: product.id
     }, trx)
-    card.value += order.value
-    await card.save()
+    
     await trx.commit()
     console.log("Enviado para a impressora "+String(product.printer_id))
     return response.send(order)
