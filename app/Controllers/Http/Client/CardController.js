@@ -19,7 +19,7 @@ class CardController {
       try{
         const cards = await Card.query()
         .where('user_id', auth.user.id)
-        .orderBy('created_at', 'desc')
+        .orderBy('id', 'desc')
         .fetch()
         return response.send({cards})
       }catch(error){

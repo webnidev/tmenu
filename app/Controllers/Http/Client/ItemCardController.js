@@ -7,6 +7,7 @@ const Table = use('App/Models/Table')
 const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
 const Database = use('Database')
+const Pdf = use('App/Utils/Pdf')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -75,24 +76,16 @@ class ItemCardController {
     
     await trx.commit()
     console.log("Enviado para a impressora "+String(product.printer_id))
+    const pdf = new Pdf
+    pdf.createPdf({order})
+    console.log('passou do pdf')
     return response.send(order)
 
     } catch (error) {
       console.log(error)
       await trx.rollback()
       return response.status(400).send({message: "Erro ao realizar o pedido!"})      
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    }  
   }
 
   /**
