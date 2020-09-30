@@ -34,10 +34,14 @@ class PrinterController {
    * @param {Response} ctx.response
    */
   async store ({ request, response, auth }) {
+    try {
     const establishment = await Establishmetn.query().where('user_id', auth.user.id).first()
-    const data = request.only(["name"])
+    const data = request.only(['name', 'code'])
     const printer = await Printer.create({...data, establishment_id: establishment.id})
     return response.send({printer})
+    } catch (error) {
+      return response.status(error.status).send('Erro ao criar a impressora')
+    }
   }
 
   /**
@@ -61,6 +65,11 @@ class PrinterController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    const {name, code} = request.all() 
+    const printer = await Printer.findBy('id', params.id)
+    printer.merge({name, code})
+    printer.save()
+    return response.status(200).send({printer})
   }
 
   /**
