@@ -73,7 +73,8 @@ class ItemCardController {
       card_id: card.id,
       product_id: product.id
     }, trx)
-    
+    product.ranking += quantity
+    await product.save()
     await trx.commit()
     console.log("Enviado para a impressora "+String(product.printer_id))
     const pdf = new Pdf
