@@ -8,7 +8,8 @@ const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
 const Database = use('Database')
 const Pdf = use('App/Utils/Pdf')
-const axios = require('axios')
+const Axios = use('App/Utils/Axios')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -79,7 +80,7 @@ class ItemCardController {
     await trx.commit()
     console.log("Enviado para a impressora "+String(product.printer_id))
     const pdf = new Pdf
-    pdf.createPdf({
+    const pdfNmae = pdf.createPdf({
       establishment,
       table,
       product,
@@ -87,7 +88,9 @@ class ItemCardController {
       card,
       client
     })
-    console.log('passou do pdf')
+    console.log(pdfNmae)
+    const axios = Axios()
+    const printed = await axios.toPrinter(product.printer.code, pdfNmae)
     // let api_response = null
     // await axios("https://viacep.com.br/ws/64027140/json/")
     // .then(res => {
@@ -96,7 +99,7 @@ class ItemCardController {
     // if(!api_response){
     //   return response.status(500).send("Erro")
     // }
-    return response.send(order)
+    return response.send({printed})
 
     } catch (error) {
       console.log(error)

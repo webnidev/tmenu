@@ -12,27 +12,46 @@ class Pdf extends Model{
         order,
         card,
         client}){
-    const pdf = new PDFKit({size:[80.00,160.00],
+        const pdfName = `establisment${establishment.id}car${card.id}order${order.id}.pdf`
+        const date = new Date()
+        const mounht = date.getMonth()+1
+        const day = date.getDay()
+        const year = date.getUTCFullYear() 
+        const pdf = new PDFKit({size:[227.00, 350.50],
+    
     layout: 'portrait',
     margins : { 
-        top: 5, 
-        bottom: 5,
-        left: 5,
-        right: 5
+        top: 20, 
+        bottom: 20,
+        left: 20,
+        right: 20
     }
     })
-    pdf.fontSize(3)
-    pdf.text(establishment.name,{align:'center'})
-    pdf.text(`CNPJ: ${establishment.cnpj}`,{align:'center'})
-    pdf.text(`Endereço: ${establishment.address} Cliente: ${client.user.name}`)
-    pdf.text(`-------------------------------------------------------`)
-    pdf.text(`Garçom: ${card.waiter.name}                   Mesa: ${table.number}`)
-    pdf.text(`-------------------------------------------------------`)
-    pdf.text(`Produto           Quantidade              Preço       Total`)
-    pdf.text(`-------------------------------------------------------`)
-    pdf.text(`${product.name}            ${order.quantity}      ${product.value}    ${order.quantity * product.value}`)
-    pdf.pipe(fs.createWriteStream(`public/tmp/order${order.id}output.pdf`))
+    let total = 0.0
+    pdf.fontSize(10)
+    pdf.text(establishment.name,20, 20, {align:'center'})
+    pdf.text(`CNPJ: ${establishment.cnpj}`,20,32, {align:'left'})
+    pdf.text(`${day}/${mounht}/${year}`, 80, 32, {align:'right'})
+    pdf.text(`${establishment.address}`, 20, 44,{align:'left'} )
+    pdf.text(`Cliente: ${client.user.name}`, 120, 44, {align:'right'})
+    pdf.text(`---------------------------------------------------------`,20 , 52,{align:'left'})
+    pdf.text(`Garçom: ${card.waiter.name}`,20 , 62,{align:'left'})
+    pdf.text( `Mesa: ${table.number}`,80 , 62,{align:'right'})
+    pdf.text(`--------------------------------------------------------`,20 , 72,{align:'left'})
+    pdf.text(`Produto`,20, 82)
+    pdf.text(`Quantidade`,76, 82)
+    pdf.text(`Preço`,140, 82)
+    pdf.text(`Total`,180, 82)
+    pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
+    pdf.text(`${product.name}`, 20, 102)
+    pdf.text(`${order.quantity}`,96, 102)
+    pdf.text(` ${product.value}`, 130, 102)
+    pdf.text(`${order.quantity * product.value}`, 170, 102)
+    pdf.text(`--------------------------------------------------------`,20 , 112,{align:'left'})
+    pdf.text(`Total: ${total}`,120,122,{align: 'right'} )
+    pdf.pipe(fs.createWriteStream(`public/tmp/${pdfName}`))
     pdf.end()
+    return pdfName
     }
 
 }

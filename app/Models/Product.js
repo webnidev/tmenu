@@ -7,6 +7,9 @@ class Product extends Model {
     cards(){
         return this.belongsToMany('App/Models/Card').pivotTable('item_cards')
     }
+    printer(){
+        
+    }
 }
 
 module.exports = Product
