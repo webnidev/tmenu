@@ -7,6 +7,7 @@ class ClienteleSchema extends Schema {
   up () {
     this.create('clients', (table) => {
       table.increments()
+      table.string('name')
       table.timestamps()
       table.integer('establishment_id').notNullable()
       table.integer('user_id').notNullable()

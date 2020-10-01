@@ -6,6 +6,7 @@ const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
+const Printer = use('App/Models/Printer')
 const Database = use('Database')
 const Pdf = use('App/Utils/Pdf')
 const Axios = use('App/Utils/Axios')
@@ -45,13 +46,17 @@ class ItemCardController {
     const product = await Product.findBy('id', product_id)
     const establishment = await Establishment.findBy('id', table.establishment_id)
     const card_value = quantity * product.value
-
+    const printer = await Printer.findBy('id',product.printer_id)
     let client = await Client.query().where('user_id', auth.user.id)
     .where('establishment_id', establishment.id)
+    .with('user')
     .first()
     try {
       if(!client){
-        client = await Client.create({establishment_id:establishment.id, user_id: auth.user.id}, trx)
+        client = await Client.create({
+          name: auth.user.name,
+          establishment_id:establishment.id, 
+          user_id: auth.user.id}, trx)
       }
       let card = await Card.query().where('user_id', auth.user.id)
     .where('table_id',table.id)
@@ -78,28 +83,20 @@ class ItemCardController {
     product.ranking += parseInt(quantity)
     await product.save()
     await trx.commit()
-    console.log("Enviado para a impressora "+String(product.printer_id))
+    console.log("Enviado para a "+String(printer.name))
     const pdf = new Pdf
-    const pdfNmae = pdf.createPdf({
+    const pdfName = pdf.createPdf({
       establishment,
       table,
       product,
       order,
       card,
-      client
+      auth
     })
-    console.log(pdfNmae)
-    const axios = Axios()
-    const printed = await axios.toPrinter(product.printer.code, pdfNmae)
-    // let api_response = null
-    // await axios("https://viacep.com.br/ws/64027140/json/")
-    // .then(res => {
-    //   api_response = res.data
-    // })
-    // if(!api_response){
-    //   return response.status(500).send("Erro")
-    // }
-    return response.send({printed})
+    const axios = new Axios()
+    console.log(printer.code)
+    //const printed = await axios.toPrinter(printer.code, pdfName)
+    return response.send(printer.code)
 
     } catch (error) {
       console.log(error)
@@ -118,6 +115,7 @@ class ItemCardController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
+
   }
 
 

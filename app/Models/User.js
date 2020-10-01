@@ -20,6 +20,10 @@ class User extends Model {
       }
     })
   }
+  static get table () {
+    return 'users'
+  }
+
   static get traits () {
     return [
       '@provider:Adonis/Acl/HasRole',
@@ -42,6 +46,10 @@ class User extends Model {
 
   establishments(){
     return this.belongsToMany('App/Models/Establishment').pivotTable('waiters')
+  }
+
+  clients(){
+    return this.belongsToMany('App/Models/Establishment')
   }
   cards(){
     return this.hasMany('App/Models/Card')

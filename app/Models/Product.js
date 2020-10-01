@@ -8,7 +8,7 @@ class Product extends Model {
         return this.belongsToMany('App/Models/Card').pivotTable('item_cards')
     }
     printer(){
-        
+        return this.belongsTo('App/Models/Printer')
     }
 }
 

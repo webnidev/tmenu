@@ -1,7 +1,13 @@
 'use strict'
 
 const Card = use('App/Models/Card')
+const ItemCard = use('App/Models/ItemCard')
 const Client = use('App/Models/Client')
+const Printer = use('App/Models/Printer')
+const Axios = use('App/Utils/Axios')
+const Establishment = use('App/Models/Establishment')
+const Table = use('App/Models/Table')
+const Pdf = use('App/Utils/Pdf')  
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -65,11 +71,24 @@ async show ({ params, request, response, auth }) {
  * @param {Request} ctx.request
  * @param {Response} ctx.response
  */
-async update ({ params, request, response }) {
-    const card = await Card.findBy('id', params.id)
+async update ({ params, request, response, auth }) {
+    const card = await Card.query().where('id', params.id)
+    .with('itens').first()
+    const printer = await Printer.findBy('id',card.printer_id)
+    const table = await Table.findBy('id', card.table_id)
+    const establishment = await Establishment.findBy('id',table.establishment_id)
+    console.log(establishment.name) 
     card.status = false
     await card.save()
-    console.log("Fechou a conta e mandou para a impressora "+String(card.printer_id))
+    const pdf = new Pdf
+    const pdfName = pdf.createCardPdf({
+      establishment,
+      table,
+      card,
+      auth
+    })
+    console.log("Enviado para a "+String(printer.name))
+    //const printed = await axios.toPrinter(printer.code, pdfNmae)
     return response.send({card})
 }
 
