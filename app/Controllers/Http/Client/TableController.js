@@ -19,7 +19,9 @@ class TableController {
     }
     const establishment = await table.establishment().first()//.categories().fetch()
     const menu =await establishment.categories()
-    .with('products')
+    .with('products', (builder) =>{
+      return builder.orderBy('ranking', 'desc')
+    })
     .fetch()
     return response.send({menu})
   }

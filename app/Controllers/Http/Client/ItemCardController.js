@@ -8,6 +8,7 @@ const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
 const Database = use('Database')
 const Pdf = use('App/Utils/Pdf')
+const axios = require('axios')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -73,12 +74,28 @@ class ItemCardController {
       card_id: card.id,
       product_id: product.id
     }, trx)
-    
+    product.ranking += parseInt(quantity)
+    await product.save()
     await trx.commit()
     console.log("Enviado para a impressora "+String(product.printer_id))
     const pdf = new Pdf
-    pdf.createPdf({order})
+    pdf.createPdf({
+      establishment,
+      table,
+      product,
+      order,
+      card,
+      client
+    })
     console.log('passou do pdf')
+    // let api_response = null
+    // await axios("https://viacep.com.br/ws/64027140/json/")
+    // .then(res => {
+    //   api_response = res.data
+    // })
+    // if(!api_response){
+    //   return response.status(500).send("Erro")
+    // }
     return response.send(order)
 
     } catch (error) {

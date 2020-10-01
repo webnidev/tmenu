@@ -8,6 +8,7 @@ class PrinterSchema extends Schema {
     this.create('printers', (table) => {
       table.increments()
       table.string('name',120)
+      table.string('code',256)
       table.timestamps()
       table.integer('establishment_id')
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')

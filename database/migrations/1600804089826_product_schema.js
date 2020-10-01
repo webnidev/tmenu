@@ -11,6 +11,7 @@ class ProductSchema extends Schema {
       table.string('name', 100)
       table.string('description', 256)
       table.float('value')
+      table.integer('ranking').notNullable().defaultTo(0)
       table.boolean('pizza').notNullable().defaultTo(false)
       table.boolean('combo').notNullable().defaultTo(false)
       table.integer('category_id')

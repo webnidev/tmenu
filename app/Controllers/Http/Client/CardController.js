@@ -19,6 +19,7 @@ class CardController {
       try{
         const cards = await Card.query()
         .where('user_id', auth.user.id)
+        .with('itens')
         .orderBy('id', 'desc')
         .fetch()
         return response.send({cards})
@@ -49,7 +50,9 @@ async store ({ request, response }) {
  */
 async show ({ params, request, response, auth }) {
     const card = await Card.query().where('user_id', auth.user.id)
-    .where('status', true).first() 
+    .where('status', true)
+    .with('itens')
+    .first() 
     return response.send({card})
 }
 
