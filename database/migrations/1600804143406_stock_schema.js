@@ -8,8 +8,8 @@ class StockSchema extends Schema {
     this.create('stocks', (table) => {
       table.increments()
       table.timestamps()
-      table.float('purchase_value')
-      table.float('sale_value')
+      table.float('purchase_value', 8, 2)
+      table.float('sale_value', 8, 2)
       table.date('entry_date').notNullable()
       table.integer('quantity').notNullable().defaultTo(0)
       table.integer('product_id').notNullable()

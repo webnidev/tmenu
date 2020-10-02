@@ -17,7 +17,7 @@ class TableController {
     if(!table){
       return response.status(404).send({'response':'Cardápio não encontrado'})
     }
-    const establishment = await table.establishment().first()//.categories().fetch()
+    const establishment = await table.establishment().first()
     const menu =await establishment.categories()
     .with('products', (builder) =>{
       return builder.orderBy('ranking', 'desc')

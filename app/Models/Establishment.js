@@ -23,6 +23,10 @@ class Establishment extends Model {
     printers(){
         return this.hasMany('App/Models/Printer')
     }
+
+    clients(){
+        return this.belongsToMany('App/Models/User').pivotTable('clients')
+      }
     // user(){
     //     return this.belongsTo('App/Models/User')
     // }

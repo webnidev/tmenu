@@ -10,7 +10,7 @@ class ProductSchema extends Schema {
       table.timestamps()
       table.string('name', 100)
       table.string('description', 256)
-      table.float('value')
+      table.float('value', 8, 2)
       table.integer('ranking').notNullable().defaultTo(0)
       table.boolean('pizza').notNullable().defaultTo(false)
       table.boolean('combo').notNullable().defaultTo(false)

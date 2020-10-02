@@ -9,7 +9,7 @@ class ItemCardSchema extends Schema {
       table.increments()
       table.timestamps()
       table.integer('quantity').notNullable()
-      table.float('value').notNullable()
+      table.float('value', 8, 2).notNullable()
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('card_id').notNullable()
       table.integer('product_id').notNullable()
