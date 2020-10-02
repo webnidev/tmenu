@@ -29,7 +29,8 @@ class ProductController {
     PRODUCTS.CATEGORY_ID,
     PRODUCTS.PRINTER_ID,
     PRODUCTS.PIZZA,
-    PRODUCTS.COMBO
+    PRODUCTS.COMBO,
+    PRODUCTS.RANKING
      FROM CATEGORIES, PRODUCTS WHERE 
     PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.ESTABLISHMENT_ID=?`,[establishment.id])
     return response.send({"products":products.rows})
@@ -74,11 +75,14 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    const {data} =request.all()
     const product = await Product.query().where('id',params.id).first()
     if(!product){
       return response.status(404).send({"Error":"Porduct not found"})
     }
-    return response.status(200).send({"Wait":"In production"})
+    product.merge({...data})
+    await product.save()
+    return response.status(200).send({product})
     
   }
 
