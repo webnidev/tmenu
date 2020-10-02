@@ -8,7 +8,7 @@ class CardSchema extends Schema {
     this.create('cards', (table) => {
       table.increments()
       table.string('message',512)
-      table.float('value')
+      table.float('value', 8, 2)
       table.boolean('status').notNullable().defaultTo(true)
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
