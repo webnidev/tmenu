@@ -7,7 +7,7 @@ class WaiterSchema extends Schema {
   up () {
     this.create('waiters', (table) => {
       table.increments()
-      table.string('name')
+      table.string('name', 256)
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('user_id').notNullable()

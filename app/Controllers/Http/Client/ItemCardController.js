@@ -39,7 +39,46 @@ class ItemCardController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
+  //Create order with multi itens
   async store ({ request, response, auth }) {
+    const trx = await Database.beginTransaction()
+    const { hashcode, itens} = request.all()
+    const table = await Table.findBy('hashcode', hashcode)
+    const establishment = await Establishment.findBy('id', table.establishment_id)
+    let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).with('user').first()
+    let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
+    let card_value = 0
+    try {
+      if(!client){
+        client = await Client.create({
+          name: auth.user.name,
+          establishment_id:establishment.id, 
+          user_id: auth.user.id}, trx)
+      }
+      if(!card){
+        card = await Card.create({
+          message:`${establishment.name} Cliente ${auth.user.name}`,
+          value: card_value,
+          table_id: table.id,
+          user_id: auth.user.id,
+          printer_id: 1
+        }, trx)
+      }
+      for(let i in itens){
+        const prod = await Product.findBy('id',itens[i].product_id )
+        console.log(prod.printer_id)
+      }
+      return response.send({itens})
+    } catch (error) {
+      console.log(error)
+    }
+    
+
+   
+  }
+
+
+  /*async store ({ request, response, auth }) {
     const trx = await Database.beginTransaction()
     const { hashcode, product_id, quantity } = request.all()
     const table = await Table.findBy('hashcode', hashcode)
@@ -103,7 +142,7 @@ class ItemCardController {
       await trx.rollback()
       return response.status(400).send({message: "Erro ao realizar o pedido!"})      
     }  
-  }
+  }*/
 
   /**
    * Display a single itemcard.
@@ -139,6 +178,7 @@ class ItemCardController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+
   }
 }
 
