@@ -89,9 +89,12 @@ class ItemCardController {
            })             
            })
         )
+        //await trx.commit()
         const printering = new Order
-        printering.printerOrder(orders)
-        await trx.commit()
+        //printering.printerOrder(orders)
+        
+        printering.printers(printers.rows, orders)
+       
         return response.send({orders})
       }
       return response.status(404).send({'response':'Mesa inexistente'})
