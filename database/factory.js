@@ -72,7 +72,7 @@ Factory.blueprint('App/Models/Product', (faker)=>{
     return {
         name: faker.first(),
         description: faker.sentence(),
-        value: faker.floating({min:5, max:100})
+        value: faker.floating({min:5, max:100}, 8, 2)
     }
 })
 

@@ -65,9 +65,9 @@ class PrinterController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
-    const {name, code} = request.all() 
+    const {data} = request.all() 
     const printer = await Printer.findBy('id', params.id)
-    printer.merge({name, code})
+    printer.merge({...data})
     printer.save()
     return response.status(200).send({printer})
   }

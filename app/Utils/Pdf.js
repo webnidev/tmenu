@@ -15,7 +15,7 @@ class Pdf extends Model{
         const pdfName = `establisment${establishment.id}card${card.id}order${order.id}.pdf`
         const date = new Date()
         const mounht = date.getMonth()+1
-        const day = date.getDay()
+        const day = `0${date.getDay()}`
         const year = date.getUTCFullYear() 
         const pdf = new PDFKit({size:[227.00, 350.50],
     

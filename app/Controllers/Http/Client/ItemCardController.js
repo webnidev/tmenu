@@ -10,6 +10,7 @@ const Printer = use('App/Models/Printer')
 const Database = use('Database')
 const Pdf = use('App/Utils/Pdf')
 const Axios = use('App/Utils/Axios')
+const Order = use('App/Utils/Order')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -42,39 +43,65 @@ class ItemCardController {
   //Create order with multi itens
   async store ({ request, response, auth }) {
     const trx = await Database.beginTransaction()
-    const { hashcode, itens} = request.all()
-    const table = await Table.findBy('hashcode', hashcode)
-    const establishment = await Establishment.findBy('id', table.establishment_id)
-    let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).with('user').first()
-    let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
-    let card_value = 0
     try {
-      if(!client){
-        client = await Client.create({
-          name: auth.user.name,
-          establishment_id:establishment.id, 
-          user_id: auth.user.id}, trx)
+      const { hashcode, itens} = request.all()
+      const table = await Table.findBy('hashcode', hashcode)
+      if(table){
+        const establishment = await Establishment.findBy('id', table.establishment_id)
+        const printers = await establishment.printers().fetch()
+        let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).first()
+        let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
+        let card_value = 0
+        if(!client){
+          client = await Client.create({
+            name: auth.user.name,
+            establishment_id:establishment.id, 
+            user_id: auth.user.id}, trx)
+        }
+        if(!card){
+          card = await Card.create({
+            message:`${establishment.name} Cliente ${auth.user.name}`,
+            value: card_value,
+            table_id: table.id,
+            user_id: auth.user.id,
+            printer_id: 1
+          }, trx)
+        }
+        let orders = []
+        await Promise.all(
+          itens.map(async item =>{
+            let product = await Product.query().where('id',item.product_id ).first()
+            let order = await ItemCard.create({
+             quantity: item.quantity,
+             value: (product.value * item.quantity),
+             card_id: card.id,
+             product_id: product.id
+           }, trx)//Bug na transaction
+           product.ranking +=  parseInt(item.quantity)
+           await product.save()
+           orders.push({
+             'order_id':order.id,
+             'value':order.value,
+             'card_id':order.card_id,
+             'created_at':order.created_at,
+             'quantity':order.quantity,
+             'product':product
+           })             
+           })
+        )
+        //await trx.commit()
+        const printering = new Order
+        //printering.printerOrder(orders)
+        
+        printering.printers(printers.rows, orders)
+       
+        return response.send({orders})
       }
-      if(!card){
-        card = await Card.create({
-          message:`${establishment.name} Cliente ${auth.user.name}`,
-          value: card_value,
-          table_id: table.id,
-          user_id: auth.user.id,
-          printer_id: 1
-        }, trx)
-      }
-      for(let i in itens){
-        const prod = await Product.findBy('id',itens[i].product_id )
-        console.log(prod.printer_id)
-      }
-      return response.send({itens})
+      return response.status(404).send({'response':'Mesa inexistente'})
     } catch (error) {
+      await trx.rollback()
       console.log(error)
-    }
-    
-
-   
+    }       
   }
 
 
