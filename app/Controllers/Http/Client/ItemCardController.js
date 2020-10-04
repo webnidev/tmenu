@@ -76,16 +76,23 @@ class ItemCardController {
              value: (product.value * item.quantity),
              card_id: card.id,
              product_id: product.id
-           }, trx)//Bug na transaction
+           }, trx)
            product.ranking +=  parseInt(item.quantity)
            await product.save()
            orders.push({
+            'establishment_id':establishment.id,
+             'establishment_name':establishment.name,
+             'establishment_address':establishment.address,
+             'establishment_cnpj':establishment.cnpj,
+             'client':auth.user.name,
+             'garcom':'Peter',
+             'mesa':table.number,
              'order_id':order.id,
-             'value':order.value,
+             'value':order.value, 
              'card_id':order.card_id,
              'created_at':order.created_at,
              'quantity':order.quantity,
-             'product':product
+             'product': await product
            })             
            })
         )
