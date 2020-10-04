@@ -10,23 +10,31 @@ class Order extends Model{
         let printerToProduct = []
         await Promise.all(
             printers.map(async printer=>{
-                
+                let printOrder = []
                 await Promise.all(
                     orders.map( async order =>{
                         if(printer.id == order.product.printer_id){
-                            console.log(printer.code)
-                            printerToProduct.push(
-                                {'printer': printer.code,'order': order }
-                            )
+                            printOrder.push(order)
+                            //printerToProduct.push({'order':order})
+                            
                         }
                         
                         //console.log(printer.id == order.product.printer_id)
                     })
                 )
+                printerToProduct.push({'code':printer.code, 'orders': printOrder})      
             })
             
         )
-        console.log(printerToProduct)
+
+        await Promise.all(
+            printerToProduct.map(async printOrd=>{
+                let pdf = new Pdf
+                console.log(await pdf.pdfCreate(printOrd))
+                //console.log(printOrd)
+            })
+        )
+        //console.log(printerToProduct)
         //console.log(printers)
     }
     async printerOrder(orders){
