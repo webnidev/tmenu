@@ -10,6 +10,9 @@ class Product extends Model {
     printer(){
         return this.belongsTo('App/Models/Printer')
     }
+    order(){
+        return this.hasMany('App/Models/Card')
+    }
 }
 
 module.exports = Product

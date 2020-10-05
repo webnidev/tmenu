@@ -1,5 +1,6 @@
 'use strict'
 const Pdf = use('App/Utils/Pdf')
+const Axios = use('App/Utils/Axios')
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
 
@@ -23,20 +24,26 @@ class Order extends Model{
                     })
                 )
                 printerToProduct.push({'code':printer.code, 'orders': printOrder})      
-            })
-            
-        )
-
+            }) 
+        ) 
         await Promise.all(
             printerToProduct.map(async printOrd=>{
-                let pdf = new Pdf
-                console.log(await pdf.pdfCreate(printOrd))
-                //console.log(printOrd)
+                if(printOrd.orders.length>0){
+                    let pdf = new Pdf
+                    let path = await pdf.pdfCreate(printOrd)
+                    const axios = new Axios()
+                    //console.log(printOrd.code)
+                    //const printed = await axios.toPrinter(printOrd.code, path)  
+                }                   
             })
         )
+        return true
         //console.log(printerToProduct)
         //console.log(printers)
     }
+
+
+
     async printerOrder(orders){
         await Promise.all(
             orders.map(async order=>{

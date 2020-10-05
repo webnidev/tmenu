@@ -16,6 +16,9 @@ class Card extends Model {
     itens(){
         return this.belongsToMany('App/Models/Product').pivotTable('item_cards')
     }
+    orders(){
+        return this.hasMany('App/Modles/ItemCard')
+    }
 }
 
 module.exports = Card

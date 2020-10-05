@@ -1,4 +1,7 @@
 'use strict'
+
+const { concatLimit } = require('async')
+
 const Card = use('App/Models/Card')
 const Establishment = use('App/Models/Establishment')
 const User = use('App/Models/User')
@@ -6,10 +9,9 @@ const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
-const Printer = use('App/Models/Printer')
+//const Printer = use('App/Models/Printer')
 const Database = use('Database')
-const Pdf = use('App/Utils/Pdf')
-const Axios = use('App/Utils/Axios')
+//const Pdf = use('App/Utils/Pdf')
 const Order = use('App/Utils/Order')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -43,6 +45,7 @@ class ItemCardController {
   //Create order with multi itens
   async store ({ request, response, auth }) {
     const trx = await Database.beginTransaction()
+    let card_refresh = 0
     try {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
@@ -59,13 +62,15 @@ class ItemCardController {
             user_id: auth.user.id}, trx)
         }
         if(!card){
+          console.log('criou um card com valor zero')
           card = await Card.create({
             message:`${establishment.name} Cliente ${auth.user.name}`,
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
             printer_id: 1
-          }, trx)
+          })
+          card_refresh = card.id
         }
         let orders = []
         await Promise.all(
@@ -77,7 +82,11 @@ class ItemCardController {
              card_id: card.id,
              product_id: product.id
            }, trx)
-           product.ranking +=  parseInt(item.quantity)
+           //card_value += product.value * item.quantity
+           card.value += product.value * item.quantity
+           await card.save()
+           console.log('Atribuiu valor ao card')
+           console.log(card.value)
            await product.save()
            orders.push({
             'establishment_id':establishment.id,
@@ -96,17 +105,26 @@ class ItemCardController {
            })             
            })
         )
-        //await trx.commit()
+        await trx.commit()
+        /*if(card.value == 0){
+          console.log('passou no if zerado')
+          card.value += card_value
+          await card.save()
+        }*/
         const printering = new Order
         //printering.printerOrder(orders)
         
-        printering.printers(printers.rows, orders)
-       
-        return response.send({orders})
+        if(printering.printers(printers.rows, orders)){
+          return response.send({orders})
+        }else{
+          return response.status(500).send({'Erro': 'Houve um erro ao imprimir os pedidos'})
+        }
       }
       return response.status(404).send({'response':'Mesa inexistente'})
     } catch (error) {
       await trx.rollback()
+      const card = await Card.findBy('id', card_refresh)
+      card.delete()
       console.log(error)
     }       
   }
