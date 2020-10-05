@@ -62,7 +62,6 @@ class ItemCardController {
             user_id: auth.user.id}, trx)
         }
         if(!card){
-          console.log('criou um card com valor zero')
           card = await Card.create({
             message:`${establishment.name} Cliente ${auth.user.name}`,
             value: card_value,
@@ -85,8 +84,6 @@ class ItemCardController {
            //card_value += product.value * item.quantity
            card.value += product.value * item.quantity
            await card.save()
-           console.log('Atribuiu valor ao card')
-           console.log(card.value)
            await product.save()
            orders.push({
             'establishment_id':establishment.id,

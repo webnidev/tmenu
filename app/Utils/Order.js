@@ -1,6 +1,9 @@
 'use strict'
 const Pdf = use('App/Utils/Pdf')
 const Axios = use('App/Utils/Axios')
+const fs = require('fs')
+const { promisify } = require('util')
+const unlink = promisify(fs.unlink)
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
 
@@ -32,8 +35,18 @@ class Order extends Model{
                     let pdf = new Pdf
                     let path = await pdf.pdfCreate(printOrd)
                     const axios = new Axios()
-                    //console.log(printOrd.code)
-                    //const printed = await axios.toPrinter(printOrd.code, path)  
+                    //console.log('criou o pdf '+path)
+                    //const printed = await axios.toPrinter(printOrd.code, path)//Em prod
+                    // if(true){
+                    //     console.log('Entrou no if')
+                    //     try{
+                    //         await Promise.all([unlink(`public/tmp/${path}`)])
+                    //     }catch(error){
+                    //         console.log(error)
+                    //     }
+                        
+                    // }
+                    //console.log('deletou o pdf '+path)
                 }                   
             })
         )

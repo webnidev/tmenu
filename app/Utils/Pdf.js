@@ -50,6 +50,9 @@ class Pdf extends Model{
         }
         pdf.text(`--------------------------------------------------------`,20 , position+10,{align:'left'})
         pdf.text(`Total: ${parseFloat(total).toFixed(2)}`,120,position+20,{align: 'right'} )
+        if(!fs.existsSync('public/tmp')){
+                fs.mkdirSync('public/tmp')
+        }
         pdf.pipe(fs.createWriteStream(`public/tmp/${pdfName}`))
         pdf.end()    
         return pdfName
@@ -114,7 +117,7 @@ class Pdf extends Model{
         const mounht = date.getMonth()+1
         const day = `0${date.getUTCDate()}`.slice(-2)
         const year = date.getUTCFullYear()
-        const pdf = new PDFKit({size:[227.00, 350.50],
+        const config = {size:[227.00, 350.50],
     
             layout: 'portrait',
             margins : { 
@@ -123,7 +126,8 @@ class Pdf extends Model{
                 left: 20,
                 right: 20
             }
-            })
+            }
+        const pdf = new PDFKit(config)
             let position = 102
             pdf.fontSize(10)
             pdf.text(establishment.name,20, 20, {align:'center'})
@@ -140,15 +144,30 @@ class Pdf extends Model{
             pdf.text(`Preço`,140, 82)
             pdf.text(`Total`,180, 82)
             pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
-            for(let i =0; i<orders.length; i++){
-                pdf.text(`${orders[i].name}`.slice(0, 17), 20, position)
-                pdf.text(`${orders[i].quantity}`,110, position)
-                pdf.text(`${orders[i].preco}`, 140, position)
-                pdf.text(`${orders[i].total}`, 170, position)
-                position += 10
+            let salt = 0
+            for(let j =0; j<orders.length; j+=20){
+                let i=0
+                for(i = 0;i<20;i++ ){
+                    if(orders[i]){
+                        console.log(orders[i].name)
+                        pdf.text(`${orders[i].name}`.slice(0, 17), 20, position)
+                        pdf.text(`${orders[i].quantity}`,110, position)
+                        pdf.text(parseFloat(`${orders[i].preco}`).toFixed(2), 140, position)
+                        pdf.text(parseFloat(`${orders[i].total}`).toFixed(2), 170, position)
+                        position += 10
+                    }
+                }
+                console.log(i)
+                if(i<orders.length-1){
+                    position = 20
+                    pdf.addPage(config)
+                }                
+            }                   
+            pdf.text(`--------------------------------------------------------`,20 , position,{align:'left'})
+            pdf.text(`Total: ${parseFloat(card.value).toFixed(2) }`,120,position+10,{align: 'right'} )
+            if(!fs.existsSync('public/tmp')){
+                fs.mkdirSync('public/tmp')
             }
-            pdf.text(`--------------------------------------------------------`,20 , position+10,{align:'left'})
-            pdf.text(`Total: ${card.value}`,120,position+20,{align: 'right'} )
             pdf.pipe(fs.createWriteStream(`public/tmp/${pdfName}`))
             pdf.end()
             return pdfName
