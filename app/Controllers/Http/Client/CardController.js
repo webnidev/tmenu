@@ -1,5 +1,5 @@
 'use strict'
-
+const Database = use('Database')
 const Card = use('App/Models/Card')
 const ItemCard = use('App/Models/ItemCard')
 const Client = use('App/Models/Client')
@@ -73,11 +73,19 @@ async show ({ params, request, response, auth }) {
  */
 async update ({ params, request, response, auth }) {
     const card = await Card.query().where('id', params.id)
-    .with('itens').first()
+    .first()
+    const itens = await  Database.raw(
+      `SELECT 
+      P.NAME, P.VALUE AS PRECO, IT.QUANTITY, IT.VALUE AS TOTAL 
+      FROM CARDS AS C, ITEM_CARDS AS IT, PRODUCTS AS P 
+      WHERE C.ID = IT.CARD_ID 
+      AND IT.PRODUCT_ID = P.ID AND C.ID = ?`,
+      [ params.id]
+    )
+    const orders = itens.rows
     const printer = await Printer.findBy('id',card.printer_id)
     const table = await Table.findBy('id', card.table_id)
     const establishment = await Establishment.findBy('id',table.establishment_id)
-    console.log(establishment.name) 
     card.status = false
     await card.save()
     const pdf = new Pdf
@@ -85,9 +93,11 @@ async update ({ params, request, response, auth }) {
       establishment,
       table,
       card,
-      auth
+      auth,
+      orders,
     })
-    console.log("Enviado para a "+String(printer.name))
+    //console.log("Enviado para a "+String(printer.name))
+    //const axios = new Axios()
     //const printed = await axios.toPrinter(printer.code, pdfNmae)
     return response.send({card})
 }

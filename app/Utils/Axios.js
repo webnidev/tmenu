@@ -6,7 +6,7 @@ const Model = use('Model')
 
 class Axios extends Model{
     async toPrinter(printer, pdf){
-        const pdfPath = 'https://tmenu/pdf/'+pdf
+        const pdfPath = 'https:\/\/tmenu\/pdf\/'+pdf
         const url = 'https://api.printnode.com/printjobs'
         const options ={
             headers : {

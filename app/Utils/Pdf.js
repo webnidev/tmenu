@@ -30,7 +30,7 @@ class Pdf extends Model{
         pdf.text(`CNPJ: ${printOrd.orders[0].establishment_cnpj}`,20,32, {align:'left'})
         pdf.text(`${day}/${mounht}/${year}`, 80, 32, {align:'right'})
         pdf.text(`${printOrd.orders[0].establishment_address}`, 20, 44,{align:'left'} )
-        pdf.text(`Cliente: ${printOrd.orders[0].client}`, 120, 44, {align:'right'})
+        pdf.text(`Cliente: ${printOrd.orders[0].client}`, 90, 44, {align:'right'})
         pdf.text(`--------------------------------------------------------`,20 , 52,{align:'left'})
         pdf.text(`Garçom: ${printOrd.orders[0].garcom}`,20 , 62,{align:'left'})
         pdf.text( `Mesa: ${printOrd.orders[0].mesa}`,80 , 62,{align:'right'})
@@ -106,12 +106,13 @@ class Pdf extends Model{
         establishment,
         table,
         card,
-        auth
+        auth,
+        orders
     }){
         const pdfName = `establisment${establishment.id}card${card.id}.pdf`
         const date = new Date()
         const mounht = date.getMonth()+1
-        const day = date.getDay()
+        const day = `0${date.getUTCDate()}`.slice(-2)
         const year = date.getUTCFullYear()
         const pdf = new PDFKit({size:[227.00, 350.50],
     
@@ -123,12 +124,13 @@ class Pdf extends Model{
                 right: 20
             }
             })
+            let position = 102
             pdf.fontSize(10)
             pdf.text(establishment.name,20, 20, {align:'center'})
             pdf.text(`CNPJ: ${establishment.cnpj}`,20,32, {align:'left'})
             pdf.text(`${day}/${mounht}/${year}`, 80, 32, {align:'right'})
             pdf.text(`${establishment.address}`, 20, 44,{align:'left'} )
-            pdf.text(`Cliente: ${auth.user.name}`, 120, 44, {align:'right'})
+            pdf.text(`Cliente: ${auth.user.name}`, 90, 44, {align:'right'})
             pdf.text(`--------------------------------------------------------`,20 , 52,{align:'left'})
             pdf.text(`Garçom: ${card.waiter.name}`,20 , 62,{align:'left'})
             pdf.text( `Mesa: ${table.number}`,80 , 62,{align:'right'})
@@ -138,14 +140,15 @@ class Pdf extends Model{
             pdf.text(`Preço`,140, 82)
             pdf.text(`Total`,180, 82)
             pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
-            //for(let i =0; i<=card.itens.length; i++){
-            //pdf.text(`${card.itens[i]}`, 20, 102)
-            //pdf.text(`${card.itens[i].quantity}`,96, 102)
-            //pdf.text(` ${card.itens[i].value}`, 130, 102)
-            //pdf.text(`${order.quantity * product.value}`, 170, 102)
-            //}
-            pdf.text(`--------------------------------------------------------`,20 , 112,{align:'left'})
-            //pdf.text(`Total: ${total}`,120,122,{align: 'right'} )
+            for(let i =0; i<orders.length; i++){
+                pdf.text(`${orders[i].name}`.slice(0, 17), 20, position)
+                pdf.text(`${orders[i].quantity}`,110, position)
+                pdf.text(`${orders[i].preco}`, 140, position)
+                pdf.text(`${orders[i].total}`, 170, position)
+                position += 10
+            }
+            pdf.text(`--------------------------------------------------------`,20 , position+10,{align:'left'})
+            pdf.text(`Total: ${card.value}`,120,position+20,{align: 'right'} )
             pdf.pipe(fs.createWriteStream(`public/tmp/${pdfName}`))
             pdf.end()
             return pdfName
