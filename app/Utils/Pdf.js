@@ -139,24 +139,26 @@ class Pdf extends Model{
             pdf.text(`Garçom: ${card.waiter.name}`,20 , 62,{align:'left'})
             pdf.text( `Mesa: ${table.number}`,80 , 62,{align:'right'})
             pdf.text(`--------------------------------------------------------`,20 , 72,{align:'left'})
-            pdf.text(`Produto`,20, 82)
-            pdf.text(`Quantidade`,76, 82)
+            pdf.text(`Item`, 20, 82)
+            pdf.text(`Produto`,45, 82)
+            pdf.text(`Quantidade`,90, 82)
             pdf.text(`Preço`,140, 82)
             pdf.text(`Total`,180, 82)
             pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
-            let salt = 0
-            for(let j =0; j<orders.length; j+=20){
-                let i=0
-                for(i = 0;i<20;i++ ){
+            let salt = 20
+            let i=0
+            for(let j =0; j<orders.length; j+=20){   
+                for(i;i<salt;i++ ){
                     if(orders[i]){
-                        console.log(orders[i].name)
-                        pdf.text(`${orders[i].name}`.slice(0, 17), 20, position)
-                        pdf.text(`${orders[i].quantity}`,110, position)
+                        pdf.text(`${i+1}`,20, position)
+                        pdf.text(`${orders[i].name}`.slice(0, 17), 45, position)
+                        pdf.text(`${orders[i].quantity}`,125, position)
                         pdf.text(parseFloat(`${orders[i].preco}`).toFixed(2), 140, position)
                         pdf.text(parseFloat(`${orders[i].total}`).toFixed(2), 170, position)
                         position += 10
                     }
                 }
+                salt += 20
                 console.log(i)
                 if(i<orders.length-1){
                     position = 20
