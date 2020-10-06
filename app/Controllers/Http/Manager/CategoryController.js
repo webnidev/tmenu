@@ -55,18 +55,6 @@ class CategoryController {
   }
 
   /**
-   * Render a form to update an existing category.
-   * GET categories/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
    * Update category details.
    * PUT or PATCH categories/:id
    *
@@ -75,6 +63,18 @@ class CategoryController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    try {
+        const category = await Category.findBy('id', params.id)
+        if(category){
+          const {name} = request.all()
+          category.name = name
+          await category.save()
+          return response.send({category})
+      }
+      return response.status(404).send({'Erro':'Category not found'})
+    } catch (error) {
+      return response.status(500).send({'Erro':'Houve um erro na operação'})
+    }
   }
 
   /**
@@ -86,6 +86,19 @@ class CategoryController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+    try {
+      const category = await Category.findBy('id', params.id)
+      if(category){
+        const name = category.name
+        await category.delete()
+        return response.status(204).send({'response': `A categoria ${name} foi excluida!`})
+    }
+    return response.status(404).send({'Erro':'Category not found'})
+  } catch (error) {
+    console.log(error)
+    return response.status(500).send({'Erro':'Houve um erro na operação'})
+  }
+
   }
 }
 

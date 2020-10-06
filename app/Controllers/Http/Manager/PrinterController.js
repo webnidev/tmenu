@@ -66,6 +66,7 @@ class PrinterController {
    */
   async update ({ params, request, response }) {
     const {data} = request.all() 
+    console.log(data)
     const printer = await Printer.findBy('id', params.id)
     printer.merge({...data})
     printer.save()
