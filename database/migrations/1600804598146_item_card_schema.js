@@ -8,13 +8,14 @@ class ItemCardSchema extends Schema {
     this.create('item_cards', (table) => {
       table.increments()
       table.timestamps()
+      table.string('product_name', 256).notNullable()
+      table.float('product_value', 8, 2).notNullable()
       table.integer('quantity').notNullable()
       table.float('value', 8, 2).notNullable()
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('card_id').notNullable()
       table.integer('product_id').notNullable()
       table.foreign('card_id').references('cards.id').onDelete('cascade').onUpdate('cascade')
-      table.foreign('product_id').references('products.id')
     })
   }
 

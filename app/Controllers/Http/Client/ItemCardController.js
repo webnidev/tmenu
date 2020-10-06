@@ -45,7 +45,6 @@ class ItemCardController {
   //Create order with multi itens
   async store ({ request, response, auth }) {
     const trx = await Database.beginTransaction()
-    let card_refresh = 0
     try {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
@@ -62,31 +61,28 @@ class ItemCardController {
             user_id: auth.user.id}, trx)
         }
         if(!card){
-          console.log('criou um card com valor zero')
           card = await Card.create({
             message:`${establishment.name} Cliente ${auth.user.name}`,
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
             printer_id: 1
-          })
-          card_refresh = card.id
+          }, trx)
         }
         let orders = []
         await Promise.all(
           itens.map(async item =>{
             let product = await Product.query().where('id',item.product_id ).first()
             let order = await ItemCard.create({
-             quantity: item.quantity,
-             value: (product.value * item.quantity),
-             card_id: card.id,
-             product_id: product.id
+              product_name:product.name,
+              product_value:product.value,
+              quantity: item.quantity,
+              value: (product.value * item.quantity),
+              card_id: card.id,
+              product_id: product.id
            }, trx)
-           //card_value += product.value * item.quantity
-           card.value += product.value * item.quantity
-           await card.save()
-           console.log('Atribuiu valor ao card')
-           console.log(card.value)
+           card_value += product.value * item.quantity
+           //card.value += product.value * item.quantity
            await product.save()
            orders.push({
             'establishment_id':establishment.id,
@@ -106,6 +102,8 @@ class ItemCardController {
            })
         )
         await trx.commit()
+        card.value += card_value   
+        await card.save()
         /*if(card.value == 0){
           console.log('passou no if zerado')
           card.value += card_value
@@ -122,10 +120,8 @@ class ItemCardController {
       }
       return response.status(404).send({'response':'Mesa inexistente'})
     } catch (error) {
-      await trx.rollback()
-      const card = await Card.findBy('id', card_refresh)
-      card.delete()
       console.log(error)
+      await trx.rollback()
     }       
   }
 
