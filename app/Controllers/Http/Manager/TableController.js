@@ -23,7 +23,14 @@ class TableController {
     const establishment = await Establishment.query().where('user_id', auth.user.id).first()
     const tables = await Table.query()
     .where('establishment_id', establishment.id)
-    .with('cards')
+    .groupBy('id','status')
+    .orderBy('status','desc')
+    .orderBy('updated_at', 'desc')
+    .with('cards',(builder)=>{
+      return builder
+      .where('status','true')
+      .orderBy('updated_at', 'desc')
+    })
     .fetch()
     return response.send({tables})
   }

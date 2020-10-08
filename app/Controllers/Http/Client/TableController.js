@@ -18,9 +18,11 @@ class TableController {
       return response.status(404).send({'response':'Cardápio não encontrado'})
     }
     const establishment = await table.establishment().first()
-    const menu =await establishment.categories()
+    const menu = await establishment.categories()
     .with('products', (builder) =>{
-      return builder.orderBy('ranking', 'desc')
+      return builder
+      .with('images')
+      .orderBy('ranking', 'desc')
     })
     .fetch()
     return response.send({menu})

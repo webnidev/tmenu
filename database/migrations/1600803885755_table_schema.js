@@ -10,7 +10,7 @@ class TableSchema extends Schema {
       table.integer('number').notNullable()
       table.string('hashcode',64).notNullable().unique()
       table.boolean('status').notNullable().defaultTo(false)
-      table.boolean('deleted').notNullable().defaultTo(false)
+      table.datetime('changed_status')
       table.timestamps()
       table.integer('establishment_id')
       table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
