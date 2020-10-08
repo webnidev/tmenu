@@ -6,7 +6,11 @@ class AlertOrderController {
     this.request = request
   }
   onMessage (message) {
-    this.socket.broadcastToAll('message', message)
+    this.socket.broadcast('message', message)
+  }
+
+  noClose(){
+    this.socket.broadcastToAll('drop:connection')
   }
 }
 

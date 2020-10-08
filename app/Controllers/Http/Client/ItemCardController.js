@@ -13,7 +13,7 @@ const Product = use('App/Models/Product')
 const Database = use('Database')
 //const Pdf = use('App/Utils/Pdf')
 const Order = use('App/Utils/Order')
-
+const Ws = use('Ws')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -113,6 +113,10 @@ class ItemCardController {
         //printering.printerOrder(orders)
         
         if(printering.printers(printers.rows, orders)){
+          const topic = Ws.getChannel('notifications').topic('notifications')
+          if(topic){
+            topic.broadcat('new:order')
+          }
           return response.send({orders})
         }else{
           return response.status(500).send({'Erro': 'Houve um erro ao imprimir os pedidos'})
@@ -124,73 +128,6 @@ class ItemCardController {
       await trx.rollback()
     }       
   }
-
-
-  /*async store ({ request, response, auth }) {
-    const trx = await Database.beginTransaction()
-    const { hashcode, product_id, quantity } = request.all()
-    const table = await Table.findBy('hashcode', hashcode)
-    const product = await Product.findBy('id', product_id)
-    const establishment = await Establishment.findBy('id', table.establishment_id)
-    const card_value = quantity * product.value
-    const printer = await Printer.findBy('id',product.printer_id)
-    let client = await Client.query().where('user_id', auth.user.id)
-    .where('establishment_id', establishment.id)
-    .with('user')
-    .first()
-    try {
-      if(!client){
-        client = await Client.create({
-          name: auth.user.name,
-          establishment_id:establishment.id, 
-          user_id: auth.user.id}, trx)
-      }
-      let card = await Card.query().where('user_id', auth.user.id)
-    .where('table_id',table.id)
-    .where('status', true)
-    .first()
-    if(!card){
-      card = await Card.create({
-        message:`${establishment.name} Cliente ${auth.user.name}`,
-        value: card_value,
-        table_id: table.id,
-        user_id: auth.user.id,
-        printer_id: 1
-      }, trx)
-    }else{
-      card.value += card_value
-      await card.save()
-    }
-    const order = await ItemCard.create({
-      quantity: quantity,
-      value: card_value,
-      card_id: card.id,
-      product_id: product.id
-    }, trx)
-    product.ranking += parseInt(quantity)
-    await product.save()
-    await trx.commit()
-    console.log("Enviado para a "+String(printer.name))
-    const pdf = new Pdf
-    const pdfName = pdf.createPdf({
-      establishment,
-      table,
-      product,
-      order,
-      card,
-      auth
-    })
-    const axios = new Axios()
-    console.log(printer.code)
-    //const printed = await axios.toPrinter(printer.code, pdfName)
-    return response.send(printer.code)
-
-    } catch (error) {
-      console.log(error)
-      await trx.rollback()
-      return response.status(400).send({message: "Erro ao realizar o pedido!"})      
-    }  
-  }*/
 
   /**
    * Display a single itemcard.
