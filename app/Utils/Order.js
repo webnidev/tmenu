@@ -8,10 +8,8 @@ const unlink = promisify(fs.unlink)
 const Model = use('Model')
 
 
-class Order extends Model{
-    
+class Order extends Model{    
     async printers(printers, orders){
-        console.log(printers)
         let printerToProduct = []
         await Promise.all(
             printers.map(async printer=>{
@@ -20,10 +18,8 @@ class Order extends Model{
                     orders.map( async order =>{
                         if(printer.id == order.product.printer_id){
                             printOrder.push(order)
-                            //printerToProduct.push({'order':order})
-                            
-                        }
-                        
+                            //printerToProduct.push({'order':order})   
+                        }                       
                         //console.log(printer.id == order.product.printer_id)
                     })
                 )
