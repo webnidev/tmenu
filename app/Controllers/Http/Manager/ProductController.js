@@ -1,7 +1,9 @@
 'use strict'
 const Establishment = use('App/Models/Establishment')
 const Product = use('App/Models/Product')
+const Image = use('App/Models/ImageProduct')
 const Database = use('Database')
+const Helpers = use('Helpers')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -20,8 +22,9 @@ class ProductController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
-    const products = await Database.raw(`SELECT 
+    const establishment = await Establishment.query().where('user_id', auth.user.id)
+    .first()
+    const data = await Database.raw(`SELECT 
     PRODUCTS.ID,
     PRODUCTS.NAME,
     PRODUCTS.DESCRIPTION,
@@ -31,9 +34,22 @@ class ProductController {
     PRODUCTS.PIZZA,
     PRODUCTS.COMBO,
     PRODUCTS.RANKING
-     FROM CATEGORIES, PRODUCTS WHERE 
+    FROM CATEGORIES, PRODUCTS WHERE 
     PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.ESTABLISHMENT_ID=?`,[establishment.id])
-    return response.send({"products":products.rows})
+    
+    //const products = await Product.all()
+    // await Promise.all(
+    //   categories.map(async products=>{
+    //     await Promise.all(
+    //       products.map(async product=>{
+    //         productsAll.push(product)
+    //       })
+    //     )
+    //     
+    //   })
+    // )
+    const  products= data.rows
+    return response.send({products})
   }
 
   /**
@@ -45,9 +61,28 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
-    const data = request.only(["name","description","value","category_id","printer_id"])
-    const product = await Product.create({...data})
-    return response.send({product})
+    try {
+      const data = request.only(["name","description","value","category_id","printer_id"])
+      const product = await Product.create({...data})
+      const photos = request.file('file',{
+        size: '3mb'
+      })
+      await photos.moveAll(Helpers.tmpPath('photos'), file =>{
+        name: `${product.id}-${Date.now()}-${file.clientName}`
+      })
+      if(!photos.movedAll()){
+        return photos.errors()
+      }
+
+      await Promise.all(
+        photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
+      )
+
+      return response.send({product})
+    } catch (error) {
+      
+    }
+    
   }
 
   /**
@@ -75,15 +110,35 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
-    const {data} =request.all()
+    try {
+      const {data} =request.all()
     const product = await Product.query().where('id',params.id).first()
     if(!product){
       return response.status(404).send({"Error":"Porduct not found"})
     }
     product.merge({...data})
     await product.save()
-    return response.status(200).send({product})
+    if(request.file('file')){
+      const photos = request.file('file',{
+        size: '3mb'
+      })
+      await photos.moveAll(Helpers.tmpPath('photos'), file =>{
+        name: `${product.id}-${Date.now()}-${file.clientName}`
+      })
+      if(!photos.movedAll()){
+        return photos.errors()
+      }
+  
+      await Promise.all(
+        photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
+      )
+    }
     
+    return response.status(200).send({product})
+    } catch (error) {
+      console.log(error)
+      return response.status(error.status).send({'Error':'Erro ao atualizar o produto'})
+    }
   }
 
   /**

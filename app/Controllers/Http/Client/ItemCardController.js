@@ -73,6 +73,12 @@ class ItemCardController {
         await Promise.all(
           itens.map(async item =>{
             let product = await Product.query().where('id',item.product_id ).first()
+            
+            if(product){
+              table.changed_status = new Date()
+              if(!table.status){
+                table.status = true
+              }
             let order = await ItemCard.create({
               product_name:product.name,
               product_value:product.value,
@@ -83,6 +89,7 @@ class ItemCardController {
            }, trx)
            card_value += product.value * item.quantity
            //card.value += product.value * item.quantity
+           product.ranking += item.quantity
            await product.save()
            orders.push({
             'establishment_id':establishment.id,
@@ -98,17 +105,15 @@ class ItemCardController {
              'created_at':order.created_at,
              'quantity':order.quantity,
              'product': await product
-           })             
+           })  
+          }           
            })
         )
         await trx.commit()
         card.value += card_value   
         await card.save()
-        /*if(card.value == 0){
-          console.log('passou no if zerado')
-          card.value += card_value
-          await card.save()
-        }*/
+        await table.save()
+
         const printering = new Order
         //printering.printerOrder(orders)
         

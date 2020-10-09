@@ -38,14 +38,14 @@ class Pdf extends Model{
         pdf.text(`Produto`,45, 82)
         pdf.text(`Quantidade`,87, 82)
         pdf.text(`Preço`,140, 82)
-        pdf.text(`Total`,180, 82)
+        pdf.text(`Total`,180, 82,{align:'right'})
         pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
         for(let i=0; i<printOrd.orders.length; i++){
             pdf.text(`${i+1}`,20, position)
             pdf.text(printOrd.orders[i].product.name.slice(0, 17), 45, position)
             pdf.text(printOrd.orders[i].quantity, 125, position)
             pdf.text(parseFloat(printOrd.orders[i].product.value).toFixed(2), 140, position)
-            pdf.text(parseFloat(printOrd.orders[i].quantity * printOrd.orders[i].product.value).toFixed(2), 170, position)
+            pdf.text(parseFloat(printOrd.orders[i].quantity * printOrd.orders[i].product.value).toFixed(2), 170, position,{align:'right'})
             position += 10
             total += printOrd.orders[i].quantity * printOrd.orders[i].product.value
         }
@@ -97,7 +97,7 @@ class Pdf extends Model{
             pdf.text(`Produto`,45, 82)
             pdf.text(`Quantidade`,87, 82)
             pdf.text(`Preço`,140, 82)
-            pdf.text(`Total`,180, 82)
+            pdf.text(`Total`,180, 82,{align:'right'})
             pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
             let salt = 20
             let i=0 
@@ -107,7 +107,7 @@ class Pdf extends Model{
                         pdf.text(`${orders[i].name}`.slice(0, 17), 45, position)
                         pdf.text(`${orders[i].quantity}`,125, position)
                         pdf.text(parseFloat(`${orders[i].preco}`).toFixed(2), 140, position)
-                        pdf.text(parseFloat(`${orders[i].total}`).toFixed(2), 170, position)
+                        pdf.text(parseFloat(`${orders[i].total}`).toFixed(2), 170, position,{align:'right'})
                         position += 10
                     }
                 }                 

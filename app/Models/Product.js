@@ -13,6 +13,9 @@ class Product extends Model {
     order(){
         return this.hasMany('App/Models/Card')
     }
+    images(){
+        return this.hasMany('App/Models/ImageProduct')
+    }
 }
 
 module.exports = Product
