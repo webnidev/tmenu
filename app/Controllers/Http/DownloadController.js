@@ -1,5 +1,6 @@
 'use strict'
 const Helpers = use('Helpers')
+//const Files = use('Files')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -7,10 +8,11 @@ const Helpers = use('Helpers')
 
 
 class DownloadController {
-
     async pdf({params, response}){
-        const file = await Files.findOrFail(params.fileId)
-        response.download(Helpers.tmpPath('public/tmp/${file.path}'))
+        return response.download(`public/tmp/${params.name}`)
+        // return response.attachment(
+        //     `public/tmp/${params.name}`
+        // )
     }
 }
 

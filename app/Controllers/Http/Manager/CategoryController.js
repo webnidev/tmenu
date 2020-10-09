@@ -21,7 +21,7 @@ class CategoryController {
   async index ({ request, response, auth }) {
     const establishment = await Establishment.query().where('user_id', auth.user.id).first()
     const categories = await establishment.categories()
-    .with('products')
+    //.with('products')
     .fetch()
     return response.send({categories})
   }
