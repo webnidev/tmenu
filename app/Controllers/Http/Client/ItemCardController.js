@@ -11,7 +11,6 @@ const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
 //const Printer = use('App/Models/Printer')
 const Database = use('Database')
-//const Pdf = use('App/Utils/Pdf')
 const Order = use('App/Utils/Order')
 const Ws = use('Ws')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -120,7 +119,7 @@ class ItemCardController {
         if(printering.printers(printers.rows, orders)){
           const topic = Ws.getChannel('notifications').topic('notifications')
           if(topic){
-            topic.broadcat('new:order')
+            topic.broadcast('new:order')
           }
           return response.send({orders})
         }else{

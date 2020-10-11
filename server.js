@@ -16,16 +16,16 @@
 |     Also you can preload files by calling `preLoad('path/to/file')` method.
 |     Make sure to pass a relative path from the project root.
 */
-const cluster = require('cluster') //Add by me
+//const cluster = require('cluster') //Add by me
 const { Ignitor } = require('@adonisjs/ignitor')
 //Add by me
-if (cluster.isMaster) {
-  for (let i=0; i < 4; i ++) {
-    cluster.fork()
-  }
-  require('@adonisjs/websocket/clusterPubSub')()
-  return
-}
+// if (cluster.isMaster) {
+//   for (let i=0; i < 4; i ++) {
+//     cluster.fork()
+//   }
+//   require('@adonisjs/websocket/clusterPubSub')()
+//   return
+//}
 
 
 new Ignitor(require('@adonisjs/fold'))
