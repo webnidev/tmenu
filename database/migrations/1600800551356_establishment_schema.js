@@ -11,6 +11,7 @@ class EstablishmentSchema extends Schema {
       table.string('address', 256).notNullable()
       table.string('cnpj',20)
       table.float('rate', 8, 2).notNullable()
+      table.datetime('last_billing')
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('user_id')

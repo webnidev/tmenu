@@ -1,5 +1,11 @@
 'use strict'
 
+const { resource } = require('@adonisjs/framework/src/Route/Manager')
+
+const Establisment = use('App/Models/Establishment')
+const Card = use('App/Models/Card')
+const Billing = use('App/Models/Billing')
+const Database = use('Database')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,7 +23,10 @@ class BillingController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    const establishment = await Establisment.findBy('user_id',auth.user.id)
+    const billings = await establishment.billings().whereNot('status','NÃO ENVIADA').fetch()
+    return response.send(billings)
   }
 
   /**

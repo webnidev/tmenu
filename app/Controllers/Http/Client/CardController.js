@@ -8,6 +8,7 @@ const Axios = use('App/Utils/Axios')
 const Establishment = use('App/Models/Establishment')
 const Table = use('App/Models/Table')
 const Pdf = use('App/Utils/Pdf')  
+const Ws = use('Ws')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -105,8 +106,13 @@ async update ({ params, request, response, auth }) {
     //const printed = await axios.toPrinter(printer.code, pdfNmae)
     table.status = false
     await table.save()
+    const topic = Ws.getChannel('account').topic('account')
+      if(topic){
+        topic.broadcast('new:card')
+      }
     return response.send({card})
   } catch (error) {
+    console.log(error)
     return response.status(error.status).send({'Error':'Error in proccess'})
   }
     

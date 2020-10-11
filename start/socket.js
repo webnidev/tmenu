@@ -16,3 +16,4 @@
 const Ws = use('Ws')
 
 Ws.channel('notifications', 'Client/AlertOrderController').middleware(['auth'])
+Ws.channel('account', 'Client/AlertAccountController').middleware(['auth'])
