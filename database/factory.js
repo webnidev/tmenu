@@ -37,6 +37,7 @@ Factory.blueprint('App/Models/Establishment', (faker)=>{
         name: faker.name(),
         address: faker.address(),
         cnpj: faker.integer({min: 11111111111111, max: 99999999999999 }),
+        last_billing: new Date(),
         rate: 2.00
     }
 })

@@ -8,6 +8,7 @@ const Axios = use('App/Utils/Axios')
 const Establishment = use('App/Models/Establishment')
 const Table = use('App/Models/Table')
 const Pdf = use('App/Utils/Pdf')  
+const Ws = use('Ws')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -72,8 +73,12 @@ async show ({ params, request, response, auth }) {
  * @param {Response} ctx.response
  */
 async update ({ params, request, response, auth }) {
+  try {
     const card = await Card.query().where('id', params.id)
     .first()
+    if(!card){
+      return response.status(404).send({'Error':'Acount not found'})
+    }
     const itens = await  Database.raw(
       `SELECT 
       P.NAME, P.VALUE AS PRECO, IT.QUANTITY, IT.VALUE AS TOTAL 
@@ -99,7 +104,18 @@ async update ({ params, request, response, auth }) {
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
     //const printed = await axios.toPrinter(printer.code, pdfNmae)
+    table.status = false
+    await table.save()
+    const topic = Ws.getChannel('account').topic('account')
+      if(topic){
+        topic.broadcast('new:card')
+      }
     return response.send({card})
+  } catch (error) {
+    console.log(error)
+    return response.status(error.status).send({'Error':'Error in proccess'})
+  }
+    
 }
 
 /**

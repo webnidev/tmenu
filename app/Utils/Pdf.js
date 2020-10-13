@@ -8,7 +8,7 @@ const fs = require('fs')
 class Pdf extends Model{
     async pdfCreate(printOrd){
         const pageHeight = printOrd.orders.length * 10 + 150
-        const pdfName = `establisment${printOrd.orders[0].establishment_id}card${printOrd.orders[0].card_id}orders${printOrd.orders[0].order_id}.pdf`
+        const pdfName = `establishment${printOrd.orders[0].establishment_id}card${printOrd.orders[0].card_id}orders${printOrd.orders[0].order_id}.pdf`
         const date = new Date()
         const mounht = date.getUTCMonth()+1
         const day = `0${date.getUTCDate()}`.slice(-2)
@@ -67,7 +67,7 @@ class Pdf extends Model{
         orders
     }){
         const pageHeight = orders.length * 10 + 150
-        const pdfName = `establisment${establishment.id}card${card.id}.pdf`
+        const pdfName = `establishment${establishment.id}card${card.id}.pdf`
         const date = new Date()
         const mounht = date.getMonth()+1
         const day = `0${date.getUTCDate()}`.slice(-2)

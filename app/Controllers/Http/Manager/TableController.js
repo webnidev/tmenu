@@ -73,7 +73,17 @@ class TableController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
+    const data = request.all()
+    const establishment = await Establishment.query().where('user_id',auth.user.id).first()
+    if(!establishment){
+      return response.status(404).send({'response':'Table not found'})
+    }
+    const table = await Table.query().where('establishment_id', establishment.id)
+    .where('id', params.id).first()
+    table.merge({...data})
+    await table.save()
+    return response.send({table})
 
   }
 
@@ -85,7 +95,15 @@ class TableController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params, request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id',auth.user.id).first()
+    if(!establishment){
+      return response.status(404).send({'response':'Table not found'})
+    }
+    const table = await Table.query().where('establishment_id', establishment.id)
+    .where('id', params.id).first()
+    await table.delete()
+    return response.status(204).send()
   }
 
    /**
