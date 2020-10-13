@@ -67,20 +67,21 @@ class ProductController {
       const photos = request.file('file',{
         size: '3mb'
       })
-      await photos.moveAll(Helpers.tmpPath('photos'), file =>{
-        name: `${product.id}-${Date.now()}-${file.clientName}`
-      })
-      if(!photos.movedAll()){
-        return photos.errors()
+      if(photos){
+        await photos.moveAll(Helpers.tmpPath('photos'), file =>{
+          name: `${product.id}-${Date.now()}-${file.clientName}`
+        })
+        if(!photos.movedAll()){
+          return photos.errors()
+        }
+  
+        await Promise.all(
+          photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
+        )
       }
-
-      await Promise.all(
-        photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
-      )
-
       return response.send({product})
     } catch (error) {
-      
+      console.log(error)
     }
     
   }

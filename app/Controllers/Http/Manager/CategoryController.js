@@ -51,7 +51,11 @@ class CategoryController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
+    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    const category = await Category.query().where('id', params.id)
+    .where('establishment_id', establishment.id).first()
+    return response.send({category})  
   }
 
   /**
