@@ -11,4 +11,5 @@ Route.group(()=>{
     Route.resource('printer', 'PrinterController').apiOnly()
     Route.resource('card','CardController').apiOnly()
     Route.resource('billing','BillingController').apiOnly()
+    Route.resource('order', 'ItemCardController').apiOnly()
 }).prefix('manager').namespace('Manager').middleware(['auth','is:manager'])
