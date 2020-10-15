@@ -12,4 +12,6 @@ Route.group(()=>{
     Route.resource('card','CardController').apiOnly()
     Route.resource('billing','BillingController').apiOnly()
     Route.resource('order', 'ItemCardController').apiOnly()
+    Route.get('last-cards', 'CardController.lastCards')
+    Route.get('last-orders', 'ItemCardController.lastOrders')
 }).prefix('manager').namespace('Manager').middleware(['auth','is:manager'])

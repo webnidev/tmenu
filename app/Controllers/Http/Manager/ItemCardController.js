@@ -30,11 +30,11 @@ class ItemCardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
+  async index ({ request, response, auth }) {//Exibe o número de pedidos nos 30 dias
       try {
         const establishment = await Establishment.findBy('user_id', auth.user.id)
         const cards = await Database.raw(`
-        SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
+        SELECT COUNT(I.ID) AS 'PEDIDOS REALIZADOS' FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
         ITEM_CARDS AS I WHERE E.ID=T.ESTABLISHMENT_ID 
         AND T.ID=C.TABLE_ID
         AND I.CARD_ID = C.ID
@@ -96,6 +96,18 @@ class ItemCardController {
    */
   async destroy ({ params, request, response }) {
 
+  }
+
+  async lastOrders({request, response}){
+    const establishment = await Establishment.findBy('user_id', auth.user.id)
+    const cards = await Database.raw(`
+    SELECT I.QUANTITY, I.PRODUCT_NAME, T.NUMBER, I.CREATED_AT AS DIA 
+    FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, ITEM_CARDS AS I 
+    WHERE E.ID=T.ESTABLISHMENT_ID AND T.ID=C.TABLE_ID AND I.CARD_ID = C.ID 
+    AND E.ID = ?
+    ORDER BY DIA DESC LIMIT 10
+    `,[establishment.id])
+    return response.send(cards.rows[0])
   }
 }
 
