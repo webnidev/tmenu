@@ -12,6 +12,7 @@ class ItemCardSchema extends Schema {
       table.float('product_value', 8, 2).notNullable()
       table.integer('quantity').notNullable()
       table.float('value', 8, 2).notNullable()
+      table.string('observation')
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('card_id').notNullable()
       table.integer('product_id').notNullable()

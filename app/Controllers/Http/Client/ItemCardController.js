@@ -83,6 +83,7 @@ class ItemCardController {
               product_value:product.value,
               quantity: item.quantity,
               value: (product.value * item.quantity),
+              observation:item.observation,
               card_id: card.id,
               product_id: product.id
            }, trx)
