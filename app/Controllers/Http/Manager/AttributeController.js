@@ -1,5 +1,6 @@
 'use strict'
-
+const Establishment = use('App/Models/Establishment')
+const Attribute = use('App/Models/Attribute')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,19 +18,16 @@ class AttributeController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
+  async index ({ request, response, auth }) {
+    try {
+      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const attributes = await establishment.attributes().fetch()
+      return response.send({attributes})
+    } catch (error) {
+      console.log(error)
+      return response.status(500).send(error.message)
+    }
 
-  /**
-   * Render a form to be used for creating a new attribute.
-   * GET attributes/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
   }
 
   /**
@@ -40,7 +38,16 @@ class AttributeController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    try {
+      const data = request.only(['title', 'description','max_item', 'required'])
+      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const attribute = await Attribute.create({...data, establishment_id: establishment.id})
+      return response.status(201).send({attribute})
+    } catch (error) {
+      return response.status(500).send(error.message)
+    }
+
   }
 
   /**

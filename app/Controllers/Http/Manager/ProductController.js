@@ -1,5 +1,6 @@
 'use strict'
 const Establishment = use('App/Models/Establishment')
+const Attribute = use('App/Models/Attribute')
 const Product = use('App/Models/Product')
 const Image = use('App/Models/ImageProduct')
 const Database = use('Database')
@@ -31,8 +32,6 @@ class ProductController {
     PRODUCTS.VALUE,
     PRODUCTS.CATEGORY_ID,
     PRODUCTS.PRINTER_ID,
-    PRODUCTS.PIZZA,
-    PRODUCTS.COMBO,
     PRODUCTS.RANKING
     FROM CATEGORIES, PRODUCTS WHERE 
     PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.ESTABLISHMENT_ID=?`,[establishment.id])
@@ -96,12 +95,27 @@ class ProductController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, auth }) {
-    const product = await Product.query().where('id',params.id).first()
+    const product = await Product.query().where('id',params.id)
+    .with('images')
+    .with('attributes')
+    .first()
     if(!product){
       return response.status(404).send({"Error":"Porduct not found"})
     }
     return response.status(200).send({product})
   }
+
+   async edit({params, request, response, auth}){
+      try {
+        const product = await Product.findBy('id', params.product_id)
+        const attribute = await Attribute.findBy('id', params.attribute_id)
+        await product.attributes().attach([attribute.id])
+        return response.send({product})
+      } catch (error) {
+        console.log(error)            
+        return response.status(500).send(error.message)
+      }
+   } 
   /**
    * Update product details.
    * PUT or PATCH products/:id

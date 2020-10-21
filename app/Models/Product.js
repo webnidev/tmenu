@@ -16,6 +16,12 @@ class Product extends Model {
     images(){
         return this.hasMany('App/Models/ImageProduct')
     }
+    attributes(){
+        return this.belongsToMany('App/Models/Attribute').pivotTable('attribute_products').with('values')
+    }
+    values(){
+        return this.manyThrough('App/Models/Attribute', 'values')
+    }
 }
 
 module.exports = Product

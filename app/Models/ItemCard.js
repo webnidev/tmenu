@@ -16,6 +16,9 @@ class ItemCard extends Model {
     card(){
         return this.belongsTo('App/Models/Card')
     }
+    atrributes(){
+        return this.manyThrough('App/Models/OrderAttribute','values')
+    }
 }
 
 module.exports = ItemCard

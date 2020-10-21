@@ -14,4 +14,8 @@ Route.group(()=>{
     Route.resource('order', 'ItemCardController').apiOnly()
     Route.get('last-cards', 'CardController.lastCards')
     Route.get('last-orders', 'ItemCardController.lastOrders')
+    Route.resource('attribute', 'AttributeController').apiOnly()
+    Route.resource('value-attribute', 'ValueAttributeController').apiOnly()
+
+    Route.put('product/:product_id/attribute/:attribute_id', 'ProductController.edit').as('add-attribute')
 }).prefix('manager').namespace('Manager').middleware(['auth','is:manager'])

@@ -12,8 +12,6 @@ class ProductSchema extends Schema {
       table.string('description', 256)
       table.float('value', 8, 2)
       table.integer('ranking').notNullable().defaultTo(0)
-      table.boolean('pizza').notNullable().defaultTo(false)
-      table.boolean('combo').notNullable().defaultTo(false)
       table.integer('category_id')
       table.integer('printer_id')
       table.foreign('category_id').references('categories.id').onDelete('cascade')

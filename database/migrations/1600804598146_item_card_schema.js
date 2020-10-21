@@ -19,7 +19,6 @@ class ItemCardSchema extends Schema {
       table.foreign('card_id').references('cards.id').onDelete('cascade').onUpdate('cascade')
     })
   }
-
   down () {
     this.drop('item_cards')
   }
