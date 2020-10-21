@@ -1,5 +1,7 @@
 'use strict'
-
+const Attribute = use('App/Models/Attribute')
+const ValueAttribute = use('App/Models/ValueAttribute')
+const Establishment = use('App/Models/Establishment')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,19 +19,30 @@ class ValueAttributeController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
-
-  /**
-   * Render a form to be used for creating a new valueattribute.
-   * GET valueattributes/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    try {
+      const valuesList = []
+      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const attributes = await Attribute.query().where('establishment_id', establishment.id).fetch()
+      if(!attributes){
+        return response.status(404).send({'message':'Have dont values registered'})
+      }
+      await Promise.all(
+        attributes.rows.map(async attribute=>{
+          const values = await attribute.values().fetch()
+          if(values){
+            await Promise.all(
+              values.rows.map(async value =>{
+                valuesList.push(value)
+              })
+              )
+          }
+        })
+        )
+      return response.send({valuesList})
+    } catch (error) {
+      return response.status(500).send(error.message)
+    }
   }
 
   /**
@@ -40,7 +53,13 @@ class ValueAttributeController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    try {
+        const data = request.only(['name', 'description', 'max_item', 'additional_value', 'attribute_id'])
+        const value = await ValueAttribute.create({...data})
+    } catch (error) {
+      return response.status(500).send(error.message)
+    }
   }
 
   /**

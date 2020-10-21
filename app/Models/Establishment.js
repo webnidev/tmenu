@@ -27,6 +27,10 @@ class Establishment extends Model {
     clients(){
         return this.belongsToMany('App/Models/User').pivotTable('clients')
       }
+
+    attributes(){
+        return this.hasMany('App/Models/Attribute')
+    }
     // user(){
     //     return this.belongsTo('App/Models/User')
     // }

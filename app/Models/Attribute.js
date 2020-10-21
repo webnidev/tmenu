@@ -4,6 +4,9 @@
 const Model = use('Model')
 
 class Attribute extends Model {
+    values(){
+        return this.hasMany('App/Models/ValueAttribute')
+    }
 }
 
 module.exports = Attribute
