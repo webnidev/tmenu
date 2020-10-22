@@ -57,6 +57,7 @@ class ValueAttributeController {
     try {
         const data = request.only(['name', 'description', 'max_item', 'additional_value', 'attribute_id'])
         const value = await ValueAttribute.create({...data})
+        return response.status(201).send({value})
     } catch (error) {
       return response.status(500).send(error.message)
     }

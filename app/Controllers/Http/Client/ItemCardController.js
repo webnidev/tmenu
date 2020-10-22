@@ -82,6 +82,7 @@ class ItemCardController {
                 if(!table.status){
                   table.status = true
                 }
+                let order_value = 0.0
                 let order = await ItemCard.create({
                   product_name:product.name,
                   product_value:product.value,
@@ -90,8 +91,8 @@ class ItemCardController {
                   observation:item.observation,
                   card_id: card.id,
                   product_id: product.id
-               }, trx)
-              card_value += product.value * item.quantity
+               },trx)
+              //card_value += product.value * item.quantity
               product.ranking += item.quantity
               await product.save()
               let item_value = 0.0
@@ -105,12 +106,31 @@ class ItemCardController {
                       item_value += (orderValue.additional_value * orderValue.quantity)
                     })
                   )
-
                 })
+                
               )
-              order.value = (product.value + item_value ) * item.quantity
+              order.value += (product.value + item_value ) * item.quantity
               await order.save()
-              orders.push(order)
+              console.log(order.value)
+              card_value += order.value
+              
+              orders.push({
+                'establishment_id':establishment.id,
+                 'establishment_name':establishment.name,
+                 'establishment_address':establishment.address,
+                 'establishment_cnpj':establishment.cnpj,
+                 'client':auth.user.name,
+                 'garcom':'Peter',
+                 'mesa':table.number,
+                 'order_id':order.id,
+                 'value':order.value, 
+                 'card_id':order.card_id,
+                 'created_at':order.created_at,
+                 'quantity':order.quantity,
+                 'product_name': product.name,
+                 'product_value':(product.value + item_value ),
+                 'printer_id':product.printer_id
+               })
               }
             })
           )
@@ -120,7 +140,16 @@ class ItemCardController {
         card.value += card_value   
         await card.save()
         await table.save()
-
+        const printering = new Order
+        if(printering.printers(printers.rows, orders)){
+          const topic = Ws.getChannel('notifications').topic('notifications')
+          if(topic){
+            topic.broadcast('new:order')
+          }
+          return response.send({orders})
+        }else{
+          return response.status(500).send({'Erro': 'Houve um erro ao imprimir os pedidos'})
+        }
         return response.status(201).send({orders})
       }
       return response.status(404).send({'Error':'Table not found!'})
