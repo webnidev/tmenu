@@ -9,6 +9,10 @@ const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
+const OrderAttribute = use('App/Models/OrderAttribute')
+const OrderAttributeValue = use('App/Models/OrderAttributeValue')
+const Attribute = use('App/Models/Attribute')
+
 //const Printer = use('App/Models/Printer')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
@@ -42,7 +46,96 @@ class ItemCardController {
    * @param {Response} ctx.response
    */
   //Create order with multi itens
-  async store ({ request, response, auth }) {
+  //Adaptação de pedido
+  async store ({ request, response, auth }){
+    const trx = await Database.beginTransaction()
+    try {
+      const { hashcode, itens} = request.all()
+      const table = await Table.findBy('hashcode', hashcode)
+      if(table){
+        const establishment = await Establishment.findBy('id', table.establishment_id)
+        const printers = await establishment.printers().fetch()
+        let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).first()
+        let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
+        let card_value = 0
+        if(!client){
+          Client.create({
+            name: auth.user.name,
+            establishment_id:establishment.id, 
+            user_id: auth.user.id}, trx)
+        }
+        if(!card){
+          card = await Card.create({
+            message:`${establishment.name} Cliente ${auth.user.name}`,
+            value: card_value,
+            table_id: table.id,
+            user_id: auth.user.id,
+            printer_id: 1
+          }, trx)
+        }
+          let orders = []
+          await Promise.all(
+            itens.map(async item=>{
+              let product = await Product.query().where('id',item.product_id ).first()
+              if(product){
+                table.changed_status = new Date()
+                if(!table.status){
+                  table.status = true
+                }
+                let order = await ItemCard.create({
+                  product_name:product.name,
+                  product_value:product.value,
+                  quantity: item.quantity,
+                  value: 0,
+                  observation:item.observation,
+                  card_id: card.id,
+                  product_id: product.id
+               }, trx)
+              card_value += product.value * item.quantity
+              product.ranking += item.quantity
+              await product.save()
+              let item_value = 0.0
+              await Promise.all(
+                item.attributes.map(async attribute=>{
+                  const attr = await Attribute.findBy('id', attribute.attribute_id)
+                  const orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trx)
+                  await Promise.all(
+                    attribute.values.map(async value=>{
+                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trx)
+                      item_value += (orderValue.additional_value * orderValue.quantity)
+                    })
+                  )
+
+                })
+              )
+              order.value = (product.value + item_value ) * item.quantity
+              await order.save()
+              orders.push(order)
+              }
+            })
+          )
+
+        
+        await trx.commit()
+        card.value += card_value   
+        await card.save()
+        await table.save()
+
+        return response.status(201).send({orders})
+      }
+      return response.status(404).send({'Error':'Table not found!'})
+      //console.log(itens[0].attributes[0].values[0].name_value) 
+    } catch (error) {
+        console.log(error)
+        await trx.rollback()
+        return response.status(500).send(error.message)
+    }
+  }
+
+
+
+
+  /*async store ({ request, response, auth }) {
     const trx = await Database.beginTransaction()
     try {
       const { hashcode, itens} = request.all()
@@ -132,7 +225,7 @@ class ItemCardController {
       console.log(error)
       await trx.rollback()
     }       
-  }
+  }*/
 
   /**
    * Display a single itemcard.

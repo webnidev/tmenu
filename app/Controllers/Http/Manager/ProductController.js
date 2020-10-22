@@ -109,6 +109,9 @@ class ProductController {
       try {
         const product = await Product.findBy('id', params.product_id)
         const attribute = await Attribute.findBy('id', params.attribute_id)
+        if(!product || !attribute){
+          return response.status(404).send({"Error":"Porduct not found"})
+        }
         await product.attributes().attach([attribute.id])
         return response.send({product})
       } catch (error) {
