@@ -8,6 +8,7 @@ class OrderAttributeSchema extends Schema {
     this.create('order_attributes', (table) => {
       table.increments()
       table.string('attribute_name').notNullable()
+      table.integer('quantity').notNullable()
       table.timestamps()
       table.integer('item_cards_id').notNullable()
       table.foreign('item_cards_id').references('item_cards.id').onDelete('cascade').onUpdate('cascade')
