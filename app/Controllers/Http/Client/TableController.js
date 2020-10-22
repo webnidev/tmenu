@@ -1,5 +1,6 @@
 'use strict'
 const Table = use('App/Models/Table')
+const Product = use('App/Models/Product')
 const Establishment = use('App/Models/Establishment')
 const Libs = use('App/Utils/Libs')
 class TableController {
@@ -26,6 +27,17 @@ class TableController {
     })
     .fetch()
     return response.send({menu})
+  }
+
+  async show({ params, request, response, auth }){
+    const product = await Product.query().where('id',params.id)
+    .with('images')
+    .with('attributes')
+    .first()
+    if(!product){
+      return response.status(404).send({"Error":"Porduct not found"})
+    }
+    return response.status(200).send({product})
   }
 
 }

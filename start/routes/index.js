@@ -18,6 +18,7 @@ const Route = use('Route')
 
 Route.get('/:slug', 'Client/TableController.menu').as('menu')
 Route.get('/download/pdf/:name', 'DownloadController.pdf').as('download.pdf')
+Route.get('client/product/:id', 'Client/TableController.show').as('client.product')
 
 
 require('./auth')

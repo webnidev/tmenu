@@ -16,7 +16,7 @@ class Order extends Model{
                 let printOrder = []
                 await Promise.all(
                     orders.map( async order =>{
-                        if(printer.id == order.product.printer_id){
+                        if(printer.id == order.printer_id){
                             printOrder.push(order)
                             //printerToProduct.push({'order':order})   
                         }                       

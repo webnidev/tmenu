@@ -42,12 +42,12 @@ class Pdf extends Model{
         pdf.text(`--------------------------------------------------------`,20 , 92,{align:'left'})
         for(let i=0; i<printOrd.orders.length; i++){
             pdf.text(`${i+1}`,20, position)
-            pdf.text(printOrd.orders[i].product.name.slice(0, 17), 45, position)
+            pdf.text(printOrd.orders[i].product_name.slice(0, 15), 45, position)
             pdf.text(printOrd.orders[i].quantity, 125, position)
-            pdf.text(parseFloat(printOrd.orders[i].product.value).toFixed(2), 140, position)
-            pdf.text(parseFloat(printOrd.orders[i].quantity * printOrd.orders[i].product.value).toFixed(2), 170, position,{align:'right'})
+            pdf.text(parseFloat(printOrd.orders[i].product_value).toFixed(2), 140, position)
+            pdf.text(parseFloat(printOrd.orders[i].quantity * printOrd.orders[i].product_value).toFixed(2), 170, position,{align:'right'})
             position += 10
-            total += printOrd.orders[i].quantity * printOrd.orders[i].product.value
+            total += printOrd.orders[i].quantity * printOrd.orders[i].product_value
         }
         pdf.text(`--------------------------------------------------------`,20 , position,{align:'left'})
         pdf.text(`Total: ${parseFloat(total).toFixed(2)}`,120,position+10,{align: 'right'} )
@@ -104,7 +104,7 @@ class Pdf extends Model{
                 for(i;i<orders.length;i++ ){
                     if(orders[i]){
                         pdf.text(`${i+1}`,20, position)
-                        pdf.text(`${orders[i].name}`.slice(0, 17), 45, position)
+                        pdf.text(`${orders[i].name}`.slice(0, 15), 45, position)
                         pdf.text(`${orders[i].quantity}`,125, position)
                         pdf.text(parseFloat(`${orders[i].preco}`).toFixed(2), 140, position)
                         pdf.text(parseFloat(`${orders[i].total}`).toFixed(2), 170, position,{align:'right'})
