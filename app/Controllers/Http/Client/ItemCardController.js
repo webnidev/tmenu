@@ -49,6 +49,7 @@ class ItemCardController {
   //Adaptação de pedido
   async store ({ request, response, auth }){
     const trx = await Database.beginTransaction()
+    const trxo = await Database.beginTransaction()
     try {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
@@ -71,7 +72,7 @@ class ItemCardController {
             table_id: table.id,
             user_id: auth.user.id,
             printer_id: 1
-          }, trx)
+          }, trxo)
         }
           let orders = []
           await Promise.all(
@@ -91,25 +92,29 @@ class ItemCardController {
                   observation:item.observation,
                   card_id: card.id,
                   product_id: product.id
-               },trx)
+               },trxo)
               //card_value += product.value * item.quantity
               product.ranking += item.quantity
               await product.save()
               let item_value = 0.0
               await Promise.all(
                 item.attributes.map(async attribute=>{
-                  const attr = await Attribute.findBy('id', attribute.attribute_id)
-                  const orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trx)
+                  let attr = await Attribute.findBy('id', attribute.attribute_id)
+                  if(attr){
+                  let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trxo)
                   await Promise.all(
                     attribute.values.map(async value=>{
-                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trx)
+                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trxo)
                       item_value += (orderValue.additional_value * orderValue.quantity)
                     })
                   )
+                }
                 })
                 
               )
-              order.value += (product.value + item_value ) * item.quantity
+              await trxo.commit()
+              order.product_value = product.value + item_value
+              order.value = (product.value + item_value ) * item.quantity
               await order.save()
               console.log(order.value)
               card_value += order.value
