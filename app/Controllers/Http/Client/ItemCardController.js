@@ -116,7 +116,6 @@ class ItemCardController {
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
               await order.save()
-              console.log(order.value)
               card_value += order.value
               
               orders.push({
@@ -151,14 +150,12 @@ class ItemCardController {
           if(topic){
             topic.broadcast('new:order')
           }
-          return response.send({orders})
+          return response.status(201).send({orders})
         }else{
           return response.status(500).send({'Erro': 'Houve um erro ao imprimir os pedidos'})
         }
-        return response.status(201).send({orders})
       }
       return response.status(404).send({'Error':'Table not found!'})
-      //console.log(itens[0].attributes[0].values[0].name_value) 
     } catch (error) {
         console.log(error)
         await trx.rollback()
