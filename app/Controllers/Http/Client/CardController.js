@@ -81,10 +81,10 @@ async update ({ params, request, response, auth }) {
     }
     const itens = await  Database.raw(
       `SELECT 
-      P.NAME, P.VALUE AS PRECO, IT.QUANTITY, IT.VALUE AS TOTAL 
-      FROM CARDS AS C, ITEM_CARDS AS IT, PRODUCTS AS P 
+      IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
+      FROM CARDS AS C, ITEM_CARDS AS IT
       WHERE C.ID = IT.CARD_ID 
-      AND IT.PRODUCT_ID = P.ID AND C.ID = ?`,
+      AND C.ID = ?`,
       [ params.id]
     )
     const orders = itens.rows
