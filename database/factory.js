@@ -26,7 +26,6 @@ const Factory = use('Factory')
     username: faker.username(),
     email: faker.email({domain: 'tmenu.com'}),
     password: '123456',
-    name: faker.first(),
     cpf: faker.cpf(),
     phone: faker.phone()
    }
