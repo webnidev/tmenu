@@ -27,7 +27,7 @@ class CardController {
   async index ({ request, response, auth }) {//Exibe o numero de comandas faturadas
     const establishment = await Establishment.findBy('user_id', auth.user.id)
     const cards = await Database.raw(`
-    SELECT COUNT(C.ID) AS 'COMANDAS FATURADAS' FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C 
+    SELECT COUNT(C.ID) AS "COMANDAS FATURADAS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C 
     WHERE E.ID=T.ESTABLISHMENT_ID 
     AND T.ID=C.TABLE_ID
     AND C.STATUS=FALSE 
@@ -85,6 +85,7 @@ class CardController {
 
 
   async lastCards({response, auth}){//Exibe as 10 ultimas comandas faturadas
+   try {
     const establishment = await Establishment.findBy('user_id', auth.user.id)
     const cards = await Database.raw(`
     SELECT T.NUMBER AS MUNERO, C.VALUE AS TOTAL, C.UPDATED_AT AS FATURADO 
@@ -96,7 +97,12 @@ class CardController {
     AND E.ID = ?
     ORDER BY FATURADO DESC LIMIT 10
     `,[establishment.id])
-    return response.send(cards.rows[0])
+    console.log(cards.rows)
+    return response.send(cards.rows)
+   } catch (error) {
+     console.log(error.message)
+    return response.status(500).send(error.message)
+   }
   }
 }
 

@@ -34,7 +34,7 @@ class ItemCardController {
       try {
         const establishment = await Establishment.findBy('user_id', auth.user.id)
         const cards = await Database.raw(`
-        SELECT COUNT(I.ID) AS 'PEDIDOS REALIZADOS' FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
+        SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
         ITEM_CARDS AS I WHERE E.ID=T.ESTABLISHMENT_ID 
         AND T.ID=C.TABLE_ID
         AND I.CARD_ID = C.ID
@@ -44,7 +44,8 @@ class ItemCardController {
         return response.send(cards.rows[0])
           
       } catch (error) {
-          
+        console.log(error)
+        return response.status(error.status).send(error.message)
       }
   }
 
