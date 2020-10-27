@@ -78,7 +78,7 @@ class ProductController {
           photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
         )
       }
-      return response.send({product})
+      return response.status(201).send({product})
     } catch (error) {
       console.log(error)
     }
