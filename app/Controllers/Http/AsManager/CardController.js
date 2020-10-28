@@ -24,8 +24,8 @@ class CardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {//Exibe o numero de comandas faturadas
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
+  async index ({ request, response, params }) {//Exibe o numero de comandas faturadas
+    const establishment = await Establishment.findBy('user_id', params.id)
     const cards = await Database.raw(`
     SELECT COUNT(C.ID) AS "COMANDAS FATURADAS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C 
     WHERE E.ID=T.ESTABLISHMENT_ID 
@@ -84,9 +84,9 @@ class CardController {
   }
 
 
-  async lastCards({response, auth}){//Exibe as 10 ultimas comandas faturadas
+  async lastCards({response, params}){//Exibe as 10 ultimas comandas faturadas
    try {
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
+    const establishment = await Establishment.findBy('user_id', params.id)
     const cards = await Database.raw(`
     SELECT T.NUMBER AS MUNERO, C.VALUE AS TOTAL, C.UPDATED_AT AS FATURADO 
     FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C 

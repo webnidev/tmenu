@@ -34,7 +34,6 @@ class ClientSeeder {
       username: 'Cicero',
       email: 'cicero@tmenu.com',
       password: '123456',
-      name: 'Cícero Leonardo',
       cpf: '888.888.888-88',
       phone: '88888-8888'
     })

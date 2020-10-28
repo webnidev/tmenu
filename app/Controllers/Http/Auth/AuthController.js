@@ -7,8 +7,8 @@ class AuthController {
     async register({request, response}){
         const trx = await Database.beginTransaction()
         try {
-            const {name, username, email, password, cpf, phone} = request.all()
-            const user = await User.create({name, username, email, password, cpf, phone}, trx)
+            const {username, email, password, cpf, phone} = request.all()
+            const user = await User.create({username, email, password, cpf, phone}, trx)
             const userRole = await Role.findBy('slug', 'client')
             await user.roles().attach([userRole.id], null, trx)
             await trx.commit()
