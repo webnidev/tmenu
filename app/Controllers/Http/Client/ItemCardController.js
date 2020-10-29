@@ -49,7 +49,7 @@ class ItemCardController {
   //Adaptação de pedido
   async store ({ request, response, auth }){
     const trx = await Database.beginTransaction()
-    const trxo = await Database.beginTransaction()
+    
     try {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
@@ -72,11 +72,13 @@ class ItemCardController {
             table_id: table.id,
             user_id: auth.user.id,
             printer_id: 1
-          }, trxo)
+          })
+          console.log('create card')
         }
           let orders = []
           await Promise.all(
             itens.map(async item=>{
+              const trxo = await Database.beginTransaction()
               let product = await Product.query().where('id',item.product_id ).first()
               if(product){
                 table.changed_status = new Date()
@@ -93,6 +95,7 @@ class ItemCardController {
                   card_id: card.id,
                   product_id: product.id
                },trxo)
+               console.log('create order')
               //card_value += product.value * item.quantity
               product.ranking += item.quantity
               await product.save()
@@ -102,22 +105,26 @@ class ItemCardController {
                   let attr = await Attribute.findBy('id', attribute.attribute_id)
                   if(attr){
                   let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trxo)
+                  console.log('create atribute...')
                   await Promise.all(
                     attribute.values.map(async value=>{
                       const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trxo)
+                      console.log('create value...')
                       item_value += (orderValue.additional_value * orderValue.quantity)
                     })
                   )
                 }
+                
                 })
                 
               )
+              console.log('vai commitrar')
               await trxo.commit()
+              console.log('ja commitou')
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
               await order.save()
               card_value += order.value
-              
               orders.push({
                 'establishment_id':establishment.id,
                  'establishment_name':establishment.name,
@@ -139,7 +146,7 @@ class ItemCardController {
             })
           )
 
-        
+         
         await trx.commit()
         card.value += card_value   
         await card.save()
@@ -158,6 +165,7 @@ class ItemCardController {
       return response.status(404).send({'Error':'Table not found!'})
     } catch (error) {
         console.log(error)
+        await trxo.rollback()
         await trx.rollback()
         return response.status(500).send(error.message)
     }
