@@ -2,7 +2,8 @@
 
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
-
+Route.get('/v1.0/:slug', 'Client/TableController.menu').as('menu')
+Route.get('v1.0/client/product/:id', 'Client/ProductController.show').as('client.product')
 Route.group(()=>{
     Route.post('establishment', 'EstablishmentController.store').as('client.establishment.store')
     Route.post('order', 'ItemCardController.store').as('order.store')

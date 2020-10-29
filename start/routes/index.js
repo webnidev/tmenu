@@ -16,10 +16,7 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.get('/v1.0/:slug', 'Client/TableController.menu').as('menu')
 Route.get('/v1.0/download/pdf/:name', 'DownloadController.pdf').as('download.pdf')
-Route.get('/v1.0/client/product/:id', 'Client/TableController.show').as('client.product')
-
 
 require('./auth')
 require('./admin')

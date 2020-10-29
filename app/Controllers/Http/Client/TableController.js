@@ -14,31 +14,26 @@ class TableController {
    * @param {View} ctx.view
    */
   async menu ({ params, request, response }) {
-    const table = await Table.query().where('hashcode', params.slug).first()
-    if(!table){
-      return response.status(404).send({'response':'Cardápio não encontrado'})
+    try {
+      const table = await Table.query().where('hashcode', params.slug).first()
+      if(!table){
+        return response.status(404).send({'response':'Cardápio não encontrado'})
+      }
+      const establishment = await table.establishment().first()
+      const menu = await establishment.categories()
+      .with('products', (builder) =>{
+        return builder
+        .with('images')
+        .orderBy('ranking', 'desc')
+      })
+      .fetch()
+      const cardapio = {table: table.number, categories: menu}
+      return response.send({cardapio})
+    } catch (error) {
+      return response.status(500).send(error.message)
     }
-    const establishment = await table.establishment().first()
-    const menu = await establishment.categories()
-    .with('products', (builder) =>{
-      return builder
-      .with('images')
-      .orderBy('ranking', 'desc')
-    })
-    .fetch()
-    return response.send({menu})
   }
 
-  async show({ params, request, response, auth }){
-    const product = await Product.query().where('id',params.id)
-    .with('images')
-    .with('attributes')
-    .first()
-    if(!product){
-      return response.status(404).send({"Error":"Porduct not found"})
-    }
-    return response.status(200).send({product})
-  }
 
 }
 
