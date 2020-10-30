@@ -63,7 +63,7 @@ class ProductController {
     try {
       const data = request.only(["name","description","value","category_id","printer_id"])
       const product = await Product.create({...data})
-      const photos = request.file('file',{
+      /*const photos = request.file('file',{
         size: '3mb'
       })
       if(photos){
@@ -77,10 +77,11 @@ class ProductController {
         await Promise.all(
           photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
         )
-      }
+      }*/
       return response.status(201).send({product})
     } catch (error) {
       console.log(error)
+      return response.status(500).send(error.message)
     }
     
   }

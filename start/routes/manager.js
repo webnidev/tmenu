@@ -17,6 +17,7 @@ Route.group(()=>{
     Route.resource('attribute', 'AttributeController').apiOnly()
     Route.resource('value-attribute', 'ValueAttributeController').apiOnly()
     Route.resource('client', 'ClientController').apiOnly()
+    Route.resource('image-product', 'ImageProductController').apiOnly()
 
     Route.put('product/:product_id/attribute/:attribute_id', 'ProductController.edit').as('add-attribute')
 }).prefix('v1.0/manager').namespace('Manager').middleware(['auth','is:manager'])
