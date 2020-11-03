@@ -16,7 +16,11 @@ class EstablishmentController {
    */
   async index ({ request, response, view }) {
       const establishments = await Establishment.query()
-      .with('tables').fetch()
+      .with('tables')
+      .with('waiters')
+      .with('managers')
+      .with('images')
+      .fetch()
       return response.send({establishments})
 }
 

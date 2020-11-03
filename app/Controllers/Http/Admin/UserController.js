@@ -1,6 +1,8 @@
 'use strict'
 
 const User = use('App/Models/User')
+const Database = use('Database')
+const Role = use('Role')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -20,20 +22,10 @@ class UserController {
         return response.send({users})
       } catch (error) {
           console.log(error)
+          return response.status(400).send({message:error.message})
       }
 }
 
-/**
- * Render a form to be used for creating a new stock.
- * GET stocks/create
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async create ({ request, response, view }) {
-}
 
 /**
  * Create/save a new stock.
@@ -44,7 +36,26 @@ async create ({ request, response, view }) {
  * @param {Response} ctx.response
  */
 async store ({ request, response }) {
+  const trx = await Database.beginTransaction()
+  try {
+    const {name, email, password, cpf, phone, role} = request.all()
+    const userRole = await Role.findBy('slug', role)
+    if(!userRole){
+      return response.status(400).send({"message":"Tipo de usuário inexistente!"})
+    }
+    const first = name.split(" ")
+    const cpfPart = cpf.slice(0,5)
+    const username = first[0].toLowerCase()+cpfPart
+    const user = await User.create({name, username, email, password, cpf, phone}, trx)
+    await user.roles().attach([userRole.id], null, trx)
+    await trx.commit()
+    return response.status(201).send({user})
+  } catch (error) {
+    await trx.rollback()
+    return response.status(400).send({message: "Erro ao realizaar o cadastro do usuário"})
+  }
 }
+
 
 /**
  * Display a single stock.

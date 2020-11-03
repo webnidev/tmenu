@@ -44,10 +44,11 @@ class ClientSeeder {
     const establishments = await Factory.model('App/Models/Establishment').createMany(3)
     await Promise.all(     
         establishments.map( async establishment =>{
-        const manage = await Factory.model('App/Models/User').create()
-        await manage.roles().attach([roleManeger.id])
-        //await establishment.user().attach([manage.id])
-        establishment.user_id = manage.id
+        const manager = await Factory.model('App/Models/User').create()
+        await manager.roles().attach([roleManeger.id])
+        const plan =await Factory.model('App/Models/Plan').create()
+        establishment.plan_id = plan.id
+        await establishment.managers().attach([manager.id]) 
         await establishment.save()
         const printers = await Factory.model('App/Models/Printer').createMany(3)
         await Promise.all(
@@ -61,7 +62,8 @@ class ClientSeeder {
         await Promise.all(
           waiters.map( async waiter =>{
             await waiter.roles().attach([roleWaiter.id])
-            await waiter.establishments().attach([establishment.id])
+            await establishment.waiters().attach([waiter.id])
+            //await waiter.establishments().attach([establishment.id])
           })
         )
         const tables = await Factory.model('App/Models/Table').createMany(5)

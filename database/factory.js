@@ -35,9 +35,13 @@ Factory.blueprint('App/Models/Establishment', (faker)=>{
     return {
         name: faker.name(),
         address: faker.address(),
+        email:faker.email({domain: 'tmenu.com'}),
+        responsible:faker.name(),
+        phone: faker.phone(),
+        category:faker.first(),
         cnpj: faker.integer({min: 11111111111111, max: 99999999999999 }),
         last_billing: new Date(),
-        rate: 2.00
+        
     }
 })
 
@@ -75,7 +79,11 @@ Factory.blueprint('App/Models/Product', (faker)=>{
         value: faker.floating({min:5, max:100}, 8, 2)
     }
 })
-
+Factory.blueprint('App/Models/Plan', (faker)=>{
+    return{
+        type:faker.first()
+    }
+})
 /*Factory.blueprint('App/Models/Stock', (faker)=>{
     return {
         
