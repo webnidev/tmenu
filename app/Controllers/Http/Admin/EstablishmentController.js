@@ -24,17 +24,6 @@ class EstablishmentController {
       return response.send({establishments})
 }
 
-/**
- * Render a form to be used for creating a new stock.
- * GET stocks/create
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async create ({ request, response, view }) {
-}
 
 /**
  * Create/save a new stock.
@@ -45,6 +34,11 @@ async create ({ request, response, view }) {
  * @param {Response} ctx.response
  */
 async store ({ request, response }) {
+    try {
+        
+    } catch (error) {
+        
+    }
 }
 
 /**

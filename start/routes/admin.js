@@ -5,6 +5,7 @@ const Route = use('Route')
 
 
 Route.group(()=>{
+    Route.resource('profile', 'ProfileController').apiOnly()
     Route.resource('user', 'UserController').apiOnly()
     Route.resource('establishment', 'EstablishmentController').apiOnly()
     Route.resource('billing','BillingController').apiOnly()
