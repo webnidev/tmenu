@@ -1,5 +1,6 @@
 'use strict'
 const User = use('App/Models/User')
+const Plan = use('App/Models/Plan')
 /*
 |--------------------------------------------------------------------------
 | ClientSeeder
@@ -40,14 +41,17 @@ class ClientSeeder {
 
     await admin.roles().attach([roleAdmin.id])
     
+    const plan = await Plan.create({type:'geral'})
 
     const establishments = await Factory.model('App/Models/Establishment').createMany(3)
     await Promise.all(     
         establishments.map( async establishment =>{
         const manager = await Factory.model('App/Models/User').create()
         await manager.roles().attach([roleManeger.id])
-        const plan =await Factory.model('App/Models/Plan').create()
+       
+        const address =await Factory.model('App/Models/Address').create()
         establishment.plan_id = plan.id
+        establishment.address_id = address.id
         await establishment.managers().attach([manager.id]) 
         await establishment.save()
         const printers = await Factory.model('App/Models/Printer').createMany(3)

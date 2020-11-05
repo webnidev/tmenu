@@ -8,7 +8,7 @@ class EstablishmentSchema extends Schema {
     this.create('establishments', (table) => {
       table.increments()
       table.string('name', 100).unique().notNullable()
-      table.string('address', 256).notNullable()
+      table.integer('address_id')
       table.string('email')
       table.string('responsible', 90)
       table.string('cnpj',20)

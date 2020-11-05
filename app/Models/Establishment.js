@@ -38,6 +38,9 @@ class Establishment extends Model {
     images(){
         return this.hasMany('App/Models/ImageEstablishment')
     }
+    address(){
+        return this.belongsTo('App/Models/Address')
+    }
 
 }
 

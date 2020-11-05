@@ -31,10 +31,21 @@ const Factory = use('Factory')
    }
  })
 
+ Factory.blueprint('App/Models/Address', (faker)=>{
+     return{
+        street: faker.name(),
+        number: faker.integer({min:1, max:9999}),
+        district: faker.first(),
+        city: faker.first(),
+        state: faker.first(),
+        country: faker.first(),
+        zipcode: faker.integer({min: 111111111, max: 999999999 })
+     }
+ })
+
 Factory.blueprint('App/Models/Establishment', (faker)=>{
     return {
         name: faker.name(),
-        address: faker.address(),
         email:faker.email({domain: 'tmenu.com'}),
         responsible:faker.name(),
         phone: faker.phone(),
