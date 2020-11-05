@@ -1,7 +1,7 @@
 'use strict'
 
 const Database = use('Database')
-const User = use('App/Models/User')
+
 const Role = use('Role')
 class AuthController {
     async register({request, response}){

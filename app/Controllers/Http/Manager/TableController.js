@@ -138,7 +138,19 @@ class TableController {
       await table.delete()
     return response.status(200).send({message:`A mesa ${table.number} foi excluida!`})
     } catch (error) {
-      return response.status(500).send({message:error.message})
+      return response.status(400).send({message:error.message})
+    }
+  }
+
+
+  async addWaiter({params, request, response}){
+    try {
+      const table = await Table.query().where('id', params.id)
+      .with('cards')
+      .fetch()
+      return response.send({table})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
     }
   }
 }
