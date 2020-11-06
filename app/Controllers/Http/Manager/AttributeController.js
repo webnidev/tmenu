@@ -1,6 +1,7 @@
 'use strict'
 const Establishment = use('App/Models/Establishment')
 const Attribute = use('App/Models/Attribute')
+const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -20,7 +21,15 @@ class AttributeController {
    */
   async index ({ request, response, auth }) {
     try {
-      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
       const attributes = await establishment.attributes().fetch()
       return response.send({attributes})
     } catch (error) {
@@ -41,7 +50,15 @@ class AttributeController {
   async store ({ request, response, auth }) {
     try {
       const data = request.only(['title', 'description','max_item', 'required'])
-      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
       const attribute = await Attribute.create({...data, establishment_id: establishment.id})
       return response.status(201).send({attribute})
     } catch (error) {

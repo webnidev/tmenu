@@ -1,6 +1,10 @@
 'use strict'
+
+const User = use('App/Models/User')
 const Table = use('App/Models/Table')
 const Establishment = use('App/Models/Establishment')
+const Manager = use('App/Models/Manager')
+const Waiter = use('App/Models/Waiter')
 const Libs = use('App/Utils/Libs')
 const { validateAll } = use('Validator')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -21,7 +25,13 @@ class TableController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth, pagination }) {
-    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+   try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+    .first()
+    if(!manager || !establishment){
+      return response.status(404).send({message: 'Data not found!'})
+    }
     const tables = await Table.query()
     .where('establishment_id', establishment.id)
     .groupBy('id','status')
@@ -34,6 +44,9 @@ class TableController {
     })
     .paginate(pagination.page, pagination.limit)
     return response.send({tables})
+   } catch (error) {
+    return response.status(400).send({message: error.message})
+   }
   }
 
   /**
@@ -57,7 +70,16 @@ class TableController {
       return response.status(401).send({message: validation.messages()})
     }
     const libs = new Libs
-    const establishment = await Establishment.query().where('user_id', auth.user.id).first()
+    const manager = await Manager.findBy('user_id',auth.user.id)
+    if(!manager){
+      return response.status(404).send({message: 'Manager not found!'})
+    }
+    const establishment = await Establishment.query().where('id', manager.establishment_id)
+    .first()
+    if(!establishment){
+      return response.status(404).send({message: 'Establishment not found!'})
+    }
+
     const data = request.only(["number"])
     const table = await Table.create({...data, status: false, 
     establishment_id: establishment.id,
@@ -79,11 +101,16 @@ class TableController {
    */
   async show ({ params, request, response, view }) {
     try {
-      const table = await Table.findBy('id', params.id)
+      const table = await Table.query().where('id', params.id)
+      .with('cards',(builder)=>{
+        return builder
+        .where('status','true')
+        .orderBy('updated_at', 'desc')
+      })
+      .first()
       if(!table){
         return response.status(404).send({message:'Mesa não encontrada!'})
       }
-      await table.load('cards')
       return response.send({table})
     } catch (error) {
       return response.status(500).send({message:error.message})
@@ -143,13 +170,31 @@ class TableController {
   }
 
 
-  async addWaiter({params, request, response}){
+  async addWaiter({params, request, response, auth}){
     try {
-      const table = await Table.query().where('id', params.id)
-      .with('cards')
-      .fetch()
-      return response.send({table})
+      const table = await Table.find(params.table_id)
+      if(!table){
+        return response.status(404).send({message:'Mesa not found!'})
+      }
+      const user = await User.find(params.waiter_id)
+      const waiter = await Waiter.query(params.waiter_id)
+      .where('user_id', params.waiter_id)
+      .where('establishment_id', table.establishment_id)
+      .first()
+      const roles = await user.roles().fetch()
+      if('waiter' == roles.rows[0].slug){  
+        const cards = await table.cards().fetch()
+        await Promise.all(cards.rows.map(async card=>{
+          card.waiter_id = waiter.id
+          await card.save()
+        })) 
+        return response.send({cards})
+      }
+      
+      //const cards = await table.load('cards')
+      
     } catch (error) {
+      console.log(error)
       return response.status(400).send({message:error.message})
     }
   }

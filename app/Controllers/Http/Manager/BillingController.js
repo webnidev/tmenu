@@ -1,8 +1,6 @@
 'use strict'
-
-const { resource } = require('@adonisjs/framework/src/Route/Manager')
-
-const Establisment = use('App/Models/Establishment')
+const Manager = use('App/Models/Manager')
+const Establishment = use('App/Models/Establishment')
 const Card = use('App/Models/Card')
 const Billing = use('App/Models/Billing')
 const Database = use('Database')
@@ -24,9 +22,21 @@ class BillingController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const establishment = await Establisment.findBy('user_id',auth.user.id)
-    const billings = await establishment.billings().whereNot('status','NÃO ENVIADA').fetch()
-    return response.send(billings)
+    try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
+      const billings = await establishment.billings().whereNot('status','NÃO ENVIADA').fetch()
+      return response.send(billings)
+    } catch (error) {
+        return response.status(400).send({message: error.message})
+    }
   }
 
   /**

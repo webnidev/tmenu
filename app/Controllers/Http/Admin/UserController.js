@@ -57,8 +57,6 @@ async store ({ request, response }) {
     return response.status(400).send({message: "Erro ao realizaar o cadastro do usuário"})
   }
 }
-
-
 /**
  * Display a single stock.
  * GET stocks/:id

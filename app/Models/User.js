@@ -40,6 +40,7 @@ class User extends Model {
    *
    * @return {Object}
    */
+
   tokens () {
     return this.hasMany('App/Models/Token')
   }
@@ -54,9 +55,11 @@ class User extends Model {
   cards(){
     return this.hasMany('App/Models/Card')
   }
-
-
-  
+  establishment(){
+    return this.belongsToMany('App/Models/Establishment').pivotTable('managers')
+  }
+  role(){
+    return this.hasOne('Role')
+  }
 }
-
 module.exports = User

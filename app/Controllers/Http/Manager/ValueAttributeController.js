@@ -2,6 +2,7 @@
 const Attribute = use('App/Models/Attribute')
 const ValueAttribute = use('App/Models/ValueAttribute')
 const Establishment = use('App/Models/Establishment')
+const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -22,7 +23,15 @@ class ValueAttributeController {
   async index ({ request, response, auth }) {
     try {
       const valuesList = []
-      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
       const attributes = await Attribute.query().where('establishment_id', establishment.id).fetch()
       if(!attributes){
         return response.status(404).send({'message':'Have dont values registered'})
