@@ -1,6 +1,7 @@
 'use strict'
 const Client = use('App/Models/Client')
 const Establishment = use('App/Models/Establishment')
+const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -20,24 +21,20 @@ class ClientController {
    */
   async index ({ request, response, auth }) {
     try {
-      const establishment = await Establishment.findBy('user_id', auth.user.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
       const clients = await establishment.clients().fetch()
     return response.send(clients)
     } catch (error) {
       console.log(error)
     }
-  }
-
-  /**
-   * Render a form to be used for creating a new client.
-   * GET clients/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
   }
 
   /**

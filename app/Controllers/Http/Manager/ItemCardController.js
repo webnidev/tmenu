@@ -9,6 +9,7 @@ const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const ItemCard = use('App/Models/ItemCard')
 const Product = use('App/Models/Product')
+const Manager = use('App/Models/Manager')
 //const Printer = use('App/Models/Printer')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
@@ -32,7 +33,15 @@ class ItemCardController {
    */
   async index ({ request, response, auth }) {//Exibe o número de pedidos nos 30 dias
       try {
-        const establishment = await Establishment.findBy('user_id', auth.user.id)
+        const manager = await Manager.findBy('user_id',auth.user.id)
+        if(!manager){
+          return response.status(404).send({message: 'Manager not found!'})
+        }
+        const establishment = await Establishment.query().where('id', manager.establishment_id)
+        .first()
+        if(!establishment){
+          return response.status(404).send({message: 'Establishment not found!'})
+        }
         const cards = await Database.raw(`
         SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
         ITEM_CARDS AS I WHERE E.ID=T.ESTABLISHMENT_ID 
@@ -100,7 +109,16 @@ class ItemCardController {
   }
 
   async lastOrders({request, response}){
-    const establishment = await Establishment.findBy('user_id', auth.user.id)
+    try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
     const cards = await Database.raw(`
     SELECT I.QUANTITY, I.PRODUCT_NAME, T.NUMBER, I.CREATED_AT AS DIA 
     FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, ITEM_CARDS AS I 
@@ -109,6 +127,9 @@ class ItemCardController {
     ORDER BY DIA DESC LIMIT 10
     `,[establishment.id])
     return response.send(cards.rows[0])
+    } catch (error) {
+      return response.status(error.status).send(error.message)
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 'use strict'
 const Database = use('Database')
 const Establishment = use('App/Models/Establishment')
-
+const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -20,10 +20,16 @@ class EstablishmentController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
+    const manager = await Manager.findBy('user_id',auth.user.id)
+    if(!manager){
+      return response.status(404).send({message: 'Manager not found!'})
+    }
     const establishments = await Establishment.query()
-    .where('user_id', auth.user.id)
-    .with(['tables'])
-    //.with(['waiters'])
+    .where('id', manager.establishment_id)
+    .with('tables')
+    .with('waiters')
+    .with('managers')
+    .with('images')
     .fetch()
     return response.send({establishments})
   }
@@ -66,18 +72,6 @@ class EstablishmentController {
   }
 
   /**
-   * Render a form to update an existing establishment.
-   * GET establishments/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
    * Update establishment details.
    * PUT or PATCH establishments/:id
    *
@@ -86,6 +80,18 @@ class EstablishmentController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    try {
+      const establishment = await Establishment.find(params.id)
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
+      const {data} = request.all()
+      establishment.merge({...data})
+      await establishment.save()
+      return response.send({establishment})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**

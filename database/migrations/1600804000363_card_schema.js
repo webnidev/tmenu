@@ -18,8 +18,8 @@ class CardSchema extends Schema {
       table.integer('printer_id').notNullable()
       table.foreign('table_id').references('tables.id').onDelete('cascade')
       table.foreign('user_id').references('users.id').onDelete('cascade')
-      table.foreign('waiter_id').references('waiters.id').onDelete('cascade')
-      table.foreign('printer_id').references('printers.id').onDelete('set null')
+      table.foreign('waiter_id').references('waiters.id').onDelete('set null').onUpdate('set null')
+      table.foreign('printer_id').references('printers.id').onDelete('set null').onUpdate('set null')
     })
   }
 

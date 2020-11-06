@@ -1,6 +1,7 @@
 'use strict'
 const Establishment = use('App/Models/Establishment')
 const Attribute = use('App/Models/Attribute')
+const Manager = use('App/Models/Manager')
 const Product = use('App/Models/Product')
 const Image = use('App/Models/ImageProduct')
 const Database = use('Database')
@@ -23,8 +24,15 @@ class ProductController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const establishment = await Establishment.query().where('user_id', auth.user.id)
+    const manager = await Manager.findBy('user_id',auth.user.id)
+    if(!manager){
+      return response.status(404).send({message: 'Manager not found!'})
+    }
+    const establishment = await Establishment.query().where('id', manager.establishment_id)
     .first()
+    if(!establishment){
+      return response.status(404).send({message: 'Establishment not found!'})
+    }
     const data = await Database.raw(`SELECT 
     PRODUCTS.ID,
     PRODUCTS.NAME,
@@ -130,7 +138,7 @@ class ProductController {
    */
   async update ({ params, request, response }) {
     try {
-      const {data} =request.all()
+      const {data} = request.all()
     const product = await Product.query().where('id',params.id).first()
     if(!product){
       return response.status(404).send({"Error":"Porduct not found"})
@@ -169,12 +177,16 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
-    const product = await Product.query().where('id',params.id).first()
-    if(!product){
-      return response.status(404).send({"Error":"Porduct not found"})
-    }
-    product.delete()
+    try {
+      const product = await Product.query().where('id',params.id).first()
+      if(!product){
+        return response.status(404).send({"Error":"Porduct not found"})
+      }
+      product.delete()
     return response.status(200).send({"Delete":"Product deleted"})
+    } catch (error) {
+      return response.status(error.status).send(error.message)
+    }
   }
 }
 

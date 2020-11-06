@@ -35,7 +35,15 @@ class PrinterController {
    */
   async store ({ request, response, auth }) {
     try {
-    const establishment = await Establishmetn.query().where('user_id', auth.user.id).first()
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      .first()
+      if(!establishment){
+        return response.status(404).send({message: 'Establishment not found!'})
+      }
     const data = request.only(['name', 'code'])
     const printer = await Printer.create({...data, establishment_id: establishment.id})
     return response.send({printer})
@@ -65,12 +73,15 @@ class PrinterController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
-    const {data} = request.all() 
-    console.log(data)
-    const printer = await Printer.findBy('id', params.id)
-    printer.merge({...data})
-    printer.save()
-    return response.status(200).send({printer})
+    try {
+      const {data} = request.all() 
+      const printer = await Printer.findBy('id', params.id)
+      printer.merge({...data})
+      printer.save()
+      return response.status(200).send({printer})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**
@@ -82,6 +93,13 @@ class PrinterController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+    try {
+      const printer = await Printer.find(params.id)
+      printer.delete()
+      return response.status(200).send({message:'Printer delete!'})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 }
 
