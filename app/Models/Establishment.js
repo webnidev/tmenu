@@ -13,6 +13,10 @@ class Establishment extends Model {
         return this.belongsToMany('App/Models/User').pivotTable('waiters')
     }
 
+    managers(){
+        return this.belongsToMany('App/Models/User').pivotTable('managers')
+    }
+
     billings(){
         return this.hasMany('App/Models/Billing')
     }
@@ -31,10 +35,12 @@ class Establishment extends Model {
     attributes(){
         return this.hasMany('App/Models/Attribute')
     }
-    // user(){
-    //     return this.belongsTo('App/Models/User')
-    // }
-    
+    images(){
+        return this.hasMany('App/Models/ImageEstablishment')
+    }
+    address(){
+        return this.belongsTo('App/Models/Address')
+    }
 
 }
 

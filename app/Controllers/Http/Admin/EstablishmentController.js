@@ -16,21 +16,15 @@ class EstablishmentController {
    */
   async index ({ request, response, view }) {
       const establishments = await Establishment.query()
-      .with('tables').fetch()
+      .with('tables')
+      .with('waiters')
+      .with('managers')
+      .with('images')
+      .with('address')
+      .fetch()
       return response.send({establishments})
 }
 
-/**
- * Render a form to be used for creating a new stock.
- * GET stocks/create
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async create ({ request, response, view }) {
-}
 
 /**
  * Create/save a new stock.
@@ -41,6 +35,13 @@ async create ({ request, response, view }) {
  * @param {Response} ctx.response
  */
 async store ({ request, response }) {
+    try {
+        const {data} = request.all()
+        const establishment = await Establishment.create({...data})
+        return response.status(201).send({establishment})
+    } catch (error) {
+        return response.status(400).send({message: error.message})
+    }
 }
 
 /**
@@ -53,19 +54,21 @@ async store ({ request, response }) {
  * @param {View} ctx.view
  */
 async show ({ params, request, response, view }) {
+    try {
+        const establishment = await Establishment.query()
+        .where('id', params.id)
+        .with('tables')
+        .with('waiters')
+        .with('managers')
+        .with('images')
+        .with('address')
+        .first()
+        return response.send({establishment})
+    } catch (error) {
+        return response.status(400).send({message: error.message})
+    }
 }
 
-/**
- * Render a form to update an existing stock.
- * GET stocks/:id/edit
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async edit ({ params, request, response, view }) {
-}
 
 /**
  * Update stock details.
@@ -76,6 +79,15 @@ async edit ({ params, request, response, view }) {
  * @param {Response} ctx.response
  */
 async update ({ params, request, response }) {
+    try {
+        const {data} = request.all()
+        const establishment = await Establishment.findBy('id', params.id)
+        establishment.merge({...data})
+        await establishment.save()
+        return response.send({establishment})
+    } catch (error) {
+        return response.status(400).send({message: error.message})
+    }
 }
 
 /**
@@ -87,6 +99,16 @@ async update ({ params, request, response }) {
  * @param {Response} ctx.response
  */
 async destroy ({ params, request, response }) {
+    try {
+        const establishment = await Establishment.findBy('id', params.id)
+        if(!establishment){
+            return response.status(404).send({message: 'Establishment not found!'})
+        }
+        await establishment.delete()
+        return response.send({message:`O estabelecimento ${establishment.name} foi excluido!`})
+    } catch (error) {
+        return response.status(400).send({message: error.message})
+    }
 }
 }
 

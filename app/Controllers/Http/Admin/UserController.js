@@ -1,6 +1,8 @@
 'use strict'
 
 const User = use('App/Models/User')
+const Database = use('Database')
+const Role = use('Role')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -16,23 +18,15 @@ class UserController {
    */
   async index ({ request, response, view }) {
       try {
-        const users = await User.all()
-        return response.send({users})
+        const users = await Database.raw(`SELECT 
+        U.ID, U.NAME, U.EMAIL, U.CPF, U.PHONE, U.CREATED_AT AS "Data de Cadastro", R.NAME AS "Usuário" 
+        FROM USERS AS U, ROLE_USER AS T, ROLES AS R WHERE U.ID = T.USER_ID AND R.ID = T.ROLE_ID
+        `)
+        return response.send({users:users.rows})
       } catch (error) {
           console.log(error)
+          return response.status(400).send({message:error.message})
       }
-}
-
-/**
- * Render a form to be used for creating a new stock.
- * GET stocks/create
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async create ({ request, response, view }) {
 }
 
 /**
@@ -44,7 +38,26 @@ async create ({ request, response, view }) {
  * @param {Response} ctx.response
  */
 async store ({ request, response }) {
+  const trx = await Database.beginTransaction()
+  try {
+    const {name, email, password, cpf, phone, role} = request.all()
+    const userRole = await Role.findBy('slug', role)
+    if(!userRole){
+      return response.status(400).send({"message":"Tipo de usuário inexistente!"})
+    }
+    const first = name.split(" ")
+    const cpfPart = cpf.slice(0,5)
+    const username = first[0].toLowerCase()+cpfPart
+    const user = await User.create({name, username, email, password, cpf, phone}, trx)
+    await user.roles().attach([userRole.id], null, trx)
+    await trx.commit()
+    return response.status(201).send({user})
+  } catch (error) {
+    await trx.rollback()
+    return response.status(400).send({message: "Erro ao realizaar o cadastro do usuário"})
+  }
 }
+
 
 /**
  * Display a single stock.
@@ -55,20 +68,22 @@ async store ({ request, response }) {
  * @param {Response} ctx.response
  * @param {View} ctx.view
  */
-async show ({ params, request, response, view }) {
+async show ({ params, request, response }) {
+  try {
+    const user = await Database.raw(`SELECT 
+        U.ID, U.NAME, U.EMAIL, U.CPF, U.PHONE, U.CREATED_AT AS "Data de Cadastro", R.NAME AS "Usuário" 
+        FROM USERS AS U, ROLE_USER AS T, ROLES AS R WHERE U.ID = T.USER_ID AND R.ID = T.ROLE_ID 
+        AND U.ID = ? 
+        `,[params.id])  
+    if(!user.rows[0]){
+      return response.status(404).send({message:'Usuário não encontrado'})
+    }
+    return response.send({user:user.rows[0]})
+  } catch (error) {
+    return response.status(400).send({message:error.message})
+  }
 }
 
-/**
- * Render a form to update an existing stock.
- * GET stocks/:id/edit
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async edit ({ params, request, response, view }) {
-}
 
 /**
  * Update stock details.
@@ -79,6 +94,18 @@ async edit ({ params, request, response, view }) {
  * @param {Response} ctx.response
  */
 async update ({ params, request, response }) {
+  try {
+    const {data} = request.all()
+    const user = await User.findBy('id', params.id)
+    if(!user){
+      return response.status(404).send({message:'Usuário não encontrado!'})
+    }
+    user.merge({...data})
+    await user.save()
+    return response.send({user})
+  } catch (error) {
+    return response.status(400).send({message:error.message})
+  }
 }
 
 /**
@@ -90,6 +117,16 @@ async update ({ params, request, response }) {
  * @param {Response} ctx.response
  */
 async destroy ({ params, request, response }) {
+  try {
+    const user = await User.findBy('id',params.id)
+    if(!user){
+      return response.status(404).send({message:`Usuário não encontrado!`})
+    }
+    user.delete()
+    return response.status(200).send({message:`Usuário ${user.name} deletado!`})
+  } catch (error) {
+    return response.status(400).send({message:error.message})
+  }
 }
 }
 
