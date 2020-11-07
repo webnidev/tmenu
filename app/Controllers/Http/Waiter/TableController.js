@@ -1,37 +1,40 @@
 'use strict'
-const User = use('App/Models/User')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with profiles
+ * Resourceful controller for interacting with tables
  */
-class ProfileController {
+class TableController {
   /**
-   * Show a list of all profiles.
-   * GET profiles
+   * Show a list of all tables.
+   * GET tables
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
-    try {
-      const profile = await User.query().where('id',auth.user.id)
-      .with('roles')
-      .first()
-      return response.send({profile})
-    } catch (error) {
-      
-    }
+  async index ({ request, response, view }) {
   }
 
+  /**
+   * Render a form to be used for creating a new table.
+   * GET tables/create
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async create ({ request, response, view }) {
+  }
 
   /**
-   * Create/save a new profile.
-   * POST profiles
+   * Create/save a new table.
+   * POST tables
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -41,8 +44,8 @@ class ProfileController {
   }
 
   /**
-   * Display a single profile.
-   * GET profiles/:id
+   * Display a single table.
+   * GET tables/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -52,30 +55,32 @@ class ProfileController {
   async show ({ params, request, response, view }) {
   }
 
+  /**
+   * Render a form to update an existing table.
+   * GET tables/:id/edit
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async edit ({ params, request, response, view }) {
+  }
 
   /**
-   * Update profile details.
-   * PUT or PATCH profiles/:id
+   * Update table details.
+   * PUT or PATCH tables/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
-    try {
-      const {data} = request.all()
-      const profile = await User.find(params.id)
-      profile.merge({...data})
-      await profile.save()
-      return response.send({profile})
-    } catch (error) {
-      return response.status(400).send({message:error.message})
-    }
   }
 
   /**
-   * Delete a profile with id.
-   * DELETE profiles/:id
+   * Delete a table with id.
+   * DELETE tables/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -85,4 +90,4 @@ class ProfileController {
   }
 }
 
-module.exports = ProfileController
+module.exports = TableController
