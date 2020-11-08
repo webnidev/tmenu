@@ -174,15 +174,23 @@ class TableController {
     try {
       const table = await Table.find(params.table_id)
       if(!table){
-        return response.status(404).send({message:'Mesa not found!'})
+        return response.status(404).send({message:'Table not found!'})
       }
-      const user = await User.find(params.waiter_id)
-      const waiter = await Waiter.query(params.waiter_id)
-      .where('user_id', params.waiter_id)
+      if(table.waiter_id){
+        return response.status(400).send({message:'The table already a waiter!'})
+      }
+      if(!table.status){
+        return response.status(400).send({message:'The table is closed!'})
+      }
+      const user = await User.find(params.user_id)
+      const waiter = await Waiter.query()
+      .where('user_id', params.user_id)
       .where('establishment_id', table.establishment_id)
       .first()
       const roles = await user.roles().fetch()
       if('waiter' == roles.rows[0].slug){  
+        table.waiter_id = waiter.id
+        await table.save()
         const cards = await table.cards().fetch()
         await Promise.all(cards.rows.map(async card=>{
           card.waiter_id = waiter.id
@@ -190,9 +198,7 @@ class TableController {
         })) 
         return response.send({cards})
       }
-      
-      //const cards = await table.load('cards')
-      
+      return response.status(404).send({message:'Waiter not found!'})
     } catch (error) {
       console.log(error)
       return response.status(400).send({message:error.message})

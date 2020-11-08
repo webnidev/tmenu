@@ -10,6 +10,7 @@ class TableSchema extends Schema {
       table.integer('number').notNullable()
       table.string('hashcode',64).notNullable().unique()
       table.boolean('status').notNullable().defaultTo(false)
+      table.integer('waiter_id')
       table.datetime('changed_status')
       table.timestamps()
       table.integer('establishment_id')
