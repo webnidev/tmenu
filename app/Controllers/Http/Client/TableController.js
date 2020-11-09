@@ -1,8 +1,10 @@
 'use strict'
 const Table = use('App/Models/Table')
 const Product = use('App/Models/Product')
+const Printer = use('App/Models/Printer')
 const Establishment = use('App/Models/Establishment')
 const Libs = use('App/Utils/Libs')
+const Database = use('Database')
 class TableController {
 
   /**
@@ -14,16 +16,27 @@ class TableController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response, auth }) {
+    const query = `SELECT 
+    IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
+    FROM CARDS AS C, ITEM_CARDS AS IT
+    WHERE C.ID = IT.CARD_ID 
+    AND C.ID = ?`
     try {
+      const cardsClosed = []
       const table = await Table.find(params.id)
       const cards = await table.cards().fetch()
-      //console.log(cards.rows)
+      //const printer = await Printer.findBy('id',card.printer_id)
+      const establishment = await Establishment.findBy('id',table.establishment_id)
       await Promise.all(
         cards.rows.map(async card=>{
-          console.log(card.message)
+          const itens = await Database.raw(query,[card.id])
+          const orders = itens.rows
+          //card.status = false
+          //await card.save()
+          cardsClosed.push({'card':card, 'itens':orders})
         })
       )
-      return response.send(cards)
+      return response.send(cardsClosed)
     } catch (error) {
         return response.status(400).send({message: error.message})
     }
