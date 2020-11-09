@@ -95,7 +95,6 @@ class ItemCardController {
                   card_id: card.id,
                   product_id: product.id
                },trxo)
-               console.log('create order')
               //card_value += product.value * item.quantity
               product.ranking += item.quantity
               await product.save()
@@ -118,9 +117,7 @@ class ItemCardController {
                 })
                 
               )
-              console.log('vai commitrar')
               await trxo.commit()
-              console.log('ja commitou')
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
               await order.save()

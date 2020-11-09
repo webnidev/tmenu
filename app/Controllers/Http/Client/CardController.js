@@ -74,8 +74,7 @@ async show ({ params, request, response, auth }) {
  */
 async update ({ params, request, response, auth }) {
   try {
-    const card = await Card.query().where('id', params.id)
-    .first()
+    const card = await Card.find(params.id)
     if(!card){
       return response.status(404).send({'Error':'Acount not found'})
     }
@@ -112,10 +111,8 @@ async update ({ params, request, response, auth }) {
       }
     return response.send({card})
   } catch (error) {
-    console.log(error)
     return response.status(error.status).send({'Error':'Error in proccess'})
   }
-    
 }
 
 /**

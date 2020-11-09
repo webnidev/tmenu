@@ -4,6 +4,31 @@ const Product = use('App/Models/Product')
 const Establishment = use('App/Models/Establishment')
 const Libs = use('App/Utils/Libs')
 class TableController {
+
+  /**
+   * Update table details.
+   * PUT or PATCH tables/:id
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   */
+  async update ({ params, request, response, auth }) {
+    try {
+      const table = await Table.find(params.id)
+      const cards = await table.cards().fetch()
+      //console.log(cards.rows)
+      await Promise.all(
+        cards.rows.map(async card=>{
+          console.log(card.message)
+        })
+      )
+      return response.send(cards)
+    } catch (error) {
+        return response.status(400).send({message: error.message})
+    }
+  }
+
    /**
    * Display a single table.
    * GET tables/:id
@@ -33,8 +58,6 @@ class TableController {
       return response.status(500).send(error.message)
     }
   }
-
-
 }
 
 module.exports = TableController

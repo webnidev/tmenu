@@ -16,4 +16,5 @@ Route.group(()=>{
     Route.get('card', 'CardController.index').as('client.cards')
     Route.get('card-open', 'CardController.show').as('client.card')
     Route.resource('user','UserController').only(['show','update','delete'])
+    Route.resource('table', 'TableController').only(['update'])
 }).prefix('v1.0/client').namespace('Client').middleware(['auth','is:client'])
