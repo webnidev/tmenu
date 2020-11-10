@@ -1,11 +1,8 @@
 'use strict'
-
-const { table } = require("@adonisjs/lucid/src/Lucid/Model")
-
 const Table = use('App/Models/Table')
 const Product = use('App/Models/Product')
 const Printer = use('App/Models/Printer')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Establishment')
 const Libs = use('App/Utils/Libs')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
@@ -26,18 +23,23 @@ class TableController {
       const order = new Order
       const table = await Table.find(params.id)
       const cards = await table.cards().with('itens').fetch()
-      const establishment = await table.establishment().first()
+      const company = await table.company().first()
       const waiter = await table.waiter().first()
+      const address = await company.address().first()
       const closed = []
-      const data = [{establishment, waiter, table}]
+      const data = [{company, waiter, table, address}]
+      let len=0
       await Promise.all(
         cards.rows.map(async card=>{
           const itens = await Database.raw(query,[card.id])
-          //console.log(itens.rows)
           const user = await card.user().first()
+          //card.status = false
+          //await card.save()
           closed.push({user, card, 'itens':itens.rows})
+          len += 1
         })
       )
+      data.push({'len':len})
       order.closeTable({data, closed})
       return response.send(cards)
     } catch (error) {
@@ -60,8 +62,8 @@ class TableController {
       if(!table){
         return response.status(404).send({'response':'Cardápio não encontrado'})
       }
-      const establishment = await table.establishment().first()
-      const menu = await establishment.categories()
+      const company = await table.company().first()
+      const menu = await company.categories()
       .with('products', (builder) =>{
         return builder
         .with('images')

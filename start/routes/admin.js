@@ -12,7 +12,7 @@ Route.group(()=>{
     Route.resource('billing','BillingController').apiOnly()
     Route.get('to-bill','BillingController.toBill')
     Route.put('send-billing','BillingController.sendBilling')
-}).prefix('v1.0/admin').namespace('Admin').middleware(['auth', 'is:admin'])
+}).prefix('v1/admin').namespace('Admin').middleware(['auth', 'is:admin'])
 
 Route.group(()=>{
     Route.resource('establishment', 'EstablishmentController').apiOnly()
@@ -28,4 +28,4 @@ Route.group(()=>{
     Route.resource('attribute', 'AttributeController').apiOnly()
     Route.resource('value-attribute', 'ValueAttributeController').apiOnly()
     Route.put('product/:product_id/attribute/:attribute_id', 'ProductController.edit').as('add-attribute')
-}).prefix('v1.0/asmanager').namespace('AsManger').middleware(['auth', 'is:admin'])
+}).prefix('v1/asmanager').namespace('AsManger').middleware(['auth', 'is:admin'])

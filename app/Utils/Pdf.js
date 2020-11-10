@@ -122,7 +122,52 @@ class Pdf extends Model{
     }
 
     createAccountTable({data, closed}){
-        console.log(closed)
+        const pageHeight = data[1].len * 10 + 150
+        const date = new Date()
+        const pdfName = `company${data[0].company.id}table${data[0].table.id}.pdf`
+        const mounht = date.getMonth()+1
+        const day = `0${date.getUTCDate()}`.slice(-2)
+        const year = date.getUTCFullYear()
+        const config = {size:[227.00, pageHeight],
+            layout: 'portrait',
+            margins : { 
+                top: 20, 
+                bottom: 20,
+                left: 20,
+                right: 20
+            }
+            }
+        const pdf = new PDFKit(config)
+        let position = 72
+        pdf.fontSize(10)
+        pdf.text(data[0].company.name,20, 20, {align:'center'})
+        pdf.text(`CNPJ: ${data[0].company.cnpj}`,20,32, {align:'left'})
+        pdf.text(`${day}/${mounht}/${year}`, 80, 32, {align:'right'})
+        pdf.text(`${data[0].address.street} ${data[0].address.number} - ${data[0].address.city} - ${data[0].address.state}`, 20, 44,{align:'left'} )
+        pdf.text(`Garçom: ${data[0].waiter.name}`,20 , 56,{align:'left'})
+        pdf.text( `Mesa: ${data[0].table.number}`,80 , 56,{align:'right'})
+        pdf.text(`--------------------------------------------------------`,20 , 62,{align:'left'})
+            
+        for(let i = 0;i<closed.length;i++){
+            pdf.text(`Cliente: ${closed[i].user.name}`, 20, position, {align:'left'})
+            for(let j=0; j<closed[i].itens.length;j++){
+                console.log(closed[i].itens[j])
+                position+=10
+            }
+            pdf.text(`--------------------------------------------------------`,20 , position+10,{align:'left'})
+            position += 20
+        }
+        pdf.text(`--------------------------------------------------------`,20 , position,{align:'left'})
+        pdf.text(`Total: ${parseFloat(99.00).toFixed(2) }`,120,position+10,{align: 'right'} )
+        if(!fs.existsSync('public/tmp')){
+            fs.mkdirSync('public/tmp')
+        }
+        pdf.pipe(fs.createWriteStream(`public/tmp/${pdfName}`))
+        pdf.end()
+        return pdfName
+        //console.log(closed.length)
+
+
     }
 
 }

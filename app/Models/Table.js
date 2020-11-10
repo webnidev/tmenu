@@ -4,7 +4,7 @@ const Model = use('Model')
 
 class Table extends Model {
 
-    establishment(){
+    company(){
         return this.belongsTo('App/Models/Establishment')
     }
     cards(){

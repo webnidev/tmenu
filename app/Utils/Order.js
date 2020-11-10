@@ -78,7 +78,7 @@ class Order extends Model{
 
     async closeTable({data, closed}){
         const pdf = new Pdf
-        pdf.createAccountTable({data,closed})
+        console.log(pdf.createAccountTable({data,closed}))
     }
 
 }
