@@ -121,5 +121,9 @@ class Pdf extends Model{
             return pdfName
     }
 
+    createAccountTable({data, closed}){
+        console.log(closed)
+    }
+
 }
 module.exports = Pdf

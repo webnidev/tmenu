@@ -105,6 +105,7 @@ class TableController {
       .with('cards',(builder)=>{
         return builder
         .where('status','true')
+        .with('user')
         .orderBy('updated_at', 'desc')
       })
       .first()

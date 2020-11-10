@@ -1,10 +1,14 @@
 'use strict'
+
+const { table } = require("@adonisjs/lucid/src/Lucid/Model")
+
 const Table = use('App/Models/Table')
 const Product = use('App/Models/Product')
 const Printer = use('App/Models/Printer')
 const Establishment = use('App/Models/Establishment')
 const Libs = use('App/Utils/Libs')
 const Database = use('Database')
+const Order = use('App/Utils/Order')
 class TableController {
 
   /**
@@ -16,27 +20,26 @@ class TableController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response, auth }) {
-    const query = `SELECT 
-    IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
-    FROM CARDS AS C, ITEM_CARDS AS IT
-    WHERE C.ID = IT.CARD_ID 
-    AND C.ID = ?`
+    const query = `SELECT IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
+    FROM CARDS AS C, ITEM_CARDS AS IT WHERE C.ID = IT.CARD_ID AND C.ID = ?`
     try {
-      const cardsClosed = []
+      const order = new Order
       const table = await Table.find(params.id)
-      const cards = await table.cards().fetch()
-      //const printer = await Printer.findBy('id',card.printer_id)
-      const establishment = await Establishment.findBy('id',table.establishment_id)
+      const cards = await table.cards().with('itens').fetch()
+      const establishment = await table.establishment().first()
+      const waiter = await table.waiter().first()
+      const closed = []
+      const data = [{establishment, waiter, table}]
       await Promise.all(
         cards.rows.map(async card=>{
           const itens = await Database.raw(query,[card.id])
-          const orders = itens.rows
-          //card.status = false
-          //await card.save()
-          cardsClosed.push({'card':card, 'itens':orders})
+          //console.log(itens.rows)
+          const user = await card.user().first()
+          closed.push({user, card, 'itens':itens.rows})
         })
       )
-      return response.send(cardsClosed)
+      order.closeTable({data, closed})
+      return response.send(cards)
     } catch (error) {
         return response.status(400).send({message: error.message})
     }

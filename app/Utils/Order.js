@@ -4,8 +4,10 @@ const Axios = use('App/Utils/Axios')
 const fs = require('fs')
 const { promisify } = require('util')
 const unlink = promisify(fs.unlink)
-/** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
+
+/** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
+
 
 
 class Order extends Model{    
@@ -52,8 +54,6 @@ class Order extends Model{
         //console.log(printers)
     }
 
-
-
     async printerOrder(orders){
         await Promise.all(
             orders.map(async order=>{
@@ -72,5 +72,14 @@ class Order extends Model{
             auth
           })
     }
+    async closeCard(){
+        console.log('Fechar conta individual')
+    }
+
+    async closeTable({data, closed}){
+        const pdf = new Pdf
+        pdf.createAccountTable({data,closed})
+    }
+
 }
 module.exports = Order

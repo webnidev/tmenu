@@ -10,6 +10,9 @@ class Table extends Model {
     cards(){
         return this.hasMany('App/Models/Card')
     }
+    waiter(){
+        return this.belongsTo('App/Models/Waiter')
+    }
 }
 
 module.exports = Table
