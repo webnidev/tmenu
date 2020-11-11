@@ -7,7 +7,7 @@ const Route = use('Route')
 Route.group(()=>{
     Route.resource('profile', 'ProfileController').apiOnly()
     Route.resource('user', 'UserController').apiOnly()
-    Route.resource('establishment', 'EstablishmentController').apiOnly()
+    Route.resource('company', 'CompanyController').apiOnly()
     Route.resource('address', 'AddressController').apiOnly()
     Route.resource('billing','BillingController').apiOnly()
     Route.get('to-bill','BillingController.toBill')
@@ -15,7 +15,7 @@ Route.group(()=>{
 }).prefix('v1/admin').namespace('Admin').middleware(['auth', 'is:admin'])
 
 Route.group(()=>{
-    Route.resource('establishment', 'EstablishmentController').apiOnly()
+    Route.resource('company', 'CompanyController').apiOnly()
     Route.resource('table', 'TableController').apiOnly()
     Route.resource('category', 'CategoryController').apiOnly()
     Route.resource('product', 'ProductController').apiOnly()

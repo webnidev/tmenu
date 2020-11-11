@@ -73,7 +73,9 @@ class TableController {
       const table = await Table.query().where('id', params.id)
       .where('status', true)
       .where('waiter_id', waiter.id)
-      .with('cards')
+      .with('cards',(builder)=>{
+        return builder.with('itens')
+      })
       .first()
       return response.send({table})
     } catch (error) {

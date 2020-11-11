@@ -78,6 +78,12 @@ async update ({ params, request, response, auth }) {
     if(!card){
       return response.status(404).send({'Error':'Acount not found'})
     }
+    if(!card.status){
+      return response.status(404).send({'Error':'This acount is closed'})
+    }
+    if(card.user_id != auth.user.id){
+      return response.status(401).send({'Error':'You dont have permission to modify this'})
+    }
     const itens = await  Database.raw(
       `SELECT 
       IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
@@ -88,13 +94,19 @@ async update ({ params, request, response, auth }) {
     )
     const orders = itens.rows
     const printer = await Printer.findBy('id',card.printer_id)
-    const table = await Table.findBy('id', card.table_id)
-    const company = await Company.findBy('id',table.company_id)
     card.status = false
     await card.save()
+    const table = await Table.find(card.table_id)
+    const cards = await table.cards().where('status',true).fetch()
+    console.log(cards.rows)
+    
+    const company = await Company.find(table.company_id)
+    const address = await company.address().first()
+    
     const pdf = new Pdf
     const pdfName = pdf.createCardPdf({
       company,
+      address,
       table,
       card,
       auth,
@@ -103,13 +115,19 @@ async update ({ params, request, response, auth }) {
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
     //const printed = await axios.toPrinter(printer.code, pdfNmae)
-    table.status = false
-    await table.save()
+    if(cards.rows.length == 0){
+      if(table.waiter_id){
+        table.waiter_id=null
+      }
+      table.status = false
+      await table.save()
+    }
+    
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
         topic.broadcast('new:card')
       }
-    return response.send({card})
+    return response.send({cards})
   } catch (error) {
     return response.status(error.status).send({'Error':'Error in proccess'})
   }

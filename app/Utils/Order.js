@@ -64,7 +64,7 @@ class Order extends Model{
     async printer(document, codePrinter){
         const pdf = new Pdf
         const pdfName = pdf.createPdf({
-            establishment,
+            company,
             table,
             product,
             order,

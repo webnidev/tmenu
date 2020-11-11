@@ -5,7 +5,7 @@ const Schema = use('Schema')
 
 class ImageEstablishmentSchema extends Schema {
   up () {
-    this.create('image_company', (table) => {
+    this.create('image_companies', (table) => {
       table.increments()
       table.string('path',256).notNullable()
       table.timestamps()
@@ -15,7 +15,7 @@ class ImageEstablishmentSchema extends Schema {
   }
 
   down () {
-    this.drop('image_company')
+    this.drop('image_companies')
   }
 }
 

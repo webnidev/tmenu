@@ -54,7 +54,7 @@ class AttributeController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const company = await company.query().where('id', manager.company_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
       if(!company){
         return response.status(404).send({message: 'company not found!'})

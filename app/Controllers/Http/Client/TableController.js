@@ -33,14 +33,17 @@ class TableController {
         cards.rows.map(async card=>{
           const itens = await Database.raw(query,[card.id])
           const user = await card.user().first()
-          //card.status = false
-          //await card.save()
+          card.status = false
+          await card.save()
           closed.push({user, card, 'itens':itens.rows})
-          len += 1
+          len += (1+itens.rows.length)
         })
       )
       data.push({'len':len})
       order.closeTable({data, closed})
+      table.status=false
+      table.waiter_id = null
+      await table.save()
       return response.send(cards)
     } catch (error) {
         return response.status(400).send({message: error.message})
