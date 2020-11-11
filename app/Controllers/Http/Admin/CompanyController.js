@@ -1,10 +1,10 @@
 'use strict'
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-class EstablishmentController {
+class CompanyController {
 /**
    * Show a list of all stocks.
    * GET stocks
@@ -15,14 +15,14 @@ class EstablishmentController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-      const establishments = await Establishment.query()
+      const company = await Company.query()
       .with('tables')
       .with('waiters')
       .with('managers')
       .with('images')
       .with('address')
       .fetch()
-      return response.send({establishments})
+      return response.send({company})
 }
 
 
@@ -37,8 +37,8 @@ class EstablishmentController {
 async store ({ request, response }) {
     try {
         const {data} = request.all()
-        const establishment = await Establishment.create({...data})
-        return response.status(201).send({establishment})
+        const company = await Company.create({...data})
+        return response.status(201).send({company})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }
@@ -55,7 +55,7 @@ async store ({ request, response }) {
  */
 async show ({ params, request, response, view }) {
     try {
-        const establishment = await Establishment.query()
+        const company = await Company.query()
         .where('id', params.id)
         .with('tables')
         .with('waiters')
@@ -63,7 +63,7 @@ async show ({ params, request, response, view }) {
         .with('images')
         .with('address')
         .first()
-        return response.send({establishment})
+        return response.send({company})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }
@@ -81,10 +81,10 @@ async show ({ params, request, response, view }) {
 async update ({ params, request, response }) {
     try {
         const {data} = request.all()
-        const establishment = await Establishment.findBy('id', params.id)
-        establishment.merge({...data})
-        await establishment.save()
-        return response.send({establishment})
+        const company = await Company.findBy('id', params.id)
+        company.merge({...data})
+        await company.save()
+        return response.send({company})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }
@@ -100,16 +100,16 @@ async update ({ params, request, response }) {
  */
 async destroy ({ params, request, response }) {
     try {
-        const establishment = await Establishment.findBy('id', params.id)
-        if(!establishment){
-            return response.status(404).send({message: 'Establishment not found!'})
+        const company = await Company.findBy('id', params.id)
+        if(!company){
+            return response.status(404).send({message: 'Company not found!'})
         }
-        await establishment.delete()
-        return response.send({message:`O estabelecimento ${establishment.name} foi excluido!`})
+        await company.delete()
+        return response.send({message:`O estabelecimento ${company.name} foi excluido!`})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }
 }
 }
 
-module.exports = EstablishmentController
+module.exports = CompanyController

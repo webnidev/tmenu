@@ -14,8 +14,8 @@ class BillingSchema extends Schema {
       table.string('billing_link',512)
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
-      table.integer('establishment_id').notNullable()
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.integer('company_id').notNullable()
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
     })
   }
   down () {

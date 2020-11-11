@@ -3,7 +3,7 @@
 const { concatLimit } = require('async')
 
 const Card = use('App/Models/Card')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const User = use('App/Models/User')
 const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
@@ -54,20 +54,20 @@ class ItemCardController {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
       if(table){
-        const establishment = await Establishment.findBy('id', table.establishment_id)
-        const printers = await establishment.printers().fetch()
-        let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).first()
+        const company = await Company.findBy('id', table.company_id)
+        const printers = await company.printers().fetch()
+        let client = await Client.query().where('user_id', auth.user.id).where('company_id', company.id).first()
         let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
         let card_value = 0
         if(!client){
           Client.create({
             name: auth.user.name,
-            establishment_id:establishment.id, 
+            company_id:company.id, 
             user_id: auth.user.id}, trx)
         }
         if(!card){
           card = await Card.create({
-            message:`${establishment.name} Cliente ${auth.user.name}`,
+            message:`${company.name} Cliente ${auth.user.name}`,
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
@@ -123,10 +123,10 @@ class ItemCardController {
               await order.save()
               card_value += order.value
               orders.push({
-                'establishment_id':establishment.id,
-                 'establishment_name':establishment.name,
-                 'establishment_address':establishment.address,
-                 'establishment_cnpj':establishment.cnpj,
+                'company_id':company.id,
+                 'company_name':company.name,
+                 'company_address':company.address,
+                 'company_cnpj':company.cnpj,
                  'client':auth.user.name,
                  'garcom':'Peter',
                  'mesa':table.number,
@@ -177,20 +177,20 @@ class ItemCardController {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
       if(table){
-        const establishment = await Establishment.findBy('id', table.establishment_id)
-        const printers = await establishment.printers().fetch()
-        let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).first()
+        const company = await company.findBy('id', table.company_id)
+        const printers = await company.printers().fetch()
+        let client = await Client.query().where('user_id', auth.user.id).where('company_id', company.id).first()
         let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
         let card_value = 0
         if(!client){
           client = await Client.create({
             name: auth.user.name,
-            establishment_id:establishment.id, 
+            company_id:company.id, 
             user_id: auth.user.id}, trx)
         }
         if(!card){
           card = await Card.create({
-            message:`${establishment.name} Cliente ${auth.user.name}`,
+            message:`${company.name} Cliente ${auth.user.name}`,
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
@@ -221,10 +221,10 @@ class ItemCardController {
            product.ranking += item.quantity
            await product.save()
            orders.push({
-            'establishment_id':establishment.id,
-             'establishment_name':establishment.name,
-             'establishment_address':establishment.address,
-             'establishment_cnpj':establishment.cnpj,
+            'company_id':company.id,
+             'company_name':company.name,
+             'company_address':company.address,
+             'company_cnpj':company.cnpj,
              'client':auth.user.name,
              'garcom':'Peter',
              'mesa':table.number,

@@ -10,6 +10,9 @@ class Client extends Model {
     user(){
         return this.belongsTo('App/Models/User')
     }
+    companies(){
+        return this.belongsToMany('App/Models/Company')
+    }
     
 }
 

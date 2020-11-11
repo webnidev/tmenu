@@ -13,8 +13,8 @@ class TableSchema extends Schema {
       table.integer('waiter_id')
       table.datetime('changed_status')
       table.timestamps()
-      table.integer('establishment_id')
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.integer('company_id')
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
     })
   }
 

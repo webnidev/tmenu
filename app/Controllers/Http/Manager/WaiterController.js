@@ -1,7 +1,7 @@
 'use strict'
 const User = use('App/Models/User')
 const Manager = use('App/Models/Manager')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Role = use('Role')
 const { validateAll } = use('Validator') 
 const Database = use('Database')
@@ -28,12 +28,12 @@ class WaiterController {
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
     }
-    const establishment = await Establishment.query().where('id', manager.establishment_id)
+    const company = await Company.query().where('id', manager.company_id)
     .first()
-    if(!establishment){
-      return response.status(404).send({message: 'Establishment not found!'})
+    if(!company){
+      return response.status(404).send({message: 'Company not found!'})
     }
-    const waiters = await establishment.waiters().fetch()
+    const waiters = await company.waiters().fetch()
     return response.send({waiters})
     } catch (error) {
       return response.status(400).send({message:error.message})
@@ -69,10 +69,10 @@ class WaiterController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
       }
     const {name, email, password, cpf, phone} = request.all()
     const userRole = await Role.findBy('slug', 'waiter')
@@ -84,7 +84,7 @@ class WaiterController {
     const username = first[0].toLowerCase()+cpfPart
     const user = await User.create({name, username, email, password, cpf, phone}, trx)
     await user.roles().attach([userRole.id], null, trx)
-    await establishment.waiters().attach([user.id], null, trx)
+    await company.waiters().attach([user.id], null, trx)
     await trx.commit()
     return response.status(201).send({user})
     } catch (error) {

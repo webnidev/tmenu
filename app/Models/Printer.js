@@ -4,8 +4,8 @@
 const Model = use('Model')
 
 class Printer extends Model {
-    establishment(){
-        return this.belongsTo('App/Models/Establishment')
+    company(){
+        return this.belongsTo('App/Models/Company')
     }
     products(){
         return this.hasMany('App/Models/Product')

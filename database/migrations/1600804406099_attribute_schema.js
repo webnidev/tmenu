@@ -12,8 +12,8 @@ class AttributeSchema extends Schema {
       table.integer('max_item').notNullable().defaultTo(1)
       table.boolean('required').notNullable().defaultTo(false)
       table.string('description', 256).notNullable()
-      table.integer('establishment_id').notNullable()
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade').onUpdate('cascade')
+      table.integer('company_id').notNullable()
+      table.foreign('company_id').references('companies.id').onDelete('cascade').onUpdate('cascade')
     })
   }
 

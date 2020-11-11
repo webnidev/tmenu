@@ -1,7 +1,7 @@
 'use strict'
 const Attribute = use('App/Models/Attribute')
 const ValueAttribute = use('App/Models/ValueAttribute')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -27,12 +27,12 @@ class ValueAttributeController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
-      const attributes = await Attribute.query().where('establishment_id', establishment.id).fetch()
+      const attributes = await Attribute.query().where('company_id', company.id).fetch()
       if(!attributes){
         return response.status(404).send({'message':'Have dont values registered'})
       }

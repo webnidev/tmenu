@@ -1,7 +1,7 @@
 'use strict'
 const User = use('App/Models/User')
 const Manager = use('App/Models/Manager')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Role = use('Role')
 const { validateAll } = use('Validator') 
 
@@ -58,10 +58,10 @@ class UserController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
       }
     const {name, email, password, cpf, phone, role} = request.all()
     const userRole = await Role.findBy('slug', role)

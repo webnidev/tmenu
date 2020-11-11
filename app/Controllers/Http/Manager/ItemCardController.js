@@ -3,7 +3,7 @@
 const { concatLimit } = require('async')
 
 const Card = use('App/Models/Card')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const User = use('App/Models/User')
 const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
@@ -37,19 +37,19 @@ class ItemCardController {
         if(!manager){
           return response.status(404).send({message: 'Manager not found!'})
         }
-        const establishment = await Establishment.query().where('id', manager.establishment_id)
+        const company = await Company.query().where('id', manager.company_id)
         .first()
-        if(!establishment){
-          return response.status(404).send({message: 'Establishment not found!'})
+        if(!company){
+          return response.status(404).send({message: 'Company not found!'})
         }
         const cards = await Database.raw(`
-        SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
-        ITEM_CARDS AS I WHERE E.ID=T.ESTABLISHMENT_ID 
+        SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM COMPANIES AS E, TABLES AS T, CARDS AS C, 
+        ITEM_CARDS AS I WHERE E.ID=T.COMPANY_ID 
         AND T.ID=C.TABLE_ID
         AND I.CARD_ID = C.ID
         AND I.CREATED_AT BETWEEN NOW() - INTERVAL '30 DAY' AND NOW()
         AND E.ID = ?
-        `,[establishment.id])
+        `,[company.id])
         return response.send(cards.rows[0])
           
       } catch (error) {
@@ -114,18 +114,18 @@ class ItemCardController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
       }
     const cards = await Database.raw(`
     SELECT I.QUANTITY, I.PRODUCT_NAME, T.NUMBER, I.CREATED_AT AS DIA 
-    FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, ITEM_CARDS AS I 
-    WHERE E.ID=T.ESTABLISHMENT_ID AND T.ID=C.TABLE_ID AND I.CARD_ID = C.ID 
+    FROM COMPANIES AS E, TABLES AS T, CARDS AS C, ITEM_CARDS AS I 
+    WHERE E.ID=T.COMPANY_ID AND T.ID=C.TABLE_ID AND I.CARD_ID = C.ID 
     AND E.ID = ?
     ORDER BY DIA DESC LIMIT 10
-    `,[establishment.id])
+    `,[company.id])
     return response.send(cards.rows[0])
     } catch (error) {
       return response.status(error.status).send(error.message)

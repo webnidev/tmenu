@@ -1,5 +1,5 @@
 'use strict'
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 const Card = use('App/Models/Card')
 const Client = use('App/Models/Client')
@@ -31,19 +31,19 @@ class CardController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
       const cards = await Database.raw(`
-      SELECT COUNT(C.ID) AS "COMANDAS FATURADAS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C 
-      WHERE E.ID=T.ESTABLISHMENT_ID 
+      SELECT COUNT(C.ID) AS "COMANDAS FATURADAS" FROM COMPANIES AS E, TABLES AS T, CARDS AS C 
+      WHERE E.ID=T.COMPANY_ID 
       AND T.ID=C.TABLE_ID
       AND C.STATUS=FALSE 
       AND C.CREATED_AT BETWEEN NOW() - INTERVAL '30 DAY' AND NOW()
       AND E.ID = ?
-      `,[establishment.id])
+      `,[company.id])
       return response.send(cards.rows[0])
     } catch (error) {
       return response.status(400).send({message:error.message})
@@ -103,21 +103,21 @@ class CardController {
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
     }
-    const establishment = await Establishment.query().where('id', manager.establishment_id)
+    const company = await Company.query().where('id', manager.company_id)
     .first()
-    if(!establishment){
-      return response.status(404).send({message: 'Establishment not found!'})
+    if(!company){
+      return response.status(404).send({message: 'Company not found!'})
     }
     const cards = await Database.raw(`
     SELECT T.NUMBER AS MUNERO, C.VALUE AS TOTAL, C.UPDATED_AT AS FATURADO 
-    FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C 
-    WHERE E.ID=T.ESTABLISHMENT_ID 
+    FROM COMPANIES AS E, TABLES AS T, CARDS AS C 
+    WHERE E.ID=T.COMPANY_ID 
     AND T.ID=C.TABLE_ID
     AND C.CREATED_AT BETWEEN NOW() - INTERVAL '30 DAY' AND NOW()
     AND C.STATUS=FALSE
     AND E.ID = ?
     ORDER BY FATURADO DESC LIMIT 10
-    `,[establishment.id])
+    `,[company.id])
     console.log(cards.rows)
     return response.send(cards.rows)
    } catch (error) {

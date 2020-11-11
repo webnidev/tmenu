@@ -1,5 +1,5 @@
 'use strict'
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
@@ -31,7 +31,7 @@ class CardController {
       if(!waiter){
         return response.status(404).send({message: 'Waiter not found!'})
       }
-      const establishment = await Establishment.query().where('id', waiter.establishment_id)
+      const company = await Company.query().where('id', waiter.establishment_id)
       .first()
       if(!establishment){
         return response.status(404).send({message: 'Establishment not found!'})
@@ -74,10 +74,10 @@ class CardController {
         if(!waiter){
           return response.status(404).send({message: 'Waiter not found!'})
         }
-        const establishment = await Establishment.query().where('id', waiter.establishment_id)
+        const establishment = await Establishment.query().where('id', waiter.company_id)
         .first()
-        if(!establishment){
-          return response.status(404).send({message: 'Establishment not found!'})
+        if(!company){
+          return response.status(404).send({message: 'company not found!'})
         }
         const card = await Card.query().where('id', params.id)
         .with('user')
@@ -127,12 +127,12 @@ class CardController {
           const orders = itens.rows
           const printer = await Printer.findBy('id',card.printer_id)
           const table = await Table.findBy('id', card.table_id)
-          const establishment = await Establishment.findBy('id',table.establishment_id)
+          const company = await Company.findBy('id',table.company_id)
           card.status = false
           await card.save()
           const pdf = new Pdf
           const pdfName = pdf.createCardPdf({
-            establishment,
+            company,
             table,
             card,
             auth,

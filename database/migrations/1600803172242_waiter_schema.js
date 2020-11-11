@@ -11,9 +11,9 @@ class WaiterSchema extends Schema {
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('user_id').notNullable()
-      table.integer('establishment_id').notNullable()
+      table.integer('company_id').notNullable()
       table.foreign('user_id').references('users.id').onDelete('cascade')
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
     })
   }
 

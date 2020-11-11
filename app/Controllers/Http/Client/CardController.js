@@ -5,7 +5,7 @@ const ItemCard = use('App/Models/ItemCard')
 const Client = use('App/Models/Client')
 const Printer = use('App/Models/Printer')
 const Axios = use('App/Utils/Axios')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Table = use('App/Models/Table')
 const Pdf = use('App/Utils/Pdf')  
 const Ws = use('Ws')
@@ -89,12 +89,12 @@ async update ({ params, request, response, auth }) {
     const orders = itens.rows
     const printer = await Printer.findBy('id',card.printer_id)
     const table = await Table.findBy('id', card.table_id)
-    const establishment = await Establishment.findBy('id',table.establishment_id)
+    const company = await Company.findBy('id',table.company_id)
     card.status = false
     await card.save()
     const pdf = new Pdf
     const pdfName = pdf.createCardPdf({
-      establishment,
+      company,
       table,
       card,
       auth,

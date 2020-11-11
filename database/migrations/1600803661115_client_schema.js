@@ -9,9 +9,9 @@ class ClienteleSchema extends Schema {
       table.increments()
       table.string('name', 256)
       table.timestamps()
-      table.integer('establishment_id').notNullable()
+      table.integer('company_id').notNullable()
       table.integer('user_id').notNullable()
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
       table.foreign('user_id').references('users.id').onDelete('cascade')
     })
   }

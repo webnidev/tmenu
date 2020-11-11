@@ -5,7 +5,7 @@ const Model = use('Model')
 class Table extends Model {
 
     company(){
-        return this.belongsTo('App/Models/Establishment')
+        return this.belongsTo('App/Models/Company')
     }
     cards(){
         return this.hasMany('App/Models/Card')

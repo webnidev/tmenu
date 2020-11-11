@@ -13,10 +13,9 @@ class StockSchema extends Schema {
       table.date('entry_date').notNullable()
       table.integer('quantity').notNullable().defaultTo(0)
       table.integer('product_id').notNullable()
-      table.integer('establishment_id').notNullable()
+      table.integer('company_id').notNullable()
       table.foreign('product_id').references('products.id').onDelete('cascade')
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
-      
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
     })
   }
 

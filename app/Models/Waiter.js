@@ -5,8 +5,8 @@ const Model = use('Model')
 
 class Waiter extends Model {
 
-    establishment(){
-        return this.belongsTo('App/Models/Establishment')
+    company(){
+        return this.belongsTo('App/Models/Company')
     }
     user(){
         return this.belongsTo('App/Models/User')

@@ -9,8 +9,8 @@ class CategorySchema extends Schema {
       table.increments()
       table.string('name', 256).notNullable()
       table.timestamps()
-      table.integer('establishment_id')
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.integer('company_id')
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
     })
   }
 

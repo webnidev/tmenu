@@ -1,7 +1,7 @@
 'use strict'
 const Waiter = use('App/Models/Waiter')
 const Table = use('App/Models/Table')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -25,11 +25,11 @@ class TableController {
       if(!waiter){
         return response.status(404).send({message:'Waiter not found!'})
       }
-      const establishment = await Establishment.find(waiter.establishment_id)
-      if(!establishment){
-        return response.status(404).send({message:'Establishment not found!'})
+      const company = await Company.find(waiter.company_id)
+      if(!company){
+        return response.status(404).send({message:'Company not found!'})
       }
-      const tables = await Table.query().where('establishment_id', establishment.id)
+      const tables = await Table.query().where('company_id', company.id)
       .where('status', true)
       .where('waiter_id', waiter.id)
       .with('cards')
@@ -66,9 +66,9 @@ class TableController {
       if(!waiter){
         return response.status(404).send({message:'Waiter not found!'})
       }
-      const establishment = await Establishment.find(waiter.establishment_id)
-      if(!establishment){
-        return response.status(404).send({message:'Establishment not found!'})
+      const company = await Company.find(waiter.company_id)
+      if(!company){
+        return response.status(404).send({message:'company not found!'})
       }
       const table = await Table.query().where('id', params.id)
       .where('status', true)

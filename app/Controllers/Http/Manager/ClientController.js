@@ -1,9 +1,8 @@
 'use strict'
 
-const { resource } = require('@adonisjs/framework/src/Route/Manager')
 
 const User = use('App/Models/User')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -28,12 +27,12 @@ class ClientController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
       }
-      const clients = await establishment.clients().fetch()
+      const clients = await company.clients().fetch()
     return response.send({clients})
     } catch (error) {
       console.log(error)

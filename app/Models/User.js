@@ -45,18 +45,18 @@ class User extends Model {
     return this.hasMany('App/Models/Token')
   }
 
-  establishments(){
-    return this.belongsToMany('App/Models/Establishment').pivotTable('waiters')
+  companies(){
+    return this.belongsToMany('App/Models/Company').pivotTable('waiters')
   }
 
   clients(){
-    return this.belongsToMany('App/Models/Establishment')
+    return this.belongsToMany('App/Models/Company')
   }
   cards(){
     return this.hasMany('App/Models/Card')
   }
   establishment(){
-    return this.belongsToMany('App/Models/Establishment').pivotTable('managers')
+    return this.belongsToMany('App/Models/Company').pivotTable('managers')
   }
   role(){
     return this.hasOne('Role')
