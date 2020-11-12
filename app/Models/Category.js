@@ -8,8 +8,8 @@ class Category extends Model {
     products(){
         return this.hasMany('App/Models/Product')
     }
-    establishment(){
-        return this.belongsTo('App/Models/Establishment')
+    company(){
+        return this.belongsTo('App/Models/Company')
     }
 }
 

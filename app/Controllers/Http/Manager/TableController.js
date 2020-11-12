@@ -2,7 +2,7 @@
 
 const User = use('App/Models/User')
 const Table = use('App/Models/Table')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 const Waiter = use('App/Models/Waiter')
 const Libs = use('App/Utils/Libs')
@@ -27,13 +27,13 @@ class TableController {
   async index ({ request, response, auth, pagination }) {
    try {
       const manager = await Manager.findBy('user_id',auth.user.id)
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
     .first()
-    if(!manager || !establishment){
+    if(!manager || !company){
       return response.status(404).send({message: 'Data not found!'})
     }
     const tables = await Table.query()
-    .where('establishment_id', establishment.id)
+    .where('company_id', company.id)
     .groupBy('id','status')
     .orderBy('status','desc')
     .orderBy('updated_at', 'desc')
@@ -74,15 +74,15 @@ class TableController {
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
     }
-    const establishment = await Establishment.query().where('id', manager.establishment_id)
+    const company = await Company.query().where('id', manager.company_id)
     .first()
-    if(!establishment){
-      return response.status(404).send({message: 'Establishment not found!'})
+    if(!company){
+      return response.status(404).send({message: 'Company not found!'})
     }
 
     const data = request.only(["number"])
     const table = await Table.create({...data, status: false, 
-    establishment_id: establishment.id,
+    company_id: company.id,
     hashcode:libs.hash()})
     return response.send({table})
    } catch (error) {
@@ -105,6 +105,7 @@ class TableController {
       .with('cards',(builder)=>{
         return builder
         .where('status','true')
+        .with('user')
         .orderBy('updated_at', 'desc')
       })
       .first()
@@ -174,15 +175,23 @@ class TableController {
     try {
       const table = await Table.find(params.table_id)
       if(!table){
-        return response.status(404).send({message:'Mesa not found!'})
+        return response.status(404).send({message:'Table not found!'})
       }
-      const user = await User.find(params.waiter_id)
-      const waiter = await Waiter.query(params.waiter_id)
-      .where('user_id', params.waiter_id)
-      .where('establishment_id', table.establishment_id)
+      if(table.waiter_id){
+        return response.status(400).send({message:'The table already a waiter!'})
+      }
+      if(!table.status){
+        return response.status(400).send({message:'The table is closed!'})
+      }
+      const user = await User.find(params.user_id)
+      const waiter = await Waiter.query()
+      .where('user_id', params.user_id)
+      .where('company_id', table.company_id)
       .first()
       const roles = await user.roles().fetch()
       if('waiter' == roles.rows[0].slug){  
+        table.waiter_id = waiter.id
+        await table.save()
         const cards = await table.cards().fetch()
         await Promise.all(cards.rows.map(async card=>{
           card.waiter_id = waiter.id
@@ -190,9 +199,7 @@ class TableController {
         })) 
         return response.send({cards})
       }
-      
-      //const cards = await table.load('cards')
-      
+      return response.status(404).send({message:'Waiter not found!'})
     } catch (error) {
       console.log(error)
       return response.status(400).send({message:error.message})

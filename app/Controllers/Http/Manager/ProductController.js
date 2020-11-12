@@ -1,5 +1,5 @@
 'use strict'
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Attribute = use('App/Models/Attribute')
 const Manager = use('App/Models/Manager')
 const Product = use('App/Models/Product')
@@ -28,10 +28,10 @@ class ProductController {
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
     }
-    const establishment = await Establishment.query().where('id', manager.establishment_id)
+    const company = await Company.query().where('id', manager.company_id)
     .first()
-    if(!establishment){
-      return response.status(404).send({message: 'Establishment not found!'})
+    if(!company){
+      return response.status(404).send({message: 'company not found!'})
     }
     const data = await Database.raw(`SELECT 
     PRODUCTS.ID,
@@ -42,7 +42,7 @@ class ProductController {
     PRODUCTS.PRINTER_ID,
     PRODUCTS.RANKING
     FROM CATEGORIES, PRODUCTS WHERE 
-    PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.ESTABLISHMENT_ID=?`,[establishment.id])
+    PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.COMPANY_ID=?`,[company.id])
     
     //const products = await Product.all()
     // await Promise.all(

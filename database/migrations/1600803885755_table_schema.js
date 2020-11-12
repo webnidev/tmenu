@@ -10,10 +10,11 @@ class TableSchema extends Schema {
       table.integer('number').notNullable()
       table.string('hashcode',64).notNullable().unique()
       table.boolean('status').notNullable().defaultTo(false)
+      table.integer('waiter_id')
       table.datetime('changed_status')
       table.timestamps()
-      table.integer('establishment_id')
-      table.foreign('establishment_id').references('establishments.id').onDelete('cascade')
+      table.integer('company_id')
+      table.foreign('company_id').references('companies.id').onDelete('cascade')
     })
   }
 

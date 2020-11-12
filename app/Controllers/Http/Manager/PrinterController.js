@@ -1,6 +1,6 @@
 'use strict'
 const Printer = use('App/Models/Printer')
-const Establishmetn = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -19,8 +19,8 @@ class PrinterController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const establishment = await Establishmetn.query().where('user_id', auth.user.id).first()
-    const printers = await establishment.printers().fetch()
+    const company = await Company.query().where('user_id', auth.user.id).first()
+    const printers = await company.printers().fetch()
     return response.send({printers})
   }
 
@@ -39,13 +39,13 @@ class PrinterController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
     const data = request.only(['name', 'code'])
-    const printer = await Printer.create({...data, establishment_id: establishment.id})
+    const printer = await Printer.create({...data, company_id: company.id})
     return response.send({printer})
     } catch (error) {
       return response.status(error.status).send('Erro ao criar a impressora')

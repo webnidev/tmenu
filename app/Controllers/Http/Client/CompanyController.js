@@ -1,16 +1,16 @@
 'use strict'
 const Database = use('Database')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Role = use('Role')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
-class EstablishmentController {
+class CompanyController {
 
       /**
-   * Create/save a new establishment.
-   * POST establishments
+   * Create/save a new company.
+   * POST companys
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -21,7 +21,7 @@ class EstablishmentController {
         try {
             const user = auth.user
             const data  = request.only(["name","address","cnpj"])
-            const establishment = await Establishment.create({...data, user_id:user.id,rate:2.00}, trx)
+            const company = await Company.create({...data, user_id:user.id,rate:2.00}, trx)
             const userRole = await Role.findBy('slug', 'manager')
             await user.roles().detach()
             await user.roles().attach([userRole.id], null, trx)
@@ -29,7 +29,7 @@ class EstablishmentController {
             //console.log(roles)
             await trx.commit()
           
-          return response.send([establishment])
+          return response.send([company])
         } catch (error) {
             await trx.rollback()
             console.log(error)
@@ -38,4 +38,4 @@ class EstablishmentController {
       }
 }
 
-module.exports = EstablishmentController
+module.exports = CompanyController

@@ -1,5 +1,8 @@
 'use strict'
 const User = use('App/Models/User')
+const Manager = use('App/Models/Manager')
+const Company = use('App/Models/Company')
+const Role = use('Role')
 const { validateAll } = use('Validator') 
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -19,9 +22,12 @@ class UserController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-    const users = await User.all()
-    return response.send({users})
+  async index ({ request, response, auth }) {
+    try {
+      
+    } catch (error) {
+      
+    }
   }
 
   /**
@@ -33,6 +39,7 @@ class UserController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    const trx = await Database.beginTransaction()
     try {
       const erroMessage = {
         'username.required':'É obrigatório criar um nome de usuário',
@@ -47,14 +54,30 @@ class UserController {
       if(validation.fails()){
         return response.status(401).send({message: validation.messages()})
       }
-      const data = request.only(['username', 'email', 'password'])
-      const user = await User.create(data)
-      return response.send({user})
-      
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+    const {name, email, password, cpf, phone, role} = request.all()
+    const userRole = await Role.findBy('slug', role)
+    if(!userRole){
+      return response.status(400).send({"message":"Tipo de usuário inexistente!"})
+    }
+    const first = name.split(" ")
+    const cpfPart = cpf.slice(0,5)
+    const username = first[0].toLowerCase()+cpfPart
+    const user = await User.create({name, username, email, password, cpf, phone}, trx)
+    await user.roles().attach([userRole.id], null, trx)
+    await trx.commit()
+    return response.status(201).send({user})
     } catch (error) {
-      response.status(500).send({
-        error:`Error: ${error.message}`
-      })
+      await trx.rollback()
+      return response.status(400).send({message: "Erro ao realizaar o cadastro do usuário"})
     }
   }
 

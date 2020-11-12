@@ -3,7 +3,7 @@
 const { concatLimit } = require('async')
 
 const Card = use('App/Models/Card')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const User = use('App/Models/User')
 const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
@@ -49,42 +49,42 @@ class ItemCardController {
   //Adaptação de pedido
   async store ({ request, response, auth }){
     const trx = await Database.beginTransaction()
-    
+    //const trxo = await Database.beginTransaction()
     try {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
       if(table){
-        const establishment = await Establishment.findBy('id', table.establishment_id)
-        const printers = await establishment.printers().fetch()
-        let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).first()
+        const waiter = await table.waiter().first()
+        const company = await Company.findBy('id', table.company_id)
+        const address = await company.address().first()
+        const printers = await company.printers().fetch()
+        let client = await Client.query().where('user_id', auth.user.id).where('company_id', company.id).first()
         let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
         let card_value = 0
         if(!client){
           Client.create({
             name: auth.user.name,
-            establishment_id:establishment.id, 
+            company_id:company.id, 
             user_id: auth.user.id}, trx)
         }
         if(!card){
           card = await Card.create({
-            message:`${establishment.name} Cliente ${auth.user.name}`,
+            message:`${company.name} Cliente ${auth.user.name}`,
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
             printer_id: 1
-          })
-          console.log('create card')
+          },trx)
+
         }
           let orders = []
           await Promise.all(
             itens.map(async item=>{
-              const trxo = await Database.beginTransaction()
+              
               let product = await Product.query().where('id',item.product_id ).first()
               if(product){
                 table.changed_status = new Date()
-                if(!table.status){
-                  table.status = true
-                }
+                table.status = true
                 let order_value = 0.0
                 let order = await ItemCard.create({
                   product_name:product.name,
@@ -94,22 +94,19 @@ class ItemCardController {
                   observation:item.observation,
                   card_id: card.id,
                   product_id: product.id
-               },trxo)
-               console.log('create order')
+               },trx)
               //card_value += product.value * item.quantity
               product.ranking += item.quantity
-              await product.save()
+              await product.save(trx)
               let item_value = 0.0
               await Promise.all(
                 item.attributes.map(async attribute=>{
                   let attr = await Attribute.findBy('id', attribute.attribute_id)
                   if(attr){
-                  let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trxo)
-                  console.log('create atribute...')
+                  let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trx)
                   await Promise.all(
                     attribute.values.map(async value=>{
-                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trxo)
-                      console.log('create value...')
+                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trx)
                       item_value += (orderValue.additional_value * orderValue.quantity)
                     })
                   )
@@ -118,20 +115,18 @@ class ItemCardController {
                 })
                 
               )
-              console.log('vai commitrar')
-              await trxo.commit()
-              console.log('ja commitou')
+              //await trxo.commit()
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
-              await order.save()
+              await order.save(trx)
               card_value += order.value
               orders.push({
-                'establishment_id':establishment.id,
-                 'establishment_name':establishment.name,
-                 'establishment_address':establishment.address,
-                 'establishment_cnpj':establishment.cnpj,
+                'company_id':company.id,
+                 'company_name':company.name,
+                 'company_address':`${address.street} Nº ${address.number} ${address.city} - ${address.state}`,
+                 'company_cnpj':company.cnpj,
                  'client':auth.user.name,
-                 'garcom':'Peter',
+                 'garcom':'',
                  'mesa':table.number,
                  'order_id':order.id,
                  'value':order.value, 
@@ -147,10 +142,11 @@ class ItemCardController {
           )
 
          
-        await trx.commit()
+        
         card.value += card_value   
-        await card.save()
-        await table.save()
+        await card.save(trx)
+        await table.save(trx)
+        await trx.commit()
         const printering = new Order
         if(printering.printers(printers.rows, orders)){
           const topic = Ws.getChannel('notifications').topic('notifications')
@@ -165,7 +161,7 @@ class ItemCardController {
       return response.status(404).send({'Error':'Table not found!'})
     } catch (error) {
         console.log(error)
-        await trxo.rollback()
+        //await trxo.rollback()
         await trx.rollback()
         return response.status(500).send(error.message)
     }
@@ -180,20 +176,20 @@ class ItemCardController {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
       if(table){
-        const establishment = await Establishment.findBy('id', table.establishment_id)
-        const printers = await establishment.printers().fetch()
-        let client = await Client.query().where('user_id', auth.user.id).where('establishment_id', establishment.id).first()
+        const company = await company.findBy('id', table.company_id)
+        const printers = await company.printers().fetch()
+        let client = await Client.query().where('user_id', auth.user.id).where('company_id', company.id).first()
         let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
         let card_value = 0
         if(!client){
           client = await Client.create({
             name: auth.user.name,
-            establishment_id:establishment.id, 
+            company_id:company.id, 
             user_id: auth.user.id}, trx)
         }
         if(!card){
           card = await Card.create({
-            message:`${establishment.name} Cliente ${auth.user.name}`,
+            message:`${company.name} Cliente ${auth.user.name}`,
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
@@ -224,10 +220,10 @@ class ItemCardController {
            product.ranking += item.quantity
            await product.save()
            orders.push({
-            'establishment_id':establishment.id,
-             'establishment_name':establishment.name,
-             'establishment_address':establishment.address,
-             'establishment_cnpj':establishment.cnpj,
+            'company_id':company.id,
+             'company_name':company.name,
+             'company_address':company.address,
+             'company_cnpj':company.cnpj,
              'client':auth.user.name,
              'garcom':'Peter',
              'mesa':table.number,

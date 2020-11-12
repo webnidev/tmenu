@@ -16,7 +16,7 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.get('/v1.0/download/pdf/:name', 'DownloadController.pdf').as('download.pdf')
+Route.get('/v1/download/pdf/:name', 'DownloadController.pdf').as('download.pdf')
 
 require('./auth')
 require('./admin')

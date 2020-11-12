@@ -1,18 +1,18 @@
 'use strict'
 const Database = use('Database')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with establishments
+ * Resourceful controller for interacting with companys
  */
-class EstablishmentController {
+class CompanyController {
   /**
-   * Show a list of all establishments.
-   * GET establishments
+   * Show a list of all companys.
+   * GET companys
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -24,20 +24,20 @@ class EstablishmentController {
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
     }
-    const establishments = await Establishment.query()
-    .where('id', manager.establishment_id)
+    const companys = await Company.query()
+    .where('id', manager.company_id)
     .with('tables')
     .with('waiters')
     .with('managers')
     .with('images')
     .fetch()
-    return response.send({establishments})
+    return response.send({companys})
   }
 
 
   /**
-   * Create/save a new establishment.
-   * POST establishments
+   * Create/save a new company.
+   * POST companys
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -48,7 +48,7 @@ class EstablishmentController {
     try {
       const user = auth.user
       const data  = request.only(["name","address","cnpj"])
-      //const establishment = await Establishment.create({...data, user_id:user.id,rate:2.00})
+      //const company = await company.create({...data, user_id:user.id,rate:2.00})
       const userRole = await Role.findBy('slug', 'manager')
       console.log(user.roles())
     } catch (error) {
@@ -60,8 +60,8 @@ class EstablishmentController {
   }
 
   /**
-   * Display a single establishment.
-   * GET establishments/:id
+   * Display a single company.
+   * GET companys/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -72,8 +72,8 @@ class EstablishmentController {
   }
 
   /**
-   * Update establishment details.
-   * PUT or PATCH establishments/:id
+   * Update company details.
+   * PUT or PATCH companys/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -81,22 +81,22 @@ class EstablishmentController {
    */
   async update ({ params, request, response }) {
     try {
-      const establishment = await Establishment.find(params.id)
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      const company = await Company.find(params.id)
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
       const {data} = request.all()
-      establishment.merge({...data})
-      await establishment.save()
-      return response.send({establishment})
+      company.merge({...data})
+      await company.save()
+      return response.send({company})
     } catch (error) {
       return response.status(400).send({message:error.message})
     }
   }
 
   /**
-   * Delete a establishment with id.
-   * DELETE establishments/:id
+   * Delete a company with id.
+   * DELETE companys/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -106,4 +106,4 @@ class EstablishmentController {
   }
 }
 
-module.exports = EstablishmentController
+module.exports = CompanyController

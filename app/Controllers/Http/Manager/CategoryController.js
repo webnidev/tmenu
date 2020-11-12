@@ -1,6 +1,6 @@
 'use strict'
 const Category = use('App/Models/Category')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -25,12 +25,12 @@ class CategoryController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
-      const categories = await establishment.categories()
+      const categories = await company.categories()
       .fetch()
       return response.send({categories})
     } catch (error) {
@@ -53,13 +53,13 @@ class CategoryController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
       const data = request.only(["name"])
-      const category = await Category.create({...data, establishment_id: establishment.id})
+      const category = await Category.create({...data, company_id: company.id})
       return response.send({category})
     } catch (error) {
       return response.status(400).send({message: error.message})
@@ -81,13 +81,13 @@ class CategoryController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
       const category = await Category.query().where('id', params.id)
-      .where('establishment_id', establishment.id).first()
+      .where('company_id', company.id).first()
       return response.send({category})  
     } catch (error) {
       return response.status(400).send({message: error.message})

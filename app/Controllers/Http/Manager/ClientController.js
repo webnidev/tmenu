@@ -1,6 +1,8 @@
 'use strict'
-const Client = use('App/Models/Client')
-const Establishment = use('App/Models/Establishment')
+
+
+const User = use('App/Models/User')
+const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -25,15 +27,16 @@ class ClientController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
       }
-      const clients = await establishment.clients().fetch()
-    return response.send(clients)
+      const clients = await company.clients().fetch()
+    return response.send({clients})
     } catch (error) {
       console.log(error)
+      return response.status(400).send({message:error.message})
     }
   }
 
@@ -58,19 +61,15 @@ class ClientController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
+    try {
+      const client = await User.find(params.id)
+      return response.send({client})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
-  /**
-   * Render a form to update an existing client.
-   * GET clients/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+
 
   /**
    * Update client details.

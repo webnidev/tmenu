@@ -3,7 +3,7 @@
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
 
-class Establishment extends Model {
+class Company extends Model {
 
 
     tables(){
@@ -36,7 +36,7 @@ class Establishment extends Model {
         return this.hasMany('App/Models/Attribute')
     }
     images(){
-        return this.hasMany('App/Models/ImageEstablishment')
+        return this.hasMany('App/Models/ImageCompany')
     }
     address(){
         return this.belongsTo('App/Models/Address')
@@ -44,4 +44,4 @@ class Establishment extends Model {
 
 }
 
-module.exports = Establishment
+module.exports = Company

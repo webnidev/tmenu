@@ -1,5 +1,5 @@
 'use strict'
-
+const User = use('App/Models/User')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -17,20 +17,17 @@ class ProfileController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, auth }) {
+    try {
+      const profile = await User.query().where('id',auth.user.id)
+      .with('roles')
+      .first()
+      return response.send({profile})
+    } catch (error) {
+      
+    }
   }
 
-  /**
-   * Render a form to be used for creating a new profile.
-   * GET profiles/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-  }
 
   /**
    * Create/save a new profile.
@@ -55,17 +52,6 @@ class ProfileController {
   async show ({ params, request, response, view }) {
   }
 
-  /**
-   * Render a form to update an existing profile.
-   * GET profiles/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
 
   /**
    * Update profile details.
@@ -76,6 +62,15 @@ class ProfileController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    try {
+      const {data} = request.all()
+      const profile = await User.find(params.id)
+      profile.merge({...data})
+      await profile.save()
+      return response.send({profile})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**

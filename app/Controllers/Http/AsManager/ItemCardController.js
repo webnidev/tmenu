@@ -30,9 +30,9 @@ class ItemCardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {//Exibe o número de pedidos nos 30 dias
+  async index ({ request, response, params }) {//Exibe o número de pedidos nos 30 dias
       try {
-        const establishment = await Establishment.findBy('user_id', auth.user.id)
+        const establishment = await Establishment.findBy('user_id', params.id)
         const cards = await Database.raw(`
         SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM ESTABLISHMENTS AS E, TABLES AS T, CARDS AS C, 
         ITEM_CARDS AS I WHERE E.ID=T.ESTABLISHMENT_ID 

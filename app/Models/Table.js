@@ -4,11 +4,14 @@ const Model = use('Model')
 
 class Table extends Model {
 
-    establishment(){
-        return this.belongsTo('App/Models/Establishment')
+    company(){
+        return this.belongsTo('App/Models/Company')
     }
     cards(){
         return this.hasMany('App/Models/Card')
+    }
+    waiter(){
+        return this.belongsTo('App/Models/Waiter')
     }
 }
 

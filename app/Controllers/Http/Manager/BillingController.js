@@ -1,6 +1,6 @@
 'use strict'
 const Manager = use('App/Models/Manager')
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Billing = use('App/Models/Billing')
 const Database = use('Database')
@@ -27,12 +27,12 @@ class BillingController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
-      const billings = await establishment.billings().whereNot('status','NÃO ENVIADA').fetch()
+      const billings = await company.billings().whereNot('status','NÃO ENVIADA').fetch()
       return response.send(billings)
     } catch (error) {
         return response.status(400).send({message: error.message})

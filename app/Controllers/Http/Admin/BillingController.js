@@ -1,6 +1,6 @@
 'use strict'
 
-const Establisment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Billing = use('App/Models/Billing')
 const Database = use('Database')
@@ -25,19 +25,19 @@ class BillingController {
       //const billed = await Billing.query().where()
     const billingData = await Database.raw(`
     SELECT 
-    ESTABLISHMENTS.ID,
-    ESTABLISHMENTS.NAME,
-    ESTABLISHMENTS.CNPJ, 
+    COMPANIES.ID,
+    COMPANIES.NAME,
+    COMPANIES.CNPJ, 
     COUNT(CARDS.ID) AS "CONTAS FECHADAS",
-    COUNT(CARDS.ID) * ESTABLISHMENTS.RATE AS "VALOR ATUAL"
-    FROM ESTABLISHMENTS, TABLES, CARDS 
-    WHERE ESTABLISHMENTS.ID = TABLES.ESTABLISHMENT_ID 
+    COUNT(CARDS.ID) * COMPANIES.RATE AS "VALOR ATUAL"
+    FROM COMPANIES, TABLES, CARDS 
+    WHERE COMPANIES.ID = TABLES.ESTABLISHMENT_ID 
     AND CARDS.TABLE_ID=TABLES.ID
-    AND CARDS.CREATED_AT >= ESTABLISHMENTS.LAST_BILLING 
+    AND CARDS.CREATED_AT >= COMPANIES.LAST_BILLING 
     AND CARDS.CREATED_AT <= NOW() 
-    GROUP BY ESTABLISHMENTS.NAME, 
-    ESTABLISHMENTS.CNPJ,
-    ESTABLISHMENTS.ID
+    GROUP BY COMPANIES.NAME, 
+    COMPANIES.CNPJ,
+    COMPANIES.ID
     `)
     return response.send(billingData.rows)
   }
@@ -61,22 +61,22 @@ class BillingController {
  */
 async store ({ request, response }) {
     try {
-        const data = request.only(['description','due_date', 'establishment_id'])
-        const establishment = await Establisment.findBy('id', data.establishment_id)
+        const data = request.only(['description','due_date', 'company_id'])
+        const company = await Company.findBy('id', data.company_id)
         const billingData = await Database.raw(`
-        SELECT COUNT(CARDS.ID) FROM ESTABLISHMENTS, 
+        SELECT COUNT(CARDS.ID) FROM COMPANIES, 
         TABLES, 
         CARDS WHERE 
-        ESTABLISHMENTS.ID = TABLES.ESTABLISHMENT_ID
+        COMPANIES.ID = TABLES.COMPANY_ID
         AND CARDS.TABLE_ID=TABLES.ID 
-        AND ESTABLISHMENTS.ID=?
-        AND CARDS.CREATED_AT > ESTABLISHMENTS.LAST_BILLING 
+        AND COMPANIES.ID=?
+        AND CARDS.CREATED_AT > COMPANIES.LAST_BILLING 
         AND CARDS.CREATED_AT <= NOW()
-        `, [data.establishment_id])
+        `, [data.company_id])
         const value = parseFloat(billingData.rows[0].count * 2.00)
         const billing = await Billing.create({...data, value:value, status:'NÃO ENVIADA'})
-        establishment.last_billing = new Date()
-        await establishment.save()
+        company.last_billing = new Date()
+        await company.save()
         return response.send({billing})
     } catch (error) {
         console.log(error)

@@ -1,5 +1,5 @@
 'use strict'
-const Establishment = use('App/Models/Establishment')
+const Company = use('App/Models/Company')
 const Attribute = use('App/Models/Attribute')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -25,12 +25,12 @@ class AttributeController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
-      const attributes = await establishment.attributes().fetch()
+      const attributes = await company.attributes().fetch()
       return response.send({attributes})
     } catch (error) {
       console.log(error)
@@ -54,12 +54,12 @@ class AttributeController {
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
       }
-      const establishment = await Establishment.query().where('id', manager.establishment_id)
+      const company = await Company.query().where('id', manager.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
       }
-      const attribute = await Attribute.create({...data, establishment_id: establishment.id})
+      const attribute = await Attribute.create({...data, company_id: company.id})
       return response.status(201).send({attribute})
     } catch (error) {
       return response.status(500).send(error.message)
