@@ -88,7 +88,7 @@ class Pdf extends Model{
             pdf.text(company.name,20, 20, {align:'center'})
             pdf.text(`CNPJ: ${company.cnpj}`,20,32, {align:'left'})
             pdf.text(`${day}/${mounht}/${year}`, 80, 32, {align:'right'})
-            pdf.text(`${address.street} Nº ${address.number}  ${address.city}  - ${address.state}`, 20, 44,{align:'left'} )
+            pdf.text(`${address.street} Nº ${address.number}  ${address.city}`, 20, 44,{align:'left'} )
             pdf.text(`Cliente: ${auth.user.name}`, 20, 56, {align:'left'})
             pdf.text(`--------------------------------------------------------`,20 , 66,{align:'left'})
             pdf.text(`Garçom: ${card.waiter.name}`,20 , 76,{align:'left'})

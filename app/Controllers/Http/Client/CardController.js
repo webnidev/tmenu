@@ -129,6 +129,7 @@ async update ({ params, request, response, auth }) {
       }
     return response.send({cards})
   } catch (error) {
+    console.log(error)
     return response.status(error.status).send({'Error':'Error in proccess'})
   }
 }
