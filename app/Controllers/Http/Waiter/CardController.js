@@ -31,15 +31,13 @@ class CardController {
       if(!waiter){
         return response.status(404).send({message: 'Waiter not found!'})
       }
-      const company = await Company.query().where('id', waiter.establishment_id)
+      const company = await Company.query().where('id', waiter.company_id)
       .first()
-      if(!establishment){
-        return response.status(404).send({message: 'Establishment not found!'})
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
       }
       const cards = await Card.query().where('waiter_id', waiter.id)
-      //.with('user')
-      //.with('table')
-      //.with('orders')
+      .where('status', true)
       .orderBy('created_at', 'desc')
       .fetch()
       return response.send({cards})
@@ -74,7 +72,7 @@ class CardController {
         if(!waiter){
           return response.status(404).send({message: 'Waiter not found!'})
         }
-        const establishment = await Establishment.query().where('id', waiter.company_id)
+        const company = await Company.query().where('id', waiter.company_id)
         .first()
         if(!company){
           return response.status(404).send({message: 'company not found!'})
@@ -84,6 +82,9 @@ class CardController {
         .with('table')
         .with('orders')
         .first()
+        if(!card.status){
+          return response.status(401).send({message:'This account already closed!'})
+        }
         return response.send({card})
       } catch (error) {
         return response.status(400).send({message:error.message})
@@ -98,6 +99,11 @@ class CardController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
+   */
+  /**
+   * 
+   * CORRIGIR - GARÇOM FECHA O CARD E NAO FECHA A MESA
+   * NO ITEM CARD O CLIENTE CRIA O CARD MAS NAO ATRIBUI O GARÇOM QUE JA ESTA NA MESA
    */
   async update ({ params, request, response,auth }) {
       try {
@@ -127,12 +133,15 @@ class CardController {
           const orders = itens.rows
           const printer = await Printer.findBy('id',card.printer_id)
           const table = await Table.findBy('id', card.table_id)
+          const cards = await table.cards().where('status',true).fetch()
           const company = await Company.findBy('id',table.company_id)
+          const address = await company.address().first()
           card.status = false
           await card.save()
           const pdf = new Pdf
           const pdfName = pdf.createCardPdf({
             company,
+            address,
             table,
             card,
             auth,
@@ -140,14 +149,14 @@ class CardController {
           })
           //console.log("Enviado para a "+String(printer.name))
           //const axios = new Axios()
-          //const printed = await axios.toPrinter(printer.code, pdfNmae)
-          table.status = false
-          table.waiter_id = null
-          await table.save()
-          const topic = Ws.getChannel('account').topic('account')
-            if(topic){
-              topic.broadcast('new:card')
+          //const printed = await axios.toPrinter(printer.code, pdfName)
+          if(cards.rows.length == 0){
+            if(table.waiter_id){
+              table.waiter_id=null
             }
+            table.status = false
+            await table.save()
+          }
           return response.send({card})
       } catch (error) {
         console.log(error)

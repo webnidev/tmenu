@@ -22,7 +22,7 @@ class TableController {
     try {
       const order = new Order
       const table = await Table.find(params.id)
-      const cards = await table.cards().with('itens').fetch()
+      const cards = await table.cards().fetch()
       const company = await table.company().first()
       const waiter = await table.waiter().first()
       const address = await company.address().first()

@@ -2,6 +2,8 @@
 const Waiter = use('App/Models/Waiter')
 const Table = use('App/Models/Table')
 const Company = use('App/Models/Company')
+const Database = use('Database')
+const Order = use('App/Utils/Order')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -32,7 +34,10 @@ class TableController {
       const tables = await Table.query().where('company_id', company.id)
       .where('status', true)
       .where('waiter_id', waiter.id)
-      .with('cards')
+      .with('cards', (builder)=>{
+        return builder
+        .where('status', true)
+      })
       .fetch()
       return response.send({tables})
     } catch (error) {
@@ -74,7 +79,10 @@ class TableController {
       .where('status', true)
       .where('waiter_id', waiter.id)
       .with('cards',(builder)=>{
-        return builder.with('itens')
+        return builder
+        .where('status', true)
+        .with('itens')
+
       })
       .first()
       return response.send({table})
@@ -83,17 +91,6 @@ class TableController {
     }
   }
 
-  /**
-   * Render a form to update an existing table.
-   * GET tables/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
 
   /**
    * Update table details.
@@ -103,7 +100,42 @@ class TableController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
+    const query = `SELECT IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
+    FROM CARDS AS C, ITEM_CARDS AS IT WHERE C.ID = IT.CARD_ID AND C.ID = ?`
+    try {
+      const order = new Order
+      const table = await Table.find(params.id)
+      const cards = await table.cards().fetch()
+      const company = await table.company().first()
+      const waiter = await table.waiter().first()
+      if(auth.user.id != waiter.user_id){
+        return response.status(401).send({message:'You are not allowed to close this account'})
+      }
+      const address = await company.address().first()
+      const closed = []
+      const data = [{company, waiter, table, address}]
+      let len=0
+      await Promise.all(
+       cards.rows.map(async card=>{
+        const itens = await Database.raw(query,[card.id])
+        const user = await card.user().first()
+        card.status = false
+        await card.save()
+        closed.push({user, card, 'itens':itens.rows})
+        len += (1+itens.rows.length)
+       }) 
+      )
+      data.push({'len':len})
+      order.closeTable({data, closed})
+      table.status=false
+      table.waiter_id = null
+      await table.save()
+      return response.send(cards)
+    } catch (error) {
+      console.log(error)
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**

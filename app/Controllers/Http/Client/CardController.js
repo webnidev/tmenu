@@ -114,7 +114,7 @@ async update ({ params, request, response, auth }) {
     })
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
-    //const printed = await axios.toPrinter(printer.code, pdfNmae)
+    //const printed = await axios.toPrinter(printer.code, pdfName)
     if(cards.rows.length == 0){
       if(table.waiter_id){
         table.waiter_id=null
