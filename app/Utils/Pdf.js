@@ -8,7 +8,7 @@ const fs = require('fs')
 class Pdf extends Model{
     async pdfCreate(printOrd){
         const pageHeight = printOrd.orders.length * 10 + 160
-        const pdfName = `company${printOrd.orders[0].company_id}card${printOrd.orders[0].card_id}orders${printOrd.orders[0].order_id}.pdf`
+        const pdfName = `${Date.now()}company${printOrd.orders[0].company_id}card${printOrd.orders[0].card_id}orders${printOrd.orders[0].order_id}.pdf`
         const date = new Date()
         const mounht = date.getUTCMonth()+1
         const day = `0${date.getUTCDate()}`.slice(-2)
@@ -50,7 +50,8 @@ class Pdf extends Model{
             total += printOrd.orders[i].quantity * printOrd.orders[i].product_value
         }
         pdf.text(`--------------------------------------------------------`,20 , position,{align:'left'})
-        pdf.text(`Total: ${parseFloat(total).toFixed(2)}`,120,position+10,{align: 'right'} )
+        const totalString = this.valorFormatado(total)
+        pdf.text(`Total: ${totalString}`,120,position+10,{align: 'right'} )
         if(!fs.existsSync('public/tmp')){
                 fs.mkdirSync('public/tmp')
         }
@@ -127,7 +128,7 @@ class Pdf extends Model{
         let total = 0.0
         const pageHeight = data[1].len * 10 + 180
         const date = new Date()
-        const pdfName = `company${data[0].company.id}table${data[0].table.id}.pdf`
+        const pdfName = `${Date.now()}company${data[0].company.id}table${data[0].table.id}.pdf`
         const mounht = date.getMonth()+1
         const day = `0${date.getUTCDate()}`.slice(-2)
         const year = date.getUTCFullYear()
