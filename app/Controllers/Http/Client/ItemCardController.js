@@ -73,6 +73,7 @@ class ItemCardController {
             value: card_value,
             table_id: table.id,
             user_id: auth.user.id,
+            waiter_id:table.waiter_id,
             printer_id: 1
           },trx)
 
