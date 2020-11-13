@@ -102,8 +102,7 @@ class CardController {
    */
   /**
    * 
-   * CORRIGIR - GARÇOM FECHA O CARD E NAO FECHA A MESA
-   * NO ITEM CARD O CLIENTE CRIA O CARD MAS NAO ATRIBUI O GARÇOM QUE JA ESTA NA MESA
+   *
    */
   async update ({ params, request, response,auth }) {
       try {
@@ -133,11 +132,12 @@ class CardController {
           const orders = itens.rows
           const printer = await Printer.findBy('id',card.printer_id)
           const table = await Table.findBy('id', card.table_id)
-          const cards = await table.cards().where('status',true).fetch()
-          const company = await Company.findBy('id',table.company_id)
-          const address = await company.address().first()
           card.status = false
           await card.save()
+          const cards = await table.cards().where('status',true).fetch()
+          console.log(cards.rows)
+          const company = await Company.findBy('id',table.company_id)
+          const address = await company.address().first()
           const pdf = new Pdf
           const pdfName = pdf.createCardPdf({
             company,

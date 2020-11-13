@@ -25,3 +25,8 @@ Route.group(()=>{
     Route.resource('profile', 'ProfileController').apiOnly()
     Route.put('table/:table_id/user/:user_id', 'TableController.addWaiter').as('table.waiter')
 }).prefix('v1/manager').namespace('Manager').middleware(['auth','is:manager'])
+
+Route.group(()=>{
+    Route.put('close-table/:id','AccountController.closeTable').as('close.table')
+    Route.put('close-card/:id','AccountController.closeCard').as('close.card')
+}).prefix('v1/manager').namespace('Manager').middleware(['auth','is:manager'])
