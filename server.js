@@ -18,6 +18,9 @@
 */
 //const cluster = require('cluster') //Add by me
 const { Ignitor } = require('@adonisjs/ignitor')
+const path = require('path')
+const https = require('https')
+const fs = require('fs')
 //Add by me
 // if (cluster.isMaster) {
 //   for (let i=0; i < 4; i ++) {
@@ -26,10 +29,15 @@ const { Ignitor } = require('@adonisjs/ignitor')
 //   require('@adonisjs/websocket/clusterPubSub')()
 //   return
 //}
-
+const options = {
+  key: fs.readFileSync(path.join(__dirname, './server.key')),
+  cert: fs.readFileSync(path.join(__dirname, './server.crt'))
+}
 
 new Ignitor(require('@adonisjs/fold'))
   .appRoot(__dirname)
   .wsServer()
-  .fireHttpServer()
+  .fireHttpServer((handler) => {
+    return https.createServer(options, handler)
+  })
   .catch(console.error)
