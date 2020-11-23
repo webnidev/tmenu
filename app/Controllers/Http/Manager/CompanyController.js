@@ -1,5 +1,5 @@
 'use strict'
-const Database = use('Database')
+//const Database = use('Database')
 const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -20,6 +20,7 @@ class CompanyController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
+    console.log('aqui')
     const manager = await Manager.findBy('user_id',auth.user.id)
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
@@ -44,7 +45,7 @@ class CompanyController {
    * @param {Response} ctx.response
    */
   async store ({ request, response, auth }) {
-    const trx = await Database.beginTransaction()
+   /* const trx = await Database.beginTransaction()
     try {
       const user = auth.user
       const data  = request.only(["name","address","cnpj"])
@@ -53,7 +54,7 @@ class CompanyController {
       console.log(user.roles())
     } catch (error) {
       
-    }
+    }*/
     
 
     return response.send({})
@@ -80,7 +81,7 @@ class CompanyController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
-    try {
+    /*try {
       const company = await Company.find(params.id)
       if(!company){
         return response.status(404).send({message: 'company not found!'})
@@ -91,7 +92,7 @@ class CompanyController {
       return response.send({company})
     } catch (error) {
       return response.status(400).send({message:error.message})
-    }
+    }*/
   }
 
   /**
