@@ -10,7 +10,7 @@ Route.group(()=>{
 
 
 Route.group(()=>{
-    Route.post('establishment', 'EstablishmentController.store').as('client.establishment.store')
+    //Route.post('establishment', 'EstablishmentController.store').as('client.establishment.store')
     Route.post('order', 'ItemCardController.store').as('order.store')
     Route.put('card/:id', 'CardController.update').as('order.update')
     Route.get('card', 'CardController.index').as('client.cards')
