@@ -79,7 +79,6 @@ class TableController {
     if(!company){
       return response.status(404).send({message: 'Company not found!'})
     }
-
     const data = request.only(["number"])
     const table = await Table.create({...data, status: false, 
     company_id: company.id,
@@ -99,9 +98,19 @@ class TableController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
     try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
       const table = await Table.query().where('id', params.id)
+      .where('company_id', company.id)
       .with('cards',(builder)=>{
         return builder
         .where('status','true')
@@ -110,7 +119,7 @@ class TableController {
       })
       .first()
       if(!table){
-        return response.status(404).send({message:'Mesa não encontrada!'})
+        return response.status(404).send({message:'Table not found!'})
       }
       return response.send({table})
     } catch (error) {
@@ -128,7 +137,7 @@ class TableController {
    */
   async update ({ params, request, response, auth }) {
     try {
-      const errorMessage = {
+      /*const errorMessage = {
         'number.required':'O campo número é obrigatorio',
         'number.number':'Este campo só aceita múneros inteiros'
       } 
@@ -137,9 +146,25 @@ class TableController {
      },errorMessage)
      if(validation.fails()){
        return response.status(401).send({message: validation.messages()})
-     }
+     }*/
       const data = request.all()
-      const table = await Table.query().findBy('id', params.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const table = await Table.query().where('id', params.id)
+      .where('company_id', company.id).first()
+      if(!table){
+        return response.status(404).send({message: 'Table not found!'})
+      }
+      if(data.hash){
+        return response.status(401).send({message:'The hash value are not cam modified'})
+      }
       table.merge({...data})
       await table.save()
       return response.send({table})
@@ -157,14 +182,24 @@ class TableController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params, request, response, auth }) {
     try {
-      const table = await Table.findBy('id',params.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const table = await Table.query().where('id',params.id)
+      .where('company_id',company.id).first()
       if(!table){
-        return response.status(404).send({message:'Mesa não encontrada!'})
+        return response.status(404).send({message:'Table not found!'})
       }
       await table.delete()
-    return response.status(200).send({message:`A mesa ${table.number} foi excluida!`})
+    return response.status(204).send()
     } catch (error) {
       return response.status(400).send({message:error.message})
     }

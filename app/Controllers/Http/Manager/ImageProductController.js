@@ -2,6 +2,7 @@
 const Product = use('App/Models/Product')
 const Helpers = use('Helpers')
 const Image = use('App/Models/ImageProduct')
+const fs = use('fs')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -33,9 +34,7 @@ class ImageProductController {
   async store ({ request, response }) {
     try {
       const {product_id} = request.all()
-      
       const product = await Product.findBy('id', product_id)
-      console.log(product)
       const photos = request.file('file',{
         size: '3mb'
       })
@@ -48,12 +47,11 @@ class ImageProductController {
         if(!photos.movedAll()){
           return photos.errors()
         }
-  
         await Promise.all(
           photos.movedList().map(item=> Image.create({product_id:product.id, path:item.fileName}))
         )
       }
-      return response.send({'response':'ok'})
+      return response.send({message:'Image Saved!'})
     } catch (error) {
       return response.status(400).send(error.message)
     }
@@ -69,18 +67,15 @@ class ImageProductController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
-  }
-
-  /**
-   * Render a form to update an existing imageproduct.
-   * GET imageproducts/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
+    try {
+      const image = await Image.find(params.id)
+      if(!image){
+        return response.status(404).send({message:'Image not found!'})
+      }
+      return response.download(`tmp/photos/${image.path}`)
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**
@@ -104,11 +99,23 @@ class ImageProductController {
    */
   async destroy ({ params, request, response }) {
     try {
-      const image = await Image.findBy('id', params.id)
-      image.delete()
+      const image = await Image.find(params.id)
+      if(!image){
+        return response.status(404).send({message:'Image not found!'})
+      }
+      let imagePath = Helpers.tmpPath(`photos/${image.path}`)
+      if(!imagePath){
+        return response.status(404).send({message:'Image not found!'})
+      }
+      await fs.unlink(imagePath, err=>{
+        if(!err){
+          image.delete()
+        }
+      })
       return response.status(204).send()
     } catch (error) {
-      return response.status(400).send(error.message)
+      console.log(error)
+      return response.status(400).send({message:error.message})
     }
   }
 }

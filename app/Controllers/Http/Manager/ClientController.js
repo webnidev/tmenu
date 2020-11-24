@@ -4,6 +4,7 @@
 const User = use('App/Models/User')
 const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
+const Client = use('App/Models/Client')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -60,9 +61,21 @@ class ClientController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
     try {
-      const client = await User.find(params.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const client = await Client.query().where('user_id',params.id).where('company_id', company.id).first()
+      if(!client){
+        return response.status(404).send({message: 'Client not found!'})
+      }
       return response.send({client})
     } catch (error) {
       return response.status(400).send({message:error.message})

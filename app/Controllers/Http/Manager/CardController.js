@@ -118,7 +118,6 @@ class CardController {
     AND E.ID = ?
     ORDER BY FATURADO DESC LIMIT 10
     `,[company.id])
-    console.log(cards.rows)
     return response.send(cards.rows)
    } catch (error) {
      console.log(error.message)
