@@ -1,4 +1,7 @@
 'use strict'
+
+const User = use('App/Models/User')
+const Database = use('Database')
 const Client = use('App/Models/Client')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -18,8 +21,8 @@ class ClientController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
-    const clients = await Client.all()
-    return response.send({clients})
+   // const clients = await Client.all()
+   // return response.send({clients})
   }
 
   /**
@@ -31,9 +34,19 @@ class ClientController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
-      const data = request.only(["name", "cpf", "fone", "user_id"])
-      const client = await Client.create({...data})
+      try {
+        const data = request.only(['company_id', 'user_id'])
+        const user = await User.find(data.user_id)
+        if(!user){
+          return response.status(404).send({message:'User not found!'})
+        } 
+       
+        data.name = user.name
+        const client = await Client.create({...data})
       return response.send({client})
+      } catch (error) {console.log(error)
+        return response.status(400).send({message:error.message})
+      }
   }
 
   /**
@@ -48,17 +61,6 @@ class ClientController {
   async show ({ params, request, response, view }) {
   }
 
-  /**
-   * Render a form to update an existing client.
-   * GET clients/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
 
   /**
    * Update client details.
@@ -68,7 +70,24 @@ class ClientController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
+    const trx = await Database.beginTransaction()
+    try {
+      const data = request.all()
+      const user = await User.find(auth.user.id)
+      if(data.name){
+        const client = await Client.findBy('user_id', user.id)
+        client.name = data.name
+        await client.save(trx) 
+      }
+      user.merge({...data})
+      await user.save(trx)
+      await trx.commit()
+      return response.send({user})
+    } catch (error) {
+      console.log(error)
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**

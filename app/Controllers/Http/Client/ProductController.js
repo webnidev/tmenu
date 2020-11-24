@@ -12,7 +12,7 @@ class ProductController {
             }
             return response.status(200).send({product})
         } catch (error) {
-            return response.status(500).send(error.message)
+            return response.status(400).send(error.message)
         }
       }
 }

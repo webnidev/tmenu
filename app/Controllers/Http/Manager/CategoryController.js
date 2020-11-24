@@ -88,6 +88,9 @@ class CategoryController {
       }
       const category = await Category.query().where('id', params.id)
       .where('company_id', company.id).first()
+      if(!category){
+        return response.status(404).send({message: 'Category not found!'})
+      }
       return response.send({category})  
     } catch (error) {
       return response.status(400).send({message: error.message})
@@ -131,13 +134,12 @@ class CategoryController {
       if(!category){
         return response.status(404).send({'Erro':'Category not found'})
     }
-      const name = category.name
       await category.delete()
-      return response.status(204).send({'response': `A categoria ${name} foi excluida!`})
+      return response.status(204).send()
    
   } catch (error) {
     console.log(error)
-    return response.status(500).send({'Erro':'Houve um erro na operação'})
+    return response.status(400).send({'Erro':'Houve um erro na operação'})
   }
 
   }
