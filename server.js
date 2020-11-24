@@ -22,23 +22,11 @@ const path = require('path')
 const https = require('https')
 const fs = require('fs')
 
-//CONFIG DO SERVIDOR
-const options = {
-  key: fs.readFileSync(path.join(__dirname, './server.key')),
-  cert: fs.readFileSync(path.join(__dirname, './server.crt'))
-}
 
-new Ignitor(require('@adonisjs/fold'))
-  .appRoot(__dirname)
-  .wsServer()
-  .fireHttpServer((handler) => {
-    return https.createServer(options, handler)
-  })
-  .catch(console.error)
 
   //CONFIG LOCAL
-  // new Ignitor(require('@adonisjs/fold'))
-  // .appRoot(__dirname)
-  // .wsServer()
-  // .fireHttpServer()
-  // .catch(console.error)  
+  new Ignitor(require('@adonisjs/fold'))
+  .appRoot(__dirname)
+  .wsServer()
+  .fireHttpServer()
+  .catch(console.error)  
