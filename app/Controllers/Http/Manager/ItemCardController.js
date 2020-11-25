@@ -108,7 +108,7 @@ class ItemCardController {
 
   }
 
-  async lastOrders({request, response}){
+  async lastOrders({request, response, auth}){
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
@@ -128,6 +128,7 @@ class ItemCardController {
     `,[company.id])
     return response.send(cards.rows[0])
     } catch (error) {
+      console.log(error)
       return response.status(error.status).send(error.message)
     }
   }

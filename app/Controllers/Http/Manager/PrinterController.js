@@ -1,6 +1,7 @@
 'use strict'
 const Printer = use('App/Models/Printer')
 const Company = use('App/Models/Company')
+const Manager = use('App/Models/Manager')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -19,7 +20,15 @@ class PrinterController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const company = await Company.query().where('user_id', auth.user.id).first()
+    const manager = await Manager.findBy('user_id',auth.user.id)
+    if(!manager){
+      return response.status(404).send({message: 'Manager not found!'})
+    }
+    const company = await Company.query().where('id', manager.company_id)
+    .first()
+    if(!company){
+      return response.status(404).send({message: 'Company not found!'})
+    }
     const printers = await company.printers().fetch()
     return response.send({printers})
   }
@@ -42,13 +51,13 @@ class PrinterController {
       const company = await Company.query().where('id', manager.company_id)
       .first()
       if(!company){
-        return response.status(404).send({message: 'company not found!'})
+        return response.status(404).send({message: 'Company not found!'})
       }
     const data = request.only(['name', 'code'])
     const printer = await Printer.create({...data, company_id: company.id})
     return response.send({printer})
     } catch (error) {
-      return response.status(error.status).send('Erro ao criar a impressora')
+      return response.status(400).send({message:error.message})
     }
   }
 
@@ -61,7 +70,27 @@ class PrinterController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
+    try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const printer = await Printer.query().where('id', params.id)
+      .where('company_id', company.id).first()
+      if(!printer){
+        return response.status(404).send({message: 'Printer not found!'})
+      }
+      return response.send({printer})
+
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**
@@ -72,12 +101,25 @@ class PrinterController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
     try {
-      const {data} = request.all() 
-      const printer = await Printer.findBy('id', params.id)
+      const data = request.all() 
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const printer = await Printer.query().where('id', params.id)
+      .where('company_id', company.id).first()
+      if(!printer){
+        return response.status(404).send({message: 'Printer not found!'})
+      }
       printer.merge({...data})
-      printer.save()
+      await printer.save()
       return response.status(200).send({printer})
     } catch (error) {
       return response.status(400).send({message:error.message})

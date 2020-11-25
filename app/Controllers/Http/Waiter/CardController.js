@@ -25,7 +25,7 @@ class CardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {//Exibe o numero de comandas faturadas
+  async index ({ request, response, auth }) {//Exibe o numero de comandas abertas do garçom
     try {
       const waiter = await Waiter.findBy('user_id',auth.user.id)
       if(!waiter){

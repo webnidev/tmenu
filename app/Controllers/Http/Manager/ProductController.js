@@ -24,15 +24,16 @@ class ProductController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    const manager = await Manager.findBy('user_id',auth.user.id)
-    if(!manager){
-      return response.status(404).send({message: 'Manager not found!'})
-    }
-    const company = await Company.query().where('id', manager.company_id)
-    .first()
-    if(!company){
-      return response.status(404).send({message: 'company not found!'})
-    }
+    try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
     const data = await Database.raw(`SELECT 
     PRODUCTS.ID,
     PRODUCTS.NAME,
@@ -43,20 +44,10 @@ class ProductController {
     PRODUCTS.RANKING
     FROM CATEGORIES, PRODUCTS WHERE 
     PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.COMPANY_ID=?`,[company.id])
-    
-    //const products = await Product.all()
-    // await Promise.all(
-    //   categories.map(async products=>{
-    //     await Promise.all(
-    //       products.map(async product=>{
-    //         productsAll.push(product)
-    //       })
-    //     )
-    //     
-    //   })
-    // )
-    const  products= data.rows
-    return response.send({products})
+    return response.send({products:data.rows})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
   /**
@@ -71,27 +62,11 @@ class ProductController {
     try {
       const data = request.only(["name","description","value","category_id","printer_id"])
       const product = await Product.create({...data})
-      /*const photos = request.file('file',{
-        size: '3mb'
-      })
-      if(photos){
-        await photos.moveAll(Helpers.tmpPath('photos'), file =>{
-          name: `${product.id}-${Date.now()}-${file.clientName}`
-        })
-        if(!photos.movedAll()){
-          return photos.errors()
-        }
-  
-        await Promise.all(
-          photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
-        )
-      }*/
       return response.status(201).send({product})
     } catch (error) {
       console.log(error)
       return response.status(500).send(error.message)
     }
-    
   }
 
   /**
@@ -119,13 +94,13 @@ class ProductController {
         const product = await Product.findBy('id', params.product_id)
         const attribute = await Attribute.findBy('id', params.attribute_id)
         if(!product || !attribute){
-          return response.status(404).send({"Error":"Porduct not found"})
+          return response.status(404).send({message:"Porduct not found"})
         }
         await product.attributes().attach([attribute.id])
         return response.send({product})
       } catch (error) {
         console.log(error)            
-        return response.status(500).send(error.message)
+        return response.status(400).send({message:error.message})
       }
    } 
   /**
@@ -136,35 +111,19 @@ class ProductController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
     try {
-      const {data} = request.all()
-    const product = await Product.query().where('id',params.id).first()
+      const data = request.all()
+      const product = await Product.query().where('id',params.id).first()
     if(!product){
       return response.status(404).send({"Error":"Porduct not found"})
     }
     product.merge({...data})
     await product.save()
-    if(request.file('file')){
-      const photos = request.file('file',{
-        size: '3mb'
-      })
-      await photos.moveAll(Helpers.tmpPath('photos'), file =>{
-        name: `${product.id}-${Date.now()}-${file.clientName}`
-      })
-      if(!photos.movedAll()){
-        return photos.errors()
-      }
-  
-      await Promise.all(
-        photos.movedList().map(item=> Image.create({product_id:product.id, path:  `${product.id}-${Date.now()}-${item.fileName}`}))
-      )
-    }
-    
-    return response.status(200).send({product})
+    return response.send({product})
     } catch (error) {
       console.log(error)
-      return response.status(error.status).send({'Error':'Erro ao atualizar o produto'})
+      return response.status(error.status).send({message:error.message})
     }
   }
 
@@ -178,14 +137,15 @@ class ProductController {
    */
   async destroy ({ params, request, response }) {
     try {
-      const product = await Product.query().where('id',params.id).first()
+      const product = await Product.find(params.id)
       if(!product){
-        return response.status(404).send({"Error":"Porduct not found"})
+        return response.status(404).send({message:"Porduct not found"})
       }
-      product.delete()
-    return response.status(200).send({"Delete":"Product deleted"})
+      await product.delete()
+      return response.status(204).send()
     } catch (error) {
-      return response.status(error.status).send(error.message)
+      console.log(error)
+      return response.status(error.status).send({message:error.message})
     }
   }
 }

@@ -14,6 +14,9 @@ class DownloadController {
         //     `public/tmp/${params.name}`
         // )
     }
+    async img({params, response}){
+        return response.download(`tmp/photos/${params.name}`)
+    }
 }
 
 module.exports = DownloadController

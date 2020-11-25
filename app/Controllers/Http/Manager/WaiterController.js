@@ -3,6 +3,7 @@ const User = use('App/Models/User')
 const Manager = use('App/Models/Manager')
 const Company = use('App/Models/Company')
 const Role = use('Role')
+const Waiter = use('App/Models/Waiter')
 const { validateAll } = use('Validator') 
 const Database = use('Database')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -25,20 +26,19 @@ class WaiterController {
   async index ({ request, response, auth }) {
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
-    if(!manager){
-      return response.status(404).send({message: 'Manager not found!'})
-    }
-    const company = await Company.query().where('id', manager.company_id)
-    .first()
-    if(!company){
-      return response.status(404).send({message: 'Company not found!'})
-    }
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
     const waiters = await company.waiters().fetch()
     return response.send({waiters})
     } catch (error) {
       return response.status(400).send({message:error.message})
     }
-
   }
 
 
@@ -77,7 +77,7 @@ class WaiterController {
     const {name, email, password, cpf, phone} = request.all()
     const userRole = await Role.findBy('slug', 'waiter')
     if(!userRole){
-      return response.status(400).send({"message":"Tipo de usuário inexistente!"})
+      return response.status(400).send({message:"Tipo de usuário inexistente!"})
     }
     const first = name.split(" ")
     const cpfPart = cpf.slice(0,5)
@@ -103,7 +103,33 @@ class WaiterController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
+   try {
+    const manager = await Manager.findBy('user_id',auth.user.id)
+    if(!manager){
+      return response.status(404).send({message: 'Manager not found!'})
+    }
+    const company = await Company.query().where('id', manager.company_id)
+    .first()
+    if(!company){
+      return response.status(404).send({message: 'Company not found!'})
+    }
+    const user = await User.find(params.id)
+    if(!user){
+      return response.status(404).send({message:'User not found!'})
+    }
+    const waiter = await Waiter.query().where('company_id', company.id)
+    .where('user_id', user.id)
+    .with('user')
+    .first()
+    if(!waiter){
+      return response.status(404).send({message:'Waiter not found!'})
+    }
+    return response.send({waiter})
+   } catch (error) {
+      console.log(error)
+      return response.status(400).send({message:error.message})
+   }
   }
 
 
@@ -118,7 +144,26 @@ class WaiterController {
   async update ({ params, request, response }) {
     try {
       const {data} = request.all()
-      const user = await User.find(params.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+    if(!manager){
+      return response.status(404).send({message: 'Manager not found!'})
+    }
+    const company = await Company.query().where('id', manager.company_id)
+    .first()
+    if(!company){
+      return response.status(404).send({message: 'Company not found!'})
+    }
+    const user = await User.find(params.id)
+    if(!user){
+      return response.status(404).send({message:'User not found!'})
+    }
+    const waiter = await Waiter.query().where('company_id', company.id)
+    .where('user_id', user.id)
+    .with('user')
+    .first()
+    if(!waiter){
+      return response.status(404).send({message:'Waiter not found!'})
+    }
       user.merge({...data})
       await user.save()
       return response.send({user})
@@ -135,12 +180,20 @@ class WaiterController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params, request, response, auth }) {
+    const trx = await Database.beginTransaction()
     try {
+      const waiter = await Waiter.findBy('user_id', params.id)
+      if(!waiter){
+        return response.status(404).send({message: 'Waiter not found!'})
+      }
+      await waiter.delete(trx)
       const user = await User.find(params.id)
-      user.delete()
-      return response.send({message:'Garçon excluido do estabelecimento'})
+      await user.delete(trx)
+      await trx.commit()
+      return response.status(204).send()
     } catch (error) {
+      await trx.rollback()
       return response.status(400).send({message:error.message})
     }
   }

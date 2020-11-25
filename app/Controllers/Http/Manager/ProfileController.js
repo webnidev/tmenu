@@ -1,4 +1,6 @@
 'use strict'
+
+const Manager = use('App/Models/manager')
 const User = use('App/Models/User')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -19,12 +21,13 @@ class ProfileController {
    */
   async index ({ request, response, auth }) {
     try {
-      const profile = await User.query().where('id',auth.user.id)
-      .with('roles')
+      const profile = await Manager.query().where('id',auth.user.id)
+      .with('user')
       .first()
       return response.send({profile})
     } catch (error) {
-      
+        console.log(error)
+        return response.status(400).send({message:error.message})
     }
   }
 
@@ -61,8 +64,11 @@ class ProfileController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
     try {
+      if(params.id != auth.user.id){
+        return response.status(404).send({message:'You not have permission'})
+      }
       const {data} = request.all()
       const profile = await User.find(params.id)
       profile.merge({...data})

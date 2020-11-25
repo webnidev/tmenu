@@ -20,7 +20,6 @@ class CompanyController {
    * @param {View} ctx.view
    */
   async index ({ request, response, auth }) {
-    console.log('aqui')
     const manager = await Manager.findBy('user_id',auth.user.id)
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
@@ -52,12 +51,10 @@ class CompanyController {
       //const company = await company.create({...data, user_id:user.id,rate:2.00})
       const userRole = await Role.findBy('slug', 'manager')
       console.log(user.roles())
+      return response.send({})
     } catch (error) {
       
     }*/
-    
-
-    return response.send({})
   }
 
   /**
@@ -80,19 +77,24 @@ class CompanyController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
-    /*try {
-      const company = await Company.find(params.id)
-      if(!company){
-        return response.status(404).send({message: 'company not found!'})
+  async update ({ params, request, response, auth }) {
+    try {
+      const data = request.all()
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
       }
-      const {data} = request.all()
+      const company = await Company.query().where('id',manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
       company.merge({...data})
       await company.save()
       return response.send({company})
     } catch (error) {
       return response.status(400).send({message:error.message})
-    }*/
+    }
   }
 
   /**

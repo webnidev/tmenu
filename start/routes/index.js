@@ -17,6 +17,7 @@
 const Route = use('Route')
 
 Route.get('/v1/download/pdf/:name', 'DownloadController.pdf').as('download.pdf')
+Route.get('/v1/download/img/:name', 'DownloadController.img').as('download.img')
 
 require('./auth')
 require('./admin')
