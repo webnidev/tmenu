@@ -137,13 +137,14 @@ class ProductController {
    */
   async destroy ({ params, request, response }) {
     try {
-      const product = await Product.find('id',params.id)
+      const product = await Product.find(params.id)
       if(!product){
         return response.status(404).send({message:"Porduct not found"})
       }
-      product.delete()
-    return response.status(204).send()
+      await product.delete()
+      return response.status(204).send()
     } catch (error) {
+      console.log(error)
       return response.status(error.status).send({message:error.message})
     }
   }

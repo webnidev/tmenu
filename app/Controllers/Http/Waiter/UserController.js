@@ -1,6 +1,7 @@
 'use strict'
 const Database = use('Database')
 const User = use('App/Models/User')
+const Waiter = use('App/Models/Waiter')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -68,6 +69,7 @@ class UserController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response, auth }) {
+    const trx = await Database.beginTransaction()
     try {
       if(params.id != auth.user.id){
         return response.status(401).send({message:`You are not allowed to modify this user`})
@@ -80,10 +82,17 @@ class UserController {
       if(!user){
         return response.status(404).send({message:'User not found!'})
       }
+      const waiter = await Waiter.findBy('user_id',user.id)
+      if(data.name){
+        waiter.merge({...data})
+        await waiter.save(trx)
+      }
       user.merge({...data})
-      await user.save()
+      await user.save(trx)
+      await trx.commit()
       return response.send({user})
     } catch (error) {
+      await trx.rollback()
       return response.status(400).send({message:error.message})
     }
   }
