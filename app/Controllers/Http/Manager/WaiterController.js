@@ -26,14 +26,14 @@ class WaiterController {
   async index ({ request, response, auth }) {
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
-    if(!manager){
-      return response.status(404).send({message: 'Manager not found!'})
-    }
-    const company = await Company.query().where('id', manager.company_id)
-    .first()
-    if(!company){
-      return response.status(404).send({message: 'Company not found!'})
-    }
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
     const waiters = await company.waiters().fetch()
     return response.send({waiters})
     } catch (error) {
