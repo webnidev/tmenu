@@ -18,18 +18,15 @@
 */
 //const cluster = require('cluster') //Add by me
 const { Ignitor } = require('@adonisjs/ignitor')
-//Add by me
-// if (cluster.isMaster) {
-//   for (let i=0; i < 4; i ++) {
-//     cluster.fork()
-//   }
-//   require('@adonisjs/websocket/clusterPubSub')()
-//   return
-//}
+const path = require('path')
+const https = require('https')
+const fs = require('fs')
 
 
-new Ignitor(require('@adonisjs/fold'))
+
+  //CONFIG LOCAL
+  new Ignitor(require('@adonisjs/fold'))
   .appRoot(__dirname)
   .wsServer()
   .fireHttpServer()
-  .catch(console.error)
+  .catch(console.error)  

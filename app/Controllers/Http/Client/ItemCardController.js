@@ -45,11 +45,9 @@ class ItemCardController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  //Create order with multi itens
-  //Adaptação de pedido
+
   async store ({ request, response, auth }){
     const trx = await Database.beginTransaction()
-    //const trxo = await Database.beginTransaction()
     try {
       const { hashcode, itens} = request.all()
       const table = await Table.findBy('hashcode', hashcode)
@@ -112,11 +110,8 @@ class ItemCardController {
                     })
                   )
                 }
-                
                 })
-                
               )
-              //await trxo.commit()
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
               await order.save(trx)
@@ -162,7 +157,6 @@ class ItemCardController {
       return response.status(404).send({'Error':'Table not found!'})
     } catch (error) {
         console.log(error)
-        //await trxo.rollback()
         await trx.rollback()
         return response.status(500).send(error.message)
     }

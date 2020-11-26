@@ -2,11 +2,13 @@
 const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
 const Card = use('App/Models/Card')
+const Rate = use('App/Models/RoleRate')
 const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const Waiter = use('App/Models/Waiter')
 const Printer = use('App/Models/Printer')
 const Database = use('Database')
+const Order = use('App/Utils/Order')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -82,7 +84,65 @@ class CardController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response,auth }) {
+    try {
+      const {data} = request.all()
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const config = await company.configuration().first()
+      const card = await Card.find(params.id)
+      if(!card.status){
+        return response.status(404).send({'Error':'This acount is closed'})
+      }
+      const table = await Table.query().where('company_id',company.id)
+      .where('id', card.table_id)
+      .first()
+      if(!table){
+        return response.status(404).send({message:'Table not found!'})
+      }
+      if(config.other_rate){
+        card.status = false
+        await Promise.all(
+          data.map( async other=>{
+            const rate = await Rate.create({
+              name:other.name,
+              quantity: other.quantity,
+              value:other.value,
+              card_id:card.id
+            })
+          })
+        )
+      }
+      const rates = await card.rates().fetch()
+      
+      const cards = await table.cards().where('status',true).fetch()
+      const itens = await  Database.raw(
+        `SELECT 
+        IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
+        FROM CARDS AS C, ITEM_CARDS AS IT
+        WHERE C.ID = IT.CARD_ID 
+        AND C.ID = ?`,
+        [ params.id]
+      )
+      const orders = itens.rows
+      const printer = await Printer.findBy('id',card.printer_id)
+      const address = await company.address().first()
+      await card.save()
+      const order = new Order
+      const pdfValues = { company,address,table,card,auth,orders,rates }
+      const confirmPrinter = order.closeCard(pdfValues)
+      return response.send(confirmPrinter)
+  } catch (error){
+    console.log(error)
+      return response.status(400).send({message:error.message})
+  }
   }
 
   /**

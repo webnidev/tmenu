@@ -72,8 +72,11 @@ class Order extends Model{
             auth
           })
     }
-    async closeCard(){
-        console.log('Fechar conta individual')
+    async closeCard(pdfValues){
+        const pdf = new Pdf
+        const pdfName = await pdf.createCardPdf(pdfValues)
+        console.log(pdfName)
+        return false
     }
 
     async closeTable({data, closed}){

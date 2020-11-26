@@ -19,6 +19,9 @@ class Card extends Model {
     orders(){
         return this.hasMany('App/Models/ItemCard')
     }
+    rates(){
+        return this.hasMany('App/Models/RoleRate')
+    }
 }
 
 module.exports = Card

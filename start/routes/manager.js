@@ -15,6 +15,7 @@ Route.group(()=>{
     Route.get('last-cards', 'CardController.lastCards').as('last.cards')
     Route.get('last-orders', 'ItemCardController.lastOrders').as('last.orders')
     Route.resource('attribute', 'AttributeController').apiOnly()
+    Route.resource('configuration', 'ConfigurationController').only(['index', 'update'])
     Route.resource('value-attribute', 'ValueAttributeController').apiOnly()
     Route.resource('client', 'ClientController').apiOnly()
     Route.resource('image-product', 'ImageProductController').apiOnly()

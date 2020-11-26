@@ -1,11 +1,13 @@
 'use strict'
 const Database = use('Database')
 const Card = use('App/Models/Card')
+const Rate = use('App/Models/RoleRate')
 const ItemCard = use('App/Models/ItemCard')
 const Client = use('App/Models/Client')
 const Printer = use('App/Models/Printer')
 const Axios = use('App/Utils/Axios')
 const Company = use('App/Models/Company')
+const Configuration = use('App/Models/Configuration')
 const Table = use('App/Models/Table')
 const Pdf = use('App/Utils/Pdf')  
 const Ws = use('Ws')
@@ -94,16 +96,24 @@ async update ({ params, request, response, auth }) {
     )
     const orders = itens.rows
     const printer = await Printer.findBy('id',card.printer_id)
-    card.status = false
-    await card.save()
     const table = await Table.find(card.table_id)
     const cards = await table.cards().where('status',true).fetch()
-    console.log(cards.rows)
-    
     const company = await Company.find(table.company_id)
+    const config = await company.configuration().first()
     const address = await company.address().first()
-    
     const pdf = new Pdf
+    if(config.waiter_rate){
+      const waiter_rate = await Rate.create({
+        name:"Taxa do garçom",
+        value: card.value * 0.1,
+        card_id:card.id
+      })
+    }
+    if(!config.other_rate){
+      card.status = false
+    }
+    const rates = await card.rates().fetch()
+    await card.save()
     const pdfName = pdf.createCardPdf({
       company,
       address,
@@ -111,6 +121,7 @@ async update ({ params, request, response, auth }) {
       card,
       auth,
       orders,
+      rates 
     })
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
@@ -122,7 +133,6 @@ async update ({ params, request, response, auth }) {
       table.status = false
       await table.save()
     }
-    
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
         topic.broadcast('new:card')

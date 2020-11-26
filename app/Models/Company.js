@@ -41,6 +41,9 @@ class Company extends Model {
     address(){
         return this.belongsTo('App/Models/Address')
     }
+    configuration(){
+        return this.hasOne('App/Models/Configuration')
+    }
 
 }
 
