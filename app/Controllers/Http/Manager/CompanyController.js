@@ -30,6 +30,7 @@ class CompanyController {
     .with('waiters')
     .with('managers')
     .with('images')
+    .with('configuration')
     .fetch()
     return response.send({companys})
   }

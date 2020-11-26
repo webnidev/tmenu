@@ -66,9 +66,10 @@ class Pdf extends Model{
         table,
         card,
         auth,
-        orders
-    }){
-        const pageHeight = orders.length * 10 + 180
+        orders, 
+        rates
+    }){ 
+        const pageHeight = (orders.length + rates.rows.length) * 10 + 180
         const pdfName = `company${company.id}card${card.id}.pdf`
         const date = new Date()
         const mounht = date.getMonth()+1
@@ -101,7 +102,6 @@ class Pdf extends Model{
             pdf.text(`Preço`,140, 96)
             pdf.text(`Total`,180, 96,{align:'right'})
             pdf.text(`--------------------------------------------------------`,20 , 102,{align:'left'})
-            let salt = 20
             let i=0 
                 for(i;i<orders.length;i++ ){
                     if(orders[i]){
@@ -112,9 +112,21 @@ class Pdf extends Model{
                         pdf.text(parseFloat(`${orders[i].total}`).toFixed(2), 170, position,{align:'right'})
                         position += 10
                     }
-                }                 
+                }
+                pdf.text('Outras despesas', 45, position)
+                pdf.text(`--------------------------------------------------------`,20 , position+10,{align:'left'})
+                position += 20
+                for(let j=0;j<rates.rows.length;j++){
+                    pdf.text(`${rates.rows[j].name}`, 45, position)
+                    pdf.text(`${rates.rows[j].quantity}`,125, position)
+                    pdf.text(parseFloat(`${rates.rows[j].value}`).toFixed(2),140, position)
+                    pdf.text(parseFloat(`${rates.rows[j].value * rates.rows[j].quantity}`).toFixed(2), 170, position,{align:'right'})
+                    position += 10
+                }              
             pdf.text(`--------------------------------------------------------`,20 , position,{align:'left'})
-            pdf.text(`Total: ${parseFloat(card.value).toFixed(2) }`,120,position+10,{align: 'right'} )
+            const total = this.calcRates(rates.rows, card.value)
+            const totalString = this.valorFormatado(total)
+            pdf.text(`Total: ${totalString }`,120,position+10,{align: 'right'} )
             if(!fs.existsSync('public/tmp')){
                 fs.mkdirSync('public/tmp')
             }
@@ -176,6 +188,7 @@ class Pdf extends Model{
             position += 20
             total +=closed[i].card.value
         }
+        //total = this.calcRates(rates, total)
         const totalString = this.valorFormatado(total)
         pdf.text(`Total:  ${totalString}`,120,position,{align: 'right'} )
         if(!fs.existsSync('public/tmp')){
@@ -190,5 +203,15 @@ class Pdf extends Model{
         return formatado;
         }
 
+    calcRates(listRate, value){
+        console.log(listRate)
+        if(Array.isArray(listRate)){
+            listRate.map(rate=>{
+                value += rate.value
+            })
+            return value
+        }
+        return 0
+    }
 }
 module.exports = Pdf
