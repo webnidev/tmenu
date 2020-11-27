@@ -61,7 +61,7 @@ class UserController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response }) {
     try {
       const user = await Database.raw(`SELECT 
           U.ID, U.NAME, U.EMAIL, U.CPF, U.PHONE, U.CREATED_AT AS "Data de Cadastro", R.NAME AS "Usuário" 
@@ -111,7 +111,7 @@ class UserController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
-    try {
+    /*try {
       const user = await User.findBy('id',params.id)
       if(!user){
         return response.status(404).send({message:`Usuário não encontrado!`})
@@ -120,7 +120,7 @@ class UserController {
       return response.status(200).send({message:`Usuário ${user.name} deletado!`})
     } catch (error) {
       return response.status(400).send({message:error.message})
-    }
+    }*/
   }
 }
 

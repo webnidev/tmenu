@@ -36,7 +36,7 @@ class CompanyController {
  */
 async store ({ request, response }) {
     try {
-        const {data} = request.all()
+        const data = request.all()
         const company = await Company.create({...data})
         return response.status(201).send({company})
     } catch (error) {
@@ -80,7 +80,7 @@ async show ({ params, request, response, view }) {
  */
 async update ({ params, request, response }) {
     try {
-        const {data} = request.all()
+        const data = request.all()
         const company = await Company.findBy('id', params.id)
         company.merge({...data})
         await company.save()
