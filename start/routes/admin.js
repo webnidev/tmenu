@@ -12,6 +12,11 @@ Route.group(()=>{
     Route.resource('billing','BillingController').apiOnly()
     Route.get('to-bill','BillingController.toBill')
     Route.put('send-billing','BillingController.sendBilling')
+    Route.resource('product', 'ProductController').apiOnly()
+    Route.resource('printer', 'PrinterController').apiOnly()
+    Route.resource('plan', 'PlanController').apiOnly()
+    Route.resource('rate-card', 'RateToCardController').apiOnly()
+    Route.resource('table', 'TableController').apiOnly()
 }).prefix('v1/admin').namespace('Admin').middleware(['auth', 'is:admin'])
 
 Route.group(()=>{

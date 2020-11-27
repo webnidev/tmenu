@@ -8,7 +8,6 @@ class PlanSchema extends Schema {
     this.create('plans', (table) => {
       table.increments()
       table.string('type', 50).notNullable()
-      table.integer('itens')
       table.float('value',8,2)
       table.string('operator')
       table.enu('taxation',['TABLE', 'CARD']).defaultTo('TABLE')
