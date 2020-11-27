@@ -55,7 +55,7 @@ class User extends Model {
   cards(){
     return this.hasMany('App/Models/Card')
   }
-  establishment(){
+  company(){
     return this.belongsToMany('App/Models/Company').pivotTable('managers')
   }
   role(){

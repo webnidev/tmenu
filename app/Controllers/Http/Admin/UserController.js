@@ -93,7 +93,7 @@ async show ({ params, request, response }) {
  */
 async update ({ params, request, response }) {
   try {
-    const {data} = request.all()
+    const data = request.all()
     const user = await User.findBy('id', params.id)
     if(!user){
       return response.status(404).send({message:'Usuário não encontrado!'})
@@ -120,7 +120,7 @@ async destroy ({ params, request, response }) {
     if(!user){
       return response.status(404).send({message:`Usuário não encontrado!`})
     }
-    user.delete()
+    await user.delete()
     return response.status(200).send({message:`Usuário ${user.name} deletado!`})
   } catch (error) {
     return response.status(400).send({message:error.message})

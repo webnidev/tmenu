@@ -17,29 +17,38 @@ class BillingController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-      const billings = await Billing.all()
-      return response.send({billings})
+  async index ({ request, response, pagination }) {
+      try {
+        const billings = await Billing.query().orderBy('created_at', 'desc')
+        .paginate(pagination.page, pagination.limit)
+        return response.send({billings})
+      } catch (error) {
+        return response.status(400).send({message:error.message})
+      }
 }
   async toBill({response, auth}){
-      //const billed = await Billing.query().where()
-    const billingData = await Database.raw(`
-    SELECT 
-    COMPANIES.ID,
-    COMPANIES.NAME,
-    COMPANIES.CNPJ, 
-    COUNT(CARDS.ID) AS "CONTAS FECHADAS",
-    COUNT(CARDS.ID) * COMPANIES.RATE AS "VALOR ATUAL"
-    FROM COMPANIES, TABLES, CARDS 
-    WHERE COMPANIES.ID = TABLES.ESTABLISHMENT_ID 
-    AND CARDS.TABLE_ID=TABLES.ID
-    AND CARDS.CREATED_AT >= COMPANIES.LAST_BILLING 
-    AND CARDS.CREATED_AT <= NOW() 
-    GROUP BY COMPANIES.NAME, 
-    COMPANIES.CNPJ,
-    COMPANIES.ID
-    `)
-    return response.send(billingData.rows)
+     try {
+      const billingData = await Database.raw(`
+      SELECT 
+      COMPANIES.ID,
+      COMPANIES.NAME,
+      COMPANIES.CNPJ, 
+      COUNT(CARDS.ID) AS "CONTAS FECHADAS",
+      COUNT(CARDS.ID) * COMPANIES.RATE AS "VALOR ATUAL"
+      FROM COMPANIES, TABLES, CARDS 
+      WHERE COMPANIES.ID = TABLES.ESTABLISHMENT_ID 
+      AND CARDS.TABLE_ID=TABLES.ID
+      AND CARDS.CREATED_AT >= COMPANIES.LAST_BILLING 
+      AND CARDS.CREATED_AT <= NOW() 
+      GROUP BY COMPANIES.NAME, 
+      COMPANIES.CNPJ,
+      COMPANIES.ID
+      `)
+      return response.send(billingData.rows)
+     } catch (error) {
+       console.log(error)
+      return response.status(400).send({message:error.message})
+     }
   }
 
   async sendBilling({request, response}){
