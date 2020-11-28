@@ -33,10 +33,9 @@ class BillingController {
       COMPANIES.ID,
       COMPANIES.NAME,
       COMPANIES.CNPJ, 
-      COUNT(CARDS.ID) AS "CONTAS FECHADAS",
-      COUNT(CARDS.ID) * COMPANIES.RATE AS "VALOR ATUAL"
+      COUNT(CARDS.ID) AS "CONTAS FECHADAS" 
       FROM COMPANIES, TABLES, CARDS 
-      WHERE COMPANIES.ID = TABLES.ESTABLISHMENT_ID 
+      WHERE COMPANIES.ID = TABLES.COMPANY_ID 
       AND CARDS.TABLE_ID=TABLES.ID
       AND CARDS.CREATED_AT >= COMPANIES.LAST_BILLING 
       AND CARDS.CREATED_AT <= NOW() 
@@ -72,6 +71,8 @@ async store ({ request, response }) {
     try {
         const data = request.only(['description','due_date', 'company_id'])
         const company = await Company.findBy('id', data.company_id)
+        const plan = await company.plan().with('rates').first()
+        const rates = await plan.rates().fetch()
         const billingData = await Database.raw(`
         SELECT COUNT(CARDS.ID) FROM COMPANIES, 
         TABLES, 
@@ -82,11 +83,26 @@ async store ({ request, response }) {
         AND CARDS.CREATED_AT > COMPANIES.LAST_BILLING 
         AND CARDS.CREATED_AT <= NOW()
         `, [data.company_id])
-        const value = parseFloat(billingData.rows[0].count * 2.00)
-        const billing = await Billing.create({...data, value:value, status:'NÃO ENVIADA'})
-        company.last_billing = new Date()
-        await company.save()
-        return response.send({billing})
+        if(rates.rows.length>0){
+          await Promise.all(
+              rates.rows.map(async rate=>{
+                if(billingData.rows[0].count>rate.min_card && billingData.rows[0].count <= rate.max_card + rate.tolerance  ){
+                  const billing = await Billing.create({...data, value:rate.amount_charged, status:'NÃO ENVIADA'})
+                  company.last_billing = new Date()
+                  await company.save()
+                  return response.send({billing})
+                }
+              })
+            )
+        }else{
+
+        }
+        
+        //const value = parseFloat(billingData.rows[0].count * 2.00)
+        //const billing = await Billing.create({...data, value:value, status:'NÃO ENVIADA'})
+        //company.last_billing = new Date()
+        //await company.save()
+        return response.send({rates})
     } catch (error) {
         console.log(error)
     }

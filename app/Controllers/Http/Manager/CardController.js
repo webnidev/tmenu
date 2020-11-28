@@ -169,14 +169,15 @@ class CardController {
       return response.status(404).send({message: 'Company not found!'})
     }
     const cards = await Database.raw(`
-    SELECT T.NUMBER AS MUNERO, C.VALUE AS TOTAL, C.UPDATED_AT AS FATURADO 
+    SELECT T.NUMBER AS MESA, C.VALUE AS TOTAL, C.UPDATED_AT AS FATURADO, 
+    C.ID AS COMANDA
     FROM COMPANIES AS E, TABLES AS T, CARDS AS C 
     WHERE E.ID=T.COMPANY_ID 
     AND T.ID=C.TABLE_ID
     AND C.CREATED_AT BETWEEN NOW() - INTERVAL '30 DAY' AND NOW()
     AND C.STATUS=FALSE
     AND E.ID = ?
-    ORDER BY FATURADO DESC LIMIT 10
+    ORDER BY FATURADO DESC
     `,[company.id])
     return response.send(cards.rows)
    } catch (error) {
