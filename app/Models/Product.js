@@ -22,6 +22,10 @@ class Product extends Model {
     values(){
         return this.manyThrough('App/Models/Attribute', 'values')
     }
+
+    combo(){
+        return this.belongsToMany('App/Models/Product').pivotTable('combos')
+    }
 }
 
 module.exports = Product

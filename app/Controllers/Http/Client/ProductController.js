@@ -6,6 +6,7 @@ class ProductController {
             const product = await Product.query().where('id',params.id)
             .with('images')
             .with('attributes')
+            .with('combo')
             .first()
             if(!product){
               return response.status(404).send({"Error":"Porduct not found"})

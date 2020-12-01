@@ -24,6 +24,7 @@ Route.group(()=>{
     Route.resource('manager', 'ManagerController').apiOnly()
     Route.resource('waiter', 'WaiterController').apiOnly()
     Route.put('product/:product_id/attribute/:attribute_id', 'ProductController.edit').as('add-attribute')
+    Route.put('product/:product_id/combo/:combo_id', 'ProductController.combo').as('product.combo')
     Route.resource('profile', 'ProfileController').apiOnly()
     Route.put('table/:table_id/user/:user_id', 'TableController.addWaiter').as('table.waiter')
 }).prefix('v1/manager').namespace('Manager').middleware(['auth','is:manager'])
