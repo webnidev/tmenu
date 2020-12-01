@@ -9,8 +9,8 @@ const Database = use('Database')
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 class BillingController {
      /**
-   * Show a list of all stocks.
-   * GET stocks
+   * Show a list of all billing.
+   * GET billing
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -33,10 +33,9 @@ class BillingController {
       COMPANIES.ID,
       COMPANIES.NAME,
       COMPANIES.CNPJ, 
-      COUNT(CARDS.ID) AS "CONTAS FECHADAS",
-      COUNT(CARDS.ID) * COMPANIES.RATE AS "VALOR ATUAL"
+      COUNT(CARDS.ID) AS "CONTAS FECHADAS" 
       FROM COMPANIES, TABLES, CARDS 
-      WHERE COMPANIES.ID = TABLES.ESTABLISHMENT_ID 
+      WHERE COMPANIES.ID = TABLES.COMPANY_ID 
       AND CARDS.TABLE_ID=TABLES.ID
       AND CARDS.CREATED_AT >= COMPANIES.LAST_BILLING 
       AND CARDS.CREATED_AT <= NOW() 
@@ -52,17 +51,21 @@ class BillingController {
   }
 
   async sendBilling({request, response}){
-      const data = request.only(['billing_id', 'billing_link'])
-      const billing = await Billing.findBy('id', data.billing_id)
-      billing.billing_link = data.billing_link
-      billing.status = 'ENVIADA'
-      await billing.save()
-      return response.send({billing})
+      try {
+        const data = request.only(['billing_id', 'billing_link'])
+        const billing = await Billing.findBy('id', data.billing_id)
+        billing.billing_link = data.billing_link
+        billing.status = 'ENVIADA'
+        await billing.save()
+        return response.send({billing})
+      } catch (error) {
+        return response.status(400).send({message:error.message})
+      }
   }
 
 /**
  * Create/save a new stock.
- * POST stocks
+ * POST billing
  *
  * @param {object} ctx
  * @param {Request} ctx.request
@@ -72,6 +75,25 @@ async store ({ request, response }) {
     try {
         const data = request.only(['description','due_date', 'company_id'])
         const company = await Company.findBy('id', data.company_id)
+        const tables = await company.tables().fetch()
+        const plan = await company.plan().with('rates').first()
+        const rates = await plan.rates().fetch()
+        const date = new Date()
+        const cards = []
+        let total_value=0
+        await Promise.all(
+          tables.rows.map(async table=>{
+            const t_cards = await table.cards()
+            .where('created_at','>',company.last_billing)
+            .where('created_at','<=',`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)
+            .fetch()
+            await Promise.all(              
+            t_cards.rows.map(async card=>{
+              cards.push(card)
+            })   
+            )
+          })
+        )
         const billingData = await Database.raw(`
         SELECT COUNT(CARDS.ID) FROM COMPANIES, 
         TABLES, 
@@ -82,19 +104,69 @@ async store ({ request, response }) {
         AND CARDS.CREATED_AT > COMPANIES.LAST_BILLING 
         AND CARDS.CREATED_AT <= NOW()
         `, [data.company_id])
-        const value = parseFloat(billingData.rows[0].count * 2.00)
-        const billing = await Billing.create({...data, value:value, status:'NÃO ENVIADA'})
+      if(plan.id==3){
+        if(rates.rows.length>0){
+          await Promise.all(
+              rates.rows.map(async rate=>{
+                if(billingData.rows[0].count>rate.min_card && billingData.rows[0].count <= rate.max_card + rate.tolerance  ){
+                  const billing = await Billing.create({...data, value:rate.amount_charged, status:'NÃO ENVIADA'})
+                  company.last_billing = new Date()
+                  await company.save()
+                  return response.send({billing})
+                }
+              })
+            )
+        }
+      }else{
+       if(plan.id==1){
+        await Promise.all(
+          cards.map(async card=>{
+           const rates = await card.rates().fetch()
+           await Promise.all(
+             rates.rows.map(async rate=>{
+               if(rate.name == 'Taxa do garçom'){
+                 total_value += rate.value * 0.2
+               }
+             })
+           )
+          })
+        )
+       }
+       else{
+         await Promise.all(
+           cards.map(async card=>{
+            const rates = await card.rates().fetch()
+            await Promise.all(
+              rates.rows.map(async rate=>{
+                if(rate.name == 'Taxa de comanda'){
+                  total_value += rate.value
+                }
+              })
+            )
+           })
+         )
+       }
+        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2), status:'NÃO ENVIADA'})
         company.last_billing = new Date()
         await company.save()
         return response.send({billing})
+      }
+        
+        
+        //const value = parseFloat(billingData.rows[0].count * 2.00)
+        //const billing = await Billing.create({...data, value:value, status:'NÃO ENVIADA'})
+        //company.last_billing = new Date()
+        //await company.save()
+        return response.send({})
     } catch (error) {
         console.log(error)
+        return response.status(400).send({message:error.message})
     }
 }
 
 /**
  * Display a single stock.
- * GET stocks/:id
+ * GET billing/:id
  *
  * @param {object} ctx
  * @param {Request} ctx.request
@@ -104,9 +176,31 @@ async store ({ request, response }) {
 async show ({ params, request, response, view }) {
 }
 
+
+/**
+ * Display a single stock.
+ * PUT billing/:id
+ *
+ * @param {object} ctx
+ * @param {Request} ctx.request
+ * @param {Response} ctx.response
+ * @param {View} ctx.view
+ */
+async setPaied ({ params, request, response }) {
+  try {
+    const status = request.all()
+    const billing = await Billing.find(params.id)
+    billing.merge({...status})
+    await billing.save()
+    return response.send({billing})
+  } catch (error) {
+    console.log(error)
+    return response.status(400).send({message:error.message})
+  }
+}
 /**
  * Render a form to update an existing stock.
- * GET stocks/:id/edit
+ * GET billing/:id/edit
  *
  * @param {object} ctx
  * @param {Request} ctx.request
@@ -118,7 +212,7 @@ async edit ({ params, request, response, view }) {
 
 /**
  * Update stock details.
- * PUT or PATCH stocks/:id
+ * PUT or PATCH billing/:id
  *
  * @param {object} ctx
  * @param {Request} ctx.request
@@ -129,7 +223,7 @@ async update ({ params, request, response }) {
 
 /**
  * Delete a stock with id.
- * DELETE stocks/:id
+ * DELETE billing/:id
  *
  * @param {object} ctx
  * @param {Request} ctx.request

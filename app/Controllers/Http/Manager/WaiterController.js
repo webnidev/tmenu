@@ -141,7 +141,7 @@ class WaiterController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
     try {
       const {data} = request.all()
       const manager = await Manager.findBy('user_id',auth.user.id)
@@ -164,6 +164,8 @@ class WaiterController {
     if(!waiter){
       return response.status(404).send({message:'Waiter not found!'})
     }
+      waiter.name =data.name
+      waiter.save()
       user.merge({...data})
       await user.save()
       return response.send({user})

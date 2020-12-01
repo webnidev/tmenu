@@ -32,7 +32,9 @@ class BillingController {
       if(!company){
         return response.status(404).send({message: 'company not found!'})
       }
-      const billings = await company.billings().whereNot('status','NÃO ENVIADA').fetch()
+      const billings = await company.billings().whereNot('status','NÃO ENVIADA')
+      .orderBy('created_at','desc')
+      .fetch()
       return response.send(billings)
     } catch (error) {
         return response.status(400).send({message: error.message})
