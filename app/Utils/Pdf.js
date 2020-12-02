@@ -154,6 +154,7 @@ class Pdf extends Model{
                 right: 20
             }
             }
+        //Comet
         const pdf = new PDFKit(config)
         let position = 82
         pdf.fontSize(10)
