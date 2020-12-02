@@ -27,6 +27,7 @@ Route.group(()=>{
     Route.put('product/:product_id/combo/:combo_id', 'ProductController.combo').as('product.combo')
     Route.resource('profile', 'ProfileController').apiOnly()
     Route.put('table/:table_id/user/:user_id', 'TableController.addWaiter').as('table.waiter')
+    Route.put('close-table/:id', 'TableController.close').as('table.close')
 }).prefix('v1/manager').namespace('Manager').middleware(['auth','is:manager'])
 
 Route.group(()=>{

@@ -75,13 +75,13 @@ class Order extends Model{
     async closeCard(pdfValues){
         const pdf = new Pdf
         const pdfName = await pdf.createCardPdf(pdfValues)
-        console.log(pdfName)
-        return false
+        return pdfName
     }
 
     async closeTable({data, closed}){
         const pdf = new Pdf
-        console.log(pdf.createAccountTable({data,closed}))
+        const pdfName = pdf.createAccountTable({data,closed})
+        return pdfName
     }
 
 }

@@ -7,6 +7,10 @@ const Manager = use('App/Models/Manager')
 const Waiter = use('App/Models/Waiter')
 const Libs = use('App/Utils/Libs')
 const { validateAll } = use('Validator')
+const Order = use('App/Utils/Order')
+const Database = use('Database')
+const Plan = use('App/Models/Plan')
+const Rate = use('App/Models/RoleRate')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -85,6 +89,7 @@ class TableController {
     hashcode:libs.hash()})
     return response.send({table})
    } catch (error) {
+     console.log(error)
      return response.status(400).send({message: error.message})
    }
   }
@@ -175,6 +180,94 @@ class TableController {
   }
 
   /**
+   * Update table details.
+   * PUT or PATCH tables/:id
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   */
+  async close ({ params, request, response, auth }) {
+    const query = `SELECT IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
+    FROM CARDS AS C, ITEM_CARDS AS IT WHERE C.ID = IT.CARD_ID AND C.ID = ?`
+    try {
+      const order = new Order
+      const aditional_rate = request.only(['data'])
+      const table = await Table.find(params.id)
+      if(!table){
+        return response.status(404).send({message:'Table not found!'})
+      }
+      if(!table.status){
+        return response.status(404).send({message:'Table is closed!'})
+      }
+      const cards = await table.cards().where('status',true).fetch()
+      const company = await table.company().first()
+      const plan = await company.plan().first()
+      const config = await company.configuration().first()
+      const waiter = await table.waiter().first()
+      const address = await company.address().first()
+      const closed = []
+      const data = [{company, waiter, table, address}]
+      const rates_all = []
+      let len=0
+      await Promise.all(
+        cards.rows.map(async card=>{
+          const itens = await Database.raw(query,[card.id])
+          const user = await card.user().first()
+          card.status = false
+          await card.save()
+          closed.push({user, card, 'itens':itens.rows})
+          len += (1+itens.rows.length)
+          if(plan.id == 2){
+            const rate_billing = await Rate.create({
+              name:"Taxa de comanda",
+              value: 1,
+              card_id:card.id
+            })
+            rates_all.push(rate_billing)
+          }
+          if(config.waiter_rate){
+            const waiter_rate = await Rate.create({
+              name:"Taxa do garçom",
+              value: card.value * 0.1,
+              card_id:card.id
+            })
+            rates_all.push(waiter_rate)
+          }
+          //let rates = await card.rates().fetch()
+          //rates_all.push(rates.rows)
+        })
+      )
+     
+      
+      if(config.other_rate){
+        await Promise.all(
+          aditional_rate.data.map( async other=>{
+            const rate = await Rate.create({
+              name:other.name,
+              quantity: other.quantity,
+              value:other.value,
+              card_id:cards.rows[0].id
+            })
+            rates_all.push(rate)
+          })
+        )
+      }
+
+      data.push({'len':len})
+      data.push({'rates':rates_all})
+      table.status=false
+      table.waiter_id = null
+      await table.save()
+      const confirmPrinter = await order.closeTable({data, closed})
+      return response.redirect(`${request.protocol()}://${request.hostname()}:3333/v1/download/pdf/${confirmPrinter}`, true)
+    } catch (error) {
+        console.log(error)
+        return response.status(400).send({message: error.message})
+    }
+  }
+
+  /**
    * Delete a table with id.
    * DELETE tables/:id
    *
@@ -204,7 +297,6 @@ class TableController {
       return response.status(400).send({message:error.message})
     }
   }
-
 
   async addWaiter({params, request, response, auth}){
     try {

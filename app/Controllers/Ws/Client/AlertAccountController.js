@@ -9,7 +9,7 @@ class AlertAccountController {
     this.socket.broadcast('message', message)
   }
 
-  noClose(){
+  onClose(){
     this.socket.broadcastToAll('drop:connection')
   }
 }

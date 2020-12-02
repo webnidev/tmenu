@@ -9,6 +9,7 @@ const Waiter = use('App/Models/Waiter')
 const Printer = use('App/Models/Printer')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
+const Helpers = use('Helpers')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -98,8 +99,11 @@ class CardController {
       }
       const config = await company.configuration().first()
       const card = await Card.find(params.id)
+      if(!card){
+        return response.status(404).send({'Error':'Account not found!'})
+      }
       if(!card.status){
-        return response.status(404).send({'Error':'This acount is closed'})
+        return response.status(404).send({'Error':'This account is closed'})
       }
       const table = await Table.query().where('company_id',company.id)
       .where('id', card.table_id)
@@ -122,7 +126,7 @@ class CardController {
       }
       const rates = await card.rates().fetch()
       
-      const cards = await table.cards().where('status',true).fetch()
+      
       const itens = await  Database.raw(
         `SELECT 
         IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
@@ -135,10 +139,18 @@ class CardController {
       const printer = await Printer.findBy('id',card.printer_id)
       const address = await company.address().first()
       await card.save()
+      const cards = await table.cards().where('status',true).fetch()
+       if(cards.rows.length == 0){
+          if(table.waiter_id){
+            table.waiter_id=null
+          }
+          table.status = false
+          await table.save()
+        }
       const order = new Order
       const pdfValues = { company,address,table,card,auth,orders,rates }
-      const confirmPrinter = order.closeCard(pdfValues)
-      return response.send(confirmPrinter)
+      const confirmPrinter = await order.closeCard(pdfValues)
+      return response.redirect(`${request.protocol()}://${request.hostname()}:3333/v1/download/pdf/${confirmPrinter}`, true)
   } catch (error){
     console.log(error)
       return response.status(400).send({message:error.message})
