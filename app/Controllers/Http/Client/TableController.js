@@ -6,6 +6,7 @@ const Company = use('App/Models/Company')
 const Libs = use('App/Utils/Libs')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
+const Ws = use('Ws')
 class TableController {
 
   /**
@@ -22,7 +23,7 @@ class TableController {
     try {
       const order = new Order
       const table = await Table.find(params.id)
-      const cards = await table.cards().where('status',true).fetch()
+      /*const cards = await table.cards().where('status',true).fetch()
       const company = await table.company().first()
       const waiter = await table.waiter().first()
       const address = await company.address().first()
@@ -42,9 +43,13 @@ class TableController {
       data.push({'len':len})
       order.closeTable({data, closed})
       table.status=false
-      table.waiter_id = null
+      table.waiter_id = null*/
       await table.save()
-      return response.send(cards)
+      const topic = Ws.getChannel('account-table').topic('account-table')
+      if(topic){
+        topic.broadcast('new:table')
+      }
+      return response.send({message:'Accont requested!'})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }

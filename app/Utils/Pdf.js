@@ -136,6 +136,7 @@ class Pdf extends Model{
     }
 
     createAccountTable({data, closed}){
+        console.log(data[2].rates)
         let waiter = ''
         let total = 0.0
         const pageHeight = data[1].len * 10 + 180
@@ -153,6 +154,7 @@ class Pdf extends Model{
                 right: 20
             }
             }
+        //Comet
         const pdf = new PDFKit(config)
         let position = 82
         pdf.fontSize(10)
@@ -204,7 +206,6 @@ class Pdf extends Model{
         }
 
     calcRates(listRate, value){
-        console.log(listRate)
         if(Array.isArray(listRate)){
             listRate.map(rate=>{
                 value += rate.value

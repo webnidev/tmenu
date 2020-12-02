@@ -1,9 +1,11 @@
 'use strict'
+
 const Company = use('App/Models/Company')
 const Attribute = use('App/Models/Attribute')
 const Manager = use('App/Models/Manager')
 const Product = use('App/Models/Product')
 const Image = use('App/Models/ImageProduct')
+const Combo = use('App/Models/Combo')
 const Database = use('Database')
 const Helpers = use('Helpers')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
@@ -68,7 +70,29 @@ class ProductController {
       return response.status(500).send(error.message)
     }
   }
-
+   /**
+   * Create/save a new combo.
+   * PUT products
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   */
+  async combo ({ params, request, response }) {
+    try {
+      const product = await Product.findBy('id', params.product_id)
+      const product_combo = await Product.findBy('id', params.combo_id)
+      if(!product || !product_combo){
+        return response.status(404).send({message:"Porduct not found"})
+      }
+      //await product.combo().attach([product_combo.id])
+      const combo = await Combo.create({product_id:product.id, product_combo_id:product_combo.id})
+      return response.send({combo})
+    } catch (error) {
+      console.log(error)            
+      return response.status(400).send({message:error.message})
+    }
+  }
   /**
    * Display a single product.
    * GET products/:id
@@ -82,6 +106,7 @@ class ProductController {
     const product = await Product.query().where('id',params.id)
     .with('images')
     .with('attributes')
+    .with('combo')
     .first()
     if(!product){
       return response.status(404).send({"Error":"Porduct not found"})

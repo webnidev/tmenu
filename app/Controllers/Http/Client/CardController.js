@@ -75,6 +75,7 @@ async show ({ params, request, response, auth }) {
  * @param {Response} ctx.response
  */
 async update ({ params, request, response, auth }) {
+  /**CLIENTE SOLICITA O FECHAMENTO DA CONTA O GERENTE OU GARÇO QUE REALMENTE FECHA */
   try {
     const card = await Card.find(params.id)
     if(!card){
@@ -109,9 +110,9 @@ async update ({ params, request, response, auth }) {
         card_id:card.id
       })
     }
-    if(!config.other_rate){
-      card.status = false
-    }
+    //if(!config.other_rate){
+    //  card.status = false
+    //}
     if(plan.id == 2){
       const rate_billing = await Rate.create({
         name:"Taxa de comanda",
@@ -122,7 +123,8 @@ async update ({ params, request, response, auth }) {
     const rates = await card.rates().fetch()
     await card.save()
     const cards = await table.cards().where('status',true).fetch()
-    const pdfName = pdf.createCardPdf({
+    
+    /*const pdfName = pdf.createCardPdf({
       company,
       address,
       table,
@@ -130,17 +132,17 @@ async update ({ params, request, response, auth }) {
       auth,
       orders,
       rates 
-    })
+    })*/
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
     //const printed = await axios.toPrinter(printer.code, pdfName)
-    if(cards.rows.length == 0){
+    /*if(cards.rows.length == 0){
       if(table.waiter_id){
         table.waiter_id=null
       }
       table.status = false
       await table.save()
-    }
+    }*/
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
         topic.broadcast('new:card')

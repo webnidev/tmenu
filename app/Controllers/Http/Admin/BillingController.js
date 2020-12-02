@@ -198,17 +198,7 @@ async setPaied ({ params, request, response }) {
     return response.status(400).send({message:error.message})
   }
 }
-/**
- * Render a form to update an existing stock.
- * GET billing/:id/edit
- *
- * @param {object} ctx
- * @param {Request} ctx.request
- * @param {Response} ctx.response
- * @param {View} ctx.view
- */
-async edit ({ params, request, response, view }) {
-}
+
 
 /**
  * Update stock details.
@@ -219,6 +209,15 @@ async edit ({ params, request, response, view }) {
  * @param {Response} ctx.response
  */
 async update ({ params, request, response }) {
+  try {
+    const data = request.all()
+    const billing = await Billing.find(params.id)
+    billing.merge({...data})
+    await billing.save()
+    return response.send({billing})
+  } catch (error) {
+    return response.status(400).send({message:error.message})
+  }
 }
 
 /**
@@ -230,7 +229,15 @@ async update ({ params, request, response }) {
  * @param {Response} ctx.response
  */
 async destroy ({ params, request, response }) {
+  try {
+    const billing = await Billing.find(params.id)
+    await billing.delete()
+    return response.status(204).send()
+  } catch (error) {
+    return response.status(400).send({message:error.message})
+  }
 }
+
 }
 
 module.exports = BillingController

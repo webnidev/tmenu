@@ -1,6 +1,6 @@
 'use strict'
 
-class AlertOrderController {
+class AlertTableController {
   constructor ({ socket, request }) {
     this.socket = socket
     this.request = request
@@ -8,10 +8,9 @@ class AlertOrderController {
   onMessage (message) {
     this.socket.broadcast('message', message)
   }
-
   onClose(){
     this.socket.broadcastToAll('drop:connection')
   }
 }
 
-module.exports = AlertOrderController
+module.exports = AlertTableController
