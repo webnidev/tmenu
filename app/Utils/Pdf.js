@@ -219,7 +219,7 @@ class Pdf extends Model{
     calcRates(listRate, value){
         if(Array.isArray(listRate)){
             listRate.map(rate=>{
-                value += rate.value
+                value += (rate.value*rate.quantity)
             })
             return value
         }
