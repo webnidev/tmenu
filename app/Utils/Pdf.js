@@ -136,10 +136,10 @@ class Pdf extends Model{
     }
 
     createAccountTable({data, closed}){
-        console.log(data[2].rates)
+        //console.log(data[2].rates)
         let waiter = ''
         let total = 0.0
-        const pageHeight = data[1].len * 10 + 180
+        const pageHeight = (data[1].len+data[2].rates.length) * 10 + 190
         const date = new Date()
         const pdfName = `${Date.now()}company${data[0].company.id}table${data[0].table.id}.pdf`
         const mounht = date.getMonth()+1
@@ -190,9 +190,20 @@ class Pdf extends Model{
             position += 20
             total +=closed[i].card.value
         }
-        //total = this.calcRates(rates, total)
+        pdf.text('Outras despesas', 45, position)
+        position+=10
+        for(let j = 0;j<data[2].rates.length;j++){
+            pdf.text(`${data[2].rates[j].name}`, 45, position)
+            pdf.text(`${data[2].rates[j].quantity}`,125, position)
+            pdf.text(parseFloat(`${data[2].rates[j].value}`).toFixed(2),140, position)
+            pdf.text(parseFloat(`${data[2].rates[j].value * data[2].rates[j].quantity}`).toFixed(2), 170, position,{align:'right'})
+            position += 10
+        }
+        total = this.calcRates(data[2].rates, total)
+        position += 10
+         pdf.text(`--------------------------------------------------------`,20 , position,{align:'left'})
         const totalString = this.valorFormatado(total)
-        pdf.text(`Total:  ${totalString}`,120,position,{align: 'right'} )
+        pdf.text(`Total:  ${totalString}`,120,position+10,{align: 'right'} )
         if(!fs.existsSync('public/tmp')){
             fs.mkdirSync('public/tmp')
         }
