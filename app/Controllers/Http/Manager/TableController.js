@@ -208,7 +208,10 @@ class TableController {
       const address = await company.address().first()
       const closed = []
       const data = [{company, waiter, table, address}]
-      const rates_all = []
+      const rates_all = [
+        {name:'Taxa de comanda', quantity:1, value:0},
+        {name:'Taxa do garçom', quantity:1, value:0}
+      ]
       let len=0
       await Promise.all(
         cards.rows.map(async card=>{
@@ -224,7 +227,7 @@ class TableController {
               value: 1,
               card_id:card.id
             })
-            rates_all.push(rate_billing)
+            rates_all[0].value+=rate_billing.value
           }
           if(config.waiter_rate){
             const waiter_rate = await Rate.create({
@@ -232,7 +235,7 @@ class TableController {
               value: card.value * 0.1,
               card_id:card.id
             })
-            rates_all.push(waiter_rate)
+            rates_all[1].value+=waiter_rate.value
           }
           //let rates = await card.rates().fetch()
           //rates_all.push(rates.rows)
@@ -249,7 +252,7 @@ class TableController {
               value:other.value,
               card_id:cards.rows[0].id
             })
-            rates_all.push(rate)
+            rates_all.push({name:other.name, quantity:other.quantity,value:other.value })
           })
         )
       }
