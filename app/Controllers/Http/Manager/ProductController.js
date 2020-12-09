@@ -8,6 +8,7 @@ const Image = use('App/Models/ImageProduct')
 const Combo = use('App/Models/Combo')
 const Database = use('Database')
 const Helpers = use('Helpers')
+const dataQuery = ``
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -103,7 +104,8 @@ class ProductController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, auth }) {
-    const product = await Product.query().where('id',params.id)
+    try {
+      const product = await Product.query().where('id',params.id)
     .with('images')
     .with('attributes')
     .with('combo')
@@ -112,6 +114,9 @@ class ProductController {
       return response.status(404).send({"Error":"Porduct not found"})
     }
     return response.status(200).send({product})
+    } catch (error) {
+      return response.status(400).send({message:error.message})
+    }
   }
 
    async edit({params, request, response, auth}){

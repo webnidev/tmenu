@@ -106,18 +106,6 @@ class ValueAttributeController {
   }
 
   /**
-   * Render a form to update an existing valueattribute.
-   * GET valueattributes/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
    * Update valueattribute details.
    * PUT or PATCH valueattributes/:id
    *

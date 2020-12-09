@@ -85,7 +85,7 @@ class CardController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response,auth }) {
+  async update ({ params, request, response, auth }) {
     try {
       const {data} = request.all()
       const manager = await Manager.findBy('user_id',auth.user.id)
@@ -99,6 +99,8 @@ class CardController {
       }
       const config = await company.configuration().first()
       const card = await Card.find(params.id)
+      const waiter = await card.waiter().first()
+      const client = await card.user().first()
       if(!card){
         return response.status(404).send({'Error':'Account not found!'})
       }
@@ -148,7 +150,7 @@ class CardController {
           await table.save()
         }
       const order = new Order
-      const pdfValues = { company,address,table,card,auth,orders,rates }
+      const pdfValues = { company,address,table,card,client,orders,rates, waiter }
       const confirmPrinter = await order.closeCard(pdfValues)
       return response.redirect(`${request.protocol()}://${request.hostname()}:3333/v1/download/pdf/${confirmPrinter}`, true)
   } catch (error){

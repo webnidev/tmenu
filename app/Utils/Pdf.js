@@ -65,9 +65,10 @@ class Pdf extends Model{
         address,
         table,
         card,
-        auth,
+        client,
         orders, 
-        rates
+        rates,
+        waiter
     }){ 
         const pageHeight = (orders.length + rates.rows.length) * 10 + 180
         const pdfName = `company${company.id}card${card.id}.pdf`
@@ -91,9 +92,9 @@ class Pdf extends Model{
             pdf.text(`CNPJ: ${company.cnpj}`,20,32, {align:'left'})
             pdf.text(`${day}/${mounht}/${year}`, 80, 32, {align:'right'})
             pdf.text(`${address.street} Nº ${address.number}  ${address.city}`, 20, 44,{align:'left'} )
-            pdf.text(`Cliente: ${auth.user.name}`, 20, 56, {align:'left'})
+            pdf.text(`Cliente: ${client.name}`, 20, 56, {align:'left'})
             pdf.text(`--------------------------------------------------------`,20 , 66,{align:'left'})
-            pdf.text(`Garçom: ${card.waiter.name}`,20 , 76,{align:'left'})
+            pdf.text(`Garçom: ${waiter.name}`,20 , 76,{align:'left'})
             pdf.text( `Mesa: ${table.number}`,80 , 76,{align:'right'})
             pdf.text(`--------------------------------------------------------`,20 , 86,{align:'left'})
             pdf.text(`Item`, 20, 96)
