@@ -103,7 +103,7 @@ async update ({ params, request, response, auth }) {
     const config = await company.configuration().first()
     const address = await company.address().first()
     const pdf = new Pdf
-    if(config.waiter_rate){
+    /*if(config.waiter_rate){
       const waiter_rate = await Rate.create({
         name:"Taxa do garçom",
         value: card.value * 0.1,
@@ -119,7 +119,7 @@ async update ({ params, request, response, auth }) {
         value: 1,
         card_id:card.id
       })
-    }
+    }*/
     const rates = await card.rates().fetch()
     await card.save()
     const cards = await table.cards().where('status',true).fetch()
@@ -136,13 +136,13 @@ async update ({ params, request, response, auth }) {
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
     //const printed = await axios.toPrinter(printer.code, pdfName)
-    /*if(cards.rows.length == 0){
+    if(cards.rows.length == 0){
       if(table.waiter_id){
         table.waiter_id=null
       }
       table.status = false
       await table.save()
-    }*/
+    }
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
         topic.broadcast('new:card')

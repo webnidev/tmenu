@@ -98,12 +98,14 @@ class CardController {
         return response.status(404).send({message: 'Company not found!'})
       }
       const config = await company.configuration().first()
+      const plan = await company.plan().first()
       const card = await Card.find(params.id)
-      const waiter = await card.waiter().first()
-      const client = await card.user().first()
       if(!card){
+        console.log('Card nullo')
         return response.status(404).send({'Error':'Account not found!'})
       }
+      const waiter = await card.waiter().first()
+      const client = await card.user().first()
       if(!card.status){
         return response.status(404).send({'Error':'This account is closed'})
       }
@@ -114,7 +116,6 @@ class CardController {
         return response.status(404).send({message:'Table not found!'})
       }
       if(config.other_rate){
-        card.status = false
         await Promise.all(
           data.map( async other=>{
             const rate = await Rate.create({
@@ -126,6 +127,20 @@ class CardController {
           })
         )
       }
+      if(config.waiter_rate){
+        const waiter_rate = await Rate.create({
+          name:"Taxa do garçom",
+          value: card.value * 0.1,
+          card_id:card.id
+        })
+      }
+      if(plan.id == 2){
+        const rate_billing = await Rate.create({
+          name:"Taxa de comanda",
+          value: 1,
+          card_id:card.id
+        })
+      }  
       const rates = await card.rates().fetch()
       
       
@@ -140,6 +155,7 @@ class CardController {
       const orders = itens.rows
       const printer = await Printer.findBy('id',card.printer_id)
       const address = await company.address().first()
+      card.status = false
       await card.save()
       const cards = await table.cards().where('status',true).fetch()
        if(cards.rows.length == 0){
@@ -149,6 +165,7 @@ class CardController {
           table.status = false
           await table.save()
         }
+        
       const order = new Order
       const pdfValues = { company,address,table,card,client,orders,rates, waiter }
       const confirmPrinter = await order.closeCard(pdfValues)

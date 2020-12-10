@@ -94,7 +94,7 @@ class Pdf extends Model{
             pdf.text(`${address.street} Nº ${address.number}  ${address.city}`, 20, 44,{align:'left'} )
             pdf.text(`Cliente: ${client.name}`, 20, 56, {align:'left'})
             pdf.text(`--------------------------------------------------------`,20 , 66,{align:'left'})
-            pdf.text(`Garçom: ${waiter.name}`,20 , 76,{align:'left'})
+            pdf.text(`Garçom: ${waiter? waiter.name: ''}`,20 , 76,{align:'left'})
             pdf.text( `Mesa: ${table.number}`,80 , 76,{align:'right'})
             pdf.text(`--------------------------------------------------------`,20 , 86,{align:'left'})
             pdf.text(`Item`, 20, 96)

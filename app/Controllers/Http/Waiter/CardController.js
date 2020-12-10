@@ -135,6 +135,7 @@ class CardController {
           card.status = false
           await card.save()
           const cards = await table.cards().where('status',true).fetch()
+          const client = await card.user().first()
           console.log(cards.rows)
           const company = await Company.findBy('id',table.company_id)
           const address = await company.address().first()
@@ -144,8 +145,9 @@ class CardController {
             address,
             table,
             card,
-            auth,
+            client,
             orders,
+            waiter
           })
           //console.log("Enviado para a "+String(printer.name))
           //const axios = new Axios()
