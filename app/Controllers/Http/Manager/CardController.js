@@ -107,7 +107,7 @@ class CardController {
       const waiter = await card.waiter().first()
       const client = await card.user().first()
       if(!card.status){
-        return response.status(404).send({'Error':'This account is closed'})
+        return response.status(401).send({'Error':'This account is closed'})
       }
       const table = await Table.query().where('company_id',company.id)
       .where('id', card.table_id)
