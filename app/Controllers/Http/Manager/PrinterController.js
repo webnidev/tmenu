@@ -134,11 +134,24 @@ class PrinterController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params, request, response, auth }) {
     try {
-      const printer = await Printer.find(params.id)
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const printer = await Printer.query().where('id',params.id)
+      .where('company_id', company.id).first()
+      if(!printer){
+        return response.status(404).send({message: 'Printer not found!'})
+      }
       printer.delete()
-      return response.status(200).send({message:'Printer delete!'})
+      return response.status(204).send()
     } catch (error) {
       return response.status(400).send({message:error.message})
     }

@@ -5,6 +5,7 @@ const Client = use('App/Models/Client')
 const Table = use('App/Models/Table')
 const Waiter = use('App/Models/Waiter')
 const Printer = use('App/Models/Printer')
+const Order = use('App/Utils/Order')
 const Database = use('Database')
 const Pdf = use('App/Utils/Pdf')  
 const Ws = use('Ws')
@@ -135,6 +136,7 @@ class CardController {
           card.status = false
           await card.save()
           const cards = await table.cards().where('status',true).fetch()
+          const client = await card.user().first()
           console.log(cards.rows)
           const company = await Company.findBy('id',table.company_id)
           const address = await company.address().first()
@@ -144,8 +146,9 @@ class CardController {
             address,
             table,
             card,
-            auth,
+            client,
             orders,
+            waiter
           })
           //console.log("Enviado para a "+String(printer.name))
           //const axios = new Axios()
