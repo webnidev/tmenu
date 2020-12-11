@@ -16,9 +16,9 @@ class Axios extends Model{
         }
       const  data = {
             "printerId":printer,
-            "title": "First Test using API",
+            "title": "Printing whit TMenu",
             "contentType": "pdf_uri",
-             "content": 'https:\/\/perfil.infsolution.com.br\/content\/curriculo.pdf',
+             "content": 'https:\/\/americalatina.dint.fgv.br\/sites\/americalatina.dint.fgv.br\/files\/teste33.pdf',
             "source": "tmenu impressoes"
         }
         await axios.post(url, data, options).then(res=>{

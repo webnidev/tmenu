@@ -34,17 +34,16 @@ class Order extends Model{
                     let pdf = new Pdf
                     let path = await pdf.pdfCreate(printOrd)
                     const axios = new Axios()
-                    //console.log('criou o pdf '+path)
-                    //const printed = await axios.toPrinter(printOrd.code, path)//Em prod
-                    // if(true){
-                    //     console.log('Entrou no if')
-                    //     try{
-                    //         await Promise.all([unlink(`public/tmp/${path}`)])
-                    //     }catch(error){
-                    //         console.log(error)
-                    //     }
+                    const printed = await axios.toPrinter(printOrd.code, path)//Em prod
+                     if(printed){
+                         console.log('Entrou no if')
+                         try{
+                             await Promise.all([unlink(`public/tmp/${path}`)])
+                         }catch(error){
+                             console.log(error)
+                         }
                         
-                    // }
+                     }
                     //console.log('deletou o pdf '+path)
                 }                   
             })
@@ -73,9 +72,12 @@ class Order extends Model{
           })
     }
     async closeCard(pdfValues){
+        console.log(pdfValues.printer.code)
         const pdf = new Pdf
         const pdfName = await pdf.createCardPdf(pdfValues)
-        return pdfName
+        const axios = new Axios()
+        const printed = await axios.toPrinter(pdfValues.printer.code, pdfName)
+        return printed
     }
 
     async closeTable({data, closed}){

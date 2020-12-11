@@ -55,6 +55,7 @@ class ItemCardController {
         const waiter = await table.waiter().first()
         const company = await Company.findBy('id', table.company_id)
         const address = await company.address().first()
+        const config = await company.configuration().first()
         const printers = await company.printers().fetch()
         let client = await Client.query().where('user_id', auth.user.id).where('company_id', company.id).first()
         let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
@@ -72,7 +73,7 @@ class ItemCardController {
             table_id: table.id,
             user_id: auth.user.id,
             waiter_id:table.waiter_id,
-            printer_id: 1
+            printer_id: config.printer_card_id
           },trx)
 
         }
