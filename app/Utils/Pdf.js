@@ -68,7 +68,8 @@ class Pdf extends Model{
         client,
         orders, 
         rates,
-        waiter
+        waiter,
+        printer
     }){ 
         const pageHeight = (orders.length + rates.rows.length) * 10 + 180
         const pdfName = `company${company.id}card${card.id}.pdf`

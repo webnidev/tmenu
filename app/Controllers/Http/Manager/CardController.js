@@ -167,9 +167,9 @@ class CardController {
         }
         
       const order = new Order
-      const pdfValues = { company,address,table,card,client,orders,rates, waiter }
+      const pdfValues = { company,address,table,card,client,orders,rates, waiter, printer }
       const confirmPrinter = await order.closeCard(pdfValues)
-      return response.redirect(`${request.protocol()}://${request.hostname()}:3333/v1/download/pdf/${confirmPrinter}`, true)
+      return response.send({confirmPrinter})
   } catch (error){
     console.log(error)
       return response.status(400).send({message:error.message})

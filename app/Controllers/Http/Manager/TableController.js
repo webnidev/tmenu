@@ -263,7 +263,7 @@ class TableController {
       table.waiter_id = null
       await table.save()
       const confirmPrinter = await order.closeTable({data, closed})
-      return response.redirect(`${request.protocol()}://${request.hostname()}:3333/v1/download/pdf/${confirmPrinter}`, true)
+      return response.redirect({confirmPrinter})
     } catch (error) {
         console.log(error)
         return response.status(400).send({message: error.message})

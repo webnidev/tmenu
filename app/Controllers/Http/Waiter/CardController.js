@@ -2,6 +2,7 @@
 const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Client = use('App/Models/Client')
+const Rate = use('App/Models/RoleRate')
 const Table = use('App/Models/Table')
 const Waiter = use('App/Models/Waiter')
 const Printer = use('App/Models/Printer')
@@ -119,9 +120,12 @@ class CardController {
         if(card.status == false){
             return response.status(400).send({message:`This account already closed!`})
         }
+        const client = await card.user().first()
         if(card.waiter_id != waiter.id){
             return response.status(401).send({message:`You are not allowed to close this account!`  })
         }
+
+        
         const itens = await  Database.raw(
             `SELECT 
             IT.PRODUCT_NAME AS NAME, IT.PRODUCT_VALUE  AS PRECO, IT.QUANTITY AS QUANTITY, IT.VALUE AS TOTAL 
@@ -133,23 +137,44 @@ class CardController {
           const orders = itens.rows
           const printer = await Printer.findBy('id',card.printer_id)
           const table = await Table.findBy('id', card.table_id)
+          if(!table){
+            return response.status(404).send({'Error':'Table not found!'})
+          }
+          const company = await Company.findBy('id',table.company_id)
+          const address = await company.address().first()
+          const config = await company.configuration().first()
+          const plan = await company.plan().first()
           card.status = false
           await card.save()
           const cards = await table.cards().where('status',true).fetch()
-          const client = await card.user().first()
-          console.log(cards.rows)
-          const company = await Company.findBy('id',table.company_id)
-          const address = await company.address().first()
-          const pdf = new Pdf
-          const pdfName = pdf.createCardPdf({
-            company,
-            address,
-            table,
-            card,
-            client,
-            orders,
-            waiter
-          })
+          const order = new Order 
+          if(config.other_rate){
+            await Promise.all(
+              data.map( async other=>{
+                const rate = await Rate.create({
+                  name:other.name,
+                  quantity: other.quantity,
+                  value:other.value,
+                  card_id:card.id
+                })
+              })
+            )
+          }
+          if(config.waiter_rate){
+            const waiter_rate = await Rate.create({
+              name:"Taxa do garçom",
+              value: card.value * 0.1,
+              card_id:card.id
+            })
+          }
+          if(plan.id == 2){
+            const rate_billing = await Rate.create({
+              name:"Taxa de comanda",
+              value: 1,
+              card_id:card.id
+            })
+          }  
+          const rates = await card.rates().fetch()      
           //console.log("Enviado para a "+String(printer.name))
           //const axios = new Axios()
           //const printed = await axios.toPrinter(printer.code, pdfName)
@@ -158,9 +183,11 @@ class CardController {
               table.waiter_id=null
             }
             table.status = false
-            await table.save()
           }
-          return response.send({card})
+          await table.save()
+          const pdfValues = { company,address,table,card,client,orders,rates, waiter, printer}
+          const confirmPrinter = await order.closeCard(pdfValues)
+          return response.send({confirmPrinter})
       } catch (error) {
         console.log(error)
         return response.status(400).send({message:error.message})

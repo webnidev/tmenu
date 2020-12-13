@@ -6,7 +6,7 @@ const Model = use('Model')
 
 class Axios extends Model{
     async toPrinter(printer, pdf){
-        const pdfPath = 'https:\/\/tmenu\/pdf\/'+pdf
+        const pdfPath = 'https:\/\/api.tmenu.com.br\/v1\/download\/pdf\/'+pdf
         const url = 'https://api.printnode.com/printjobs'
         const options ={
             headers : {
@@ -16,9 +16,9 @@ class Axios extends Model{
         }
       const  data = {
             "printerId":printer,
-            "title": "First Test using API",
+            "title": "Printing whit TMenu",
             "contentType": "pdf_uri",
-             "content": 'https:\/\/perfil.infsolution.com.br\/content\/curriculo.pdf',
+             "content": pdfPath,
             "source": "tmenu impressoes"
         }
         await axios.post(url, data, options).then(res=>{

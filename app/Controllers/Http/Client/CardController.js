@@ -136,13 +136,13 @@ async update ({ params, request, response, auth }) {
     //console.log("Enviado para a "+String(printer.name))
     //const axios = new Axios()
     //const printed = await axios.toPrinter(printer.code, pdfName)
-    if(cards.rows.length == 0){
+    /*if(cards.rows.length == 0){
       if(table.waiter_id){
         table.waiter_id=null
       }
       table.status = false
       await table.save()
-    }
+    }*/
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
         topic.broadcast('new:card')
