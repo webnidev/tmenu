@@ -21,9 +21,9 @@ class Axios extends Model{
              "content": pdfPath,
             "source": "tmenu impressoes"
         }
-        await axios.post(url, data, options).then(res=>{
-            return res
-        })
+        //await axios.post(url, data, options).then(res=>{
+        //    return res
+        //})
      }
 }
 

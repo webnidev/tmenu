@@ -322,7 +322,7 @@ class TableController {
       if('waiter' == roles.rows[0].slug){  
         table.waiter_id = waiter.id
         await table.save()
-        const cards = await table.cards().fetch()
+        const cards = await table.cards().where('status',true).fetch()
         await Promise.all(cards.rows.map(async card=>{
           card.waiter_id = waiter.id
           await card.save()
