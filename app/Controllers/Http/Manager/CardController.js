@@ -73,8 +73,32 @@ class CardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth }) {
+    try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const card = await Card.query().where('id', params.id)
+      .with('waiter')
+      .with('table')
+      .with('itens')
+      .with('rates')
+      .first()
 
+      const table = await Table.query().where('id', card.table_id).where('company_id', company.id).first()
+      if(!table){
+        return response.status(404).send({message:'Card not found!'})
+      }
+      return response.send({card})
+    } catch (error) {
+      return response.status(400).send({error:error.message})
+    }
   }
 
   /**
@@ -101,7 +125,6 @@ class CardController {
       const plan = await company.plan().first()
       const card = await Card.find(params.id)
       if(!card){
-        console.log('Card nullo')
         return response.status(404).send({'Error':'Account not found!'})
       }
       const waiter = await card.waiter().first()
@@ -137,7 +160,7 @@ class CardController {
       if(plan.id == 2){
         const rate_billing = await Rate.create({
           name:"Taxa de comanda",
-          value: 1,
+          value: plan.value,
           card_id:card.id
         })
       }  

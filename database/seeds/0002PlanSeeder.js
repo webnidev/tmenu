@@ -18,8 +18,8 @@ class PlanSeeder {
   async run () {
     const plan1 = await Plan.create({
       type:'Cobrança sobre taxa do garçom',
-      value:0.2,
-      operator:'*',
+      value:1.0,
+      operator:'+',
       taxation:'CARD'
     })
     const plan2 = await Plan.create({
@@ -28,7 +28,7 @@ class PlanSeeder {
       operator:'+',
       taxation:'CARD'
     })
-    const plan3 = await Plan.create({
+    /*const plan3 = await Plan.create({
       type:'Cobranca sobre comadas faturadas',
       value:null,
       operator:null,
@@ -57,7 +57,7 @@ class PlanSeeder {
       amount_charged:999,
       period:30,
       plan_id: plan3.id
-    })
+    })*/
   }
 }
 

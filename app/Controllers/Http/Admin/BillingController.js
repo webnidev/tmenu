@@ -104,7 +104,7 @@ async store ({ request, response }) {
         AND CARDS.CREATED_AT > COMPANIES.LAST_BILLING 
         AND CARDS.CREATED_AT <= NOW()
         `, [data.company_id])
-      if(plan.id==3){
+     /* if(plan.id==3){
         if(rates.rows.length>0){
           await Promise.all(
               rates.rows.map(async rate=>{
@@ -117,7 +117,7 @@ async store ({ request, response }) {
               })
             )
         }
-      }else{
+      }*/
        if(plan.id==1){
         await Promise.all(
           cards.map(async card=>{
@@ -125,14 +125,15 @@ async store ({ request, response }) {
            await Promise.all(
              rates.rows.map(async rate=>{
                if(rate.name == 'Taxa do garçom'){
-                 total_value += rate.value * 0.2
+                 //total_value += rate.value * 0.2
+                 total_value += plan.value
                }
              })
            )
           })
         )
        }
-       else{
+       else if(plan.id==2){
          await Promise.all(
            cards.map(async card=>{
             const rates = await card.rates().fetch()
@@ -150,14 +151,13 @@ async store ({ request, response }) {
         company.last_billing = new Date()
         await company.save()
         return response.send({billing})
-      }
         
         
         //const value = parseFloat(billingData.rows[0].count * 2.00)
         //const billing = await Billing.create({...data, value:value, status:'NÃO ENVIADA'})
         //company.last_billing = new Date()
         //await company.save()
-        return response.send({})
+        //return response.send({})
     } catch (error) {
         console.log(error)
         return response.status(400).send({message:error.message})

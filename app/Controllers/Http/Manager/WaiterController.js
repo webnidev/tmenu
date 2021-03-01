@@ -121,6 +121,7 @@ class WaiterController {
     const waiter = await Waiter.query().where('company_id', company.id)
     .where('user_id', user.id)
     .with('user')
+    .with('cards')
     .first()
     if(!waiter){
       return response.status(404).send({message:'Waiter not found!'})
