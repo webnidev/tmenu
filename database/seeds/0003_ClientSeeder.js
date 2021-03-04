@@ -44,7 +44,7 @@ class ClientSeeder {
     
     //const plan = await Plan.create({type:'geral'})
 
-    const companies = await Factory.model('App/Models/Company').createMany(3)
+    const companies = await Factory.model('App/Models/Company').createMany(2)
     let i = 0
     await Promise.all(     
         companies.map( async company =>{

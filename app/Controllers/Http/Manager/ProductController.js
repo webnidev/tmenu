@@ -63,7 +63,8 @@ class ProductController {
    */
   async store ({ request, response }) {
     try {
-      const data = request.only(["name","description","value","category_id","printer_id"])
+      //const data = request.only(["name","description","value","category_id","printer_id"])
+      const data = request.all()
       const product = await Product.create({...data})
       return response.status(201).send({product})
     } catch (error) {

@@ -24,7 +24,7 @@ class AddressController {
  */
 async store ({ request, response }) {
     try {
-        const {data} = request.all()
+        const data = request.all()
         const address = await Address.create({...data})
         return response.status(201).send({address})
     } catch (error) {
@@ -65,10 +65,11 @@ async show ({ params, request, response, view }) {
  */
 async update ({ params, request, response }) {
     try {
-        const {data} = request.all()
+        const data = request.all()
         const address = await Address.findBy('id',params.id)
         address.merge({...data})
         await address.save()
+        return response.send({address})
     } catch (error) {
         return response.status(400).send({message:error.message})
     }

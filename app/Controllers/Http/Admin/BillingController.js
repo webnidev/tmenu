@@ -147,7 +147,7 @@ async store ({ request, response }) {
            })
          )
        }
-        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2), status:'NÃO ENVIADA'})
+        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2), status:'GERADA'})
         company.last_billing = new Date()
         await company.save()
         return response.send({billing})

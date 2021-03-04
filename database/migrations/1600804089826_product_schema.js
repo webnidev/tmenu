@@ -11,6 +11,7 @@ class ProductSchema extends Schema {
       table.string('name', 100)
       table.string('description', 256)
       table.float('value', 8, 2)
+      table.enu('status',['ATIVO','INATIVO','FORA DE ESTOQUE']).notNullable().defaultTo('ATIVO')
       table.integer('ranking').notNullable().defaultTo(0)
       table.integer('category_id')
       table.integer('printer_id')

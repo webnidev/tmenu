@@ -10,7 +10,7 @@ class BillingSchema extends Schema {
       table.string('description',256)
       table.date('due_date')
       table.float('value', 8, 2)
-      table.enu('status',['NÃO ENVIADA','ENVIADA','PAGA','VENCIDA','CANCELADA'])
+      table.enu('status',['GERADA','ENVIADA','PAGA','CANCELADA'])
       table.string('billing_link',512)
       table.timestamps()
       table.boolean('deleted').notNullable().defaultTo(false)
