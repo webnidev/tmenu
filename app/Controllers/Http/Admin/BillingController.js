@@ -1,5 +1,7 @@
 'use strict'
 
+const Pagination = require('../../../Middleware/Pagination')
+
 const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Billing = use('App/Models/Billing')
@@ -16,6 +18,7 @@ class BillingController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
+   * @param {Pagination} ctx.pagination
    */
   async index ({ request, response, pagination }) {
       try {

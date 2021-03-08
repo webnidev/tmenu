@@ -71,14 +71,17 @@ class TableController {
         return response.status(404).send({'response':'Cardápio não encontrado'})
       }
       const company = await table.company().first()
+      if(!company){
+        return response.status(404).send({message:'Company not fount!'})
+      }
       const menu = await company.categories()
-      .with('products', (builder) =>{
+      /*.with('products', (builder) =>{
         return builder
         .with('images')
         .orderBy('ranking', 'desc')
-      })
+      })*/
       .fetch()
-      const cardapio = {table: table.number, categories: menu}
+      const cardapio = {id: company.id, name: company.name,table: table.number, categories: menu}
       return response.send({cardapio})
     } catch (error) {
       return response.status(500).send(error.message)
