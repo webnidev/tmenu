@@ -16,13 +16,17 @@ class UserController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, pagination }) {
       try {
-        const users = await Database.raw(`SELECT 
+        /*const users = await Database.raw(`SELECT 
         U.ID, U.NAME, U.EMAIL, U.CPF, U.PHONE, U.CREATED_AT AS "Data de Cadastro", R.NAME AS "Usuário" 
         FROM USERS AS U, ROLE_USER AS T, ROLES AS R WHERE U.ID = T.USER_ID AND R.ID = T.ROLE_ID
         `)
-        return response.send({users:users.rows})
+        return response.send({users:users.rows})*/
+        const query = User.query()
+        query.where('id','>',0)
+        const users = await query.with('roles').paginate(pagination.page, pagination.limit)
+        return response.send({users})
       } catch (error) {
           console.log(error)
           return response.status(400).send({message:error.message})

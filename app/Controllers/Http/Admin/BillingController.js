@@ -1,5 +1,7 @@
 'use strict'
 
+const Pagination = require('../../../Middleware/Pagination')
+
 const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Billing = use('App/Models/Billing')
@@ -16,6 +18,7 @@ class BillingController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
+   * @param {Pagination} ctx.pagination
    */
   async index ({ request, response, pagination }) {
       try {
@@ -147,7 +150,7 @@ async store ({ request, response }) {
            })
          )
        }
-        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2), status:'NÃO ENVIADA'})
+        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2), status:'GERADA'})
         company.last_billing = new Date()
         await company.save()
         return response.send({billing})

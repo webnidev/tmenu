@@ -26,7 +26,7 @@ class ProductController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
+  async index ({ request, response, auth, pagination }) {
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
@@ -37,17 +37,27 @@ class ProductController {
       if(!company){
         return response.status(404).send({message: 'Company not found!'})
       }
-    const data = await Database.raw(`SELECT 
-    PRODUCTS.ID,
-    PRODUCTS.NAME,
-    PRODUCTS.DESCRIPTION,
-    PRODUCTS.VALUE,
-    PRODUCTS.CATEGORY_ID,
-    PRODUCTS.PRINTER_ID,
-    PRODUCTS.RANKING
-    FROM CATEGORIES, PRODUCTS WHERE 
-    PRODUCTS.CATEGORY_ID = CATEGORIES.ID AND CATEGORIES.COMPANY_ID=?`,[company.id])
-    return response.send({products:data.rows})
+      const category = request.input('category_id')
+      const status = request.input('status')
+      const name = request.input('name')
+      const code = request.input('code')
+      const query = Product.query()
+      query.where('owner', company.id)
+      if(category){
+        query.where('category_id', category)
+      }
+      if(status){
+        query.where('status', status)
+      }
+      if(name){
+        query.where('name', 'ILIKE',`%${name}%`)
+      }
+      if(code){
+        query.where('name', 'ILIKE',`%${code}%`)
+      }
+      const products = await query.paginate(pagination.page, pagination.limit)
+   
+    return response.send({products})
     } catch (error) {
       return response.status(400).send({message:error.message})
     }
@@ -63,7 +73,7 @@ class ProductController {
    */
   async store ({ request, response }) {
     try {
-      const data = request.only(["name","description","value","category_id","printer_id"])
+      const data = request.all()
       const product = await Product.create({...data})
       return response.status(201).send({product})
     } catch (error) {

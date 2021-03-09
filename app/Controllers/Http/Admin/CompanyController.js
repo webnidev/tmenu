@@ -14,14 +14,14 @@ class CompanyController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, pagination }) {
       const company = await Company.query()
       .with('tables')
       .with('waiters')
       .with('managers')
       .with('images')
       .with('address')
-      .fetch()
+      .paginate(pagination.page, pagination.limit)
       return response.send({company})
 }
 
