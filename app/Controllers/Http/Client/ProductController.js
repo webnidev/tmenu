@@ -14,8 +14,14 @@ class ProductController {
     try {
       const search = request.input('search')
       const query = Product.query()
+      query.where('owner', request.input('company_id'))
+      query.whereNot({status:'INATIVO'})
       if(search){
-        query.where('name','LIKE',`%${search}%`)
+        query.where(function(){
+          this
+          .where('name','ILIKE',`%${search}%`)
+          .orWhere('description','ILIKE',`%${search}%`)
+        })
       }
       const products = await query.paginate(pagination.page, pagination.limit)
       
@@ -36,7 +42,7 @@ class ProductController {
             }
             return response.status(200).send({product})
         } catch (error) {
-            return response.status(400).send(error.message)
+            return response.status(400).send({error:error.message})
         }
       }
 }

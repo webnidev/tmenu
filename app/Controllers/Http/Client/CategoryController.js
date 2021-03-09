@@ -19,6 +19,11 @@ class CategoryController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
+    try {
+      
+    } catch (error) {
+      return response.status(400).send({error:error.message})
+    }
   }
 
   /**
@@ -30,12 +35,12 @@ class CategoryController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response }) {
+  async show ({ params, request, response, pagination }) {
     try {
       const products = await Product.query().where('category_id', params.id)
       .with('images')
       .orderBy('ranking', 'desc')
-      .fetch()
+      .paginate(pagination.page, pagination.limit)
       return response.send({products})
     } catch (error) {
       return response.status(400).send({error:error.message})

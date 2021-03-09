@@ -91,6 +91,7 @@ class ClientSeeder {
                 products.map(async product =>{
                   product.category_id = category.id
                   product.printer_id = 1
+                  product.owner = company.id
                 await  product.save()
                 })
               )

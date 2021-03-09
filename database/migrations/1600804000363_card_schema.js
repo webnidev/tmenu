@@ -14,6 +14,7 @@ class CardSchema extends Schema {
       table.boolean('deleted').notNullable().defaultTo(false)
       table.integer('table_id').notNullable()
       table.integer('user_id')
+      table.integer('owner').notNullable().defaultTo(0)
       table.integer('waiter_id')
       table.integer('printer_id').notNullable()
       table.foreign('table_id').references('tables.id').onDelete('cascade')
