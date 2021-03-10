@@ -92,6 +92,9 @@ class ItemCardController {
                   quantity: item.quantity,
                   value: 0,
                   observation:item.observation,
+                  table:table.number,
+                  status:'Em Andamento',
+                  owner:company.id,
                   card_id: card.id,
                   product_id: product.id
                },trx)
