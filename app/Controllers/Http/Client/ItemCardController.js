@@ -12,7 +12,7 @@ const Product = use('App/Models/Product')
 const OrderAttribute = use('App/Models/OrderAttribute')
 const OrderAttributeValue = use('App/Models/OrderAttributeValue')
 const Attribute = use('App/Models/Attribute')
-
+const OrderCard = use('App/Models/OrderCard')
 //const Printer = use('App/Models/Printer')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
@@ -77,10 +77,10 @@ class ItemCardController {
           },trx)
 
         }
+        const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento', company_id:company.id},trx)
           let orders = []
           await Promise.all(
-            itens.map(async item=>{
-              
+            itens.map(async item=>{ 
               let product = await Product.query().where('id',item.product_id ).first()
               if(product){
                 table.changed_status = new Date()
@@ -95,6 +95,7 @@ class ItemCardController {
                   table:table.number,
                   status:'Em Andamento',
                   owner:company.id,
+                  order_card_id:orderCard.id,
                   card_id: card.id,
                   product_id: product.id
                },trx)
@@ -106,10 +107,10 @@ class ItemCardController {
                 item.attributes.map(async attribute=>{
                   let attr = await Attribute.findBy('id', attribute.attribute_id)
                   if(attr){
-                  let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_cards_id:order.id},trx)
+                  let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_card_id:order.id},trx)
                   await Promise.all(
                     attribute.values.map(async value=>{
-                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attributes_id:orderAttribute.id}, trx)
+                      const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attribute_id:orderAttribute.id}, trx)
                       item_value += (orderValue.additional_value * orderValue.quantity)
                     })
                   )

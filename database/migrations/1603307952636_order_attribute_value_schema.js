@@ -11,8 +11,8 @@ class OrderAtrributeValueSchema extends Schema {
       table.float('additional_value', 8, 2).notNullable().defaultTo(0)
       table.integer('quantity').notNullable()
       table.timestamps()
-      table.integer('order_attributes_id').notNullable()
-      table.foreign('order_attributes_id').references('order_attributes.id').onDelete('cascade').onUpdate('cascade')
+      table.integer('order_attribute_id').notNullable()
+      table.foreign('order_attribute_id').references('order_attributes.id').onDelete('cascade').onUpdate('cascade')
     })
   }
 
