@@ -21,6 +21,9 @@ class OrderCardController {
    */
   async index ({ request, response, auth, pagination }) {
     try {
+      const table = request.input('table')
+      const status = request.input('status')
+      const code = request.input('code')
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
@@ -31,8 +34,17 @@ class OrderCardController {
         return response.status(404).send({message: 'Company not found!'})
       }
       const query = OrderCard.query()
+      if(table){
+        query.where('table', table)
+      }
+      if(status){
+        query.where('status', status)
+      }
+      if(code){
+        query.where('id', code)
+      }
       const orders = await query.where('company_id', company.id)
-      //.with('itens')
+      .orderBy('created_at', 'desc')
       .paginate(pagination.page, pagination.limit)
       return response.send({orders})
     } catch (error) {

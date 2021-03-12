@@ -78,7 +78,8 @@ class ItemCardController {
 
         }
         const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento', company_id:company.id},trx)
-          let orders = []
+        let total_value_order = 0  
+        let orders = []
           await Promise.all(
             itens.map(async item=>{ 
               let product = await Product.query().where('id',item.product_id ).first()
@@ -120,6 +121,7 @@ class ItemCardController {
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
               await order.save(trx)
+              total_value_order += order.value
               card_value += order.value
               orders.push({
                 'company_id':company.id,
@@ -139,11 +141,11 @@ class ItemCardController {
                  'printer_id':product.printer_id
                })
               }
+             
             })
           )
-
-         
-        
+        orderCard.value = total_value_order
+        await orderCard.save(trx) 
         card.value += card_value   
         await card.save(trx)
         await table.save(trx)
