@@ -81,11 +81,13 @@ class Order extends Model{
     }
 
     async closeTable({data, closed}){
+        console.log(data)
         const pdf = new Pdf
         const pdfName = pdf.createAccountTable({data,closed})
         const axios = new Axios()
-        const printed = await axios.toPrinter(pdfValues.printer.code, pdfName)
-        return printed
+        //const printed = await axios.toPrinter('69726159', pdfName)
+        //return printed
+        return true
     }
 
 }

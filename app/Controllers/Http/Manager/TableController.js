@@ -11,6 +11,7 @@ const Order = use('App/Utils/Order')
 const Database = use('Database')
 const Plan = use('App/Models/Plan')
 const Rate = use('App/Models/RoleRate')
+const Printer = use('App/Models/Printer')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -41,6 +42,7 @@ class TableController {
     .groupBy('id','status')
     .orderBy('status','desc')
     .orderBy('updated_at', 'desc')
+    .with('waiter')
     .with('cards',(builder)=>{
       return builder
       .where('status','true')
@@ -120,6 +122,7 @@ class TableController {
         return builder
         .where('status','true')
         .with('user')
+        .with('itens')
         .orderBy('updated_at', 'desc')
       })
       .first()
@@ -204,6 +207,7 @@ class TableController {
       const company = await table.company().first()
       const plan = await company.plan().first()
       const config = await company.configuration().first()
+      const printer = await Printer.find(config.printer_card_id)
       const waiter = await table.waiter().first()
       const address = await company.address().first()
       const closed = []
@@ -259,11 +263,13 @@ class TableController {
 
       data.push({'len':len})
       data.push({'rates':rates_all})
+      //data.push({'printer_code': printer.code})
       table.status=false
       table.waiter_id = null
       await table.save()
-      const confirmPrinter = await order.closeTable({data, closed})
-      return response.redirect({confirmPrinter})
+      //const confirmPrinter = await order.closeTable({data, closed})
+      //return response.redirect({confirmPrinter})
+      return response.send({message:'Tacle closed'})
     } catch (error) {
         console.log(error)
         return response.status(400).send({message: error.message})
