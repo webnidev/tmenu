@@ -147,7 +147,7 @@ async update ({ params, request, response, auth }) {
       if(topic){
         topic.broadcast('new:card')
       }
-    return response.send({cards})
+    return response.send({message: `A sua conta foi solicitada!`})
   } catch (error) {
     console.log(error)
     return response.status(error.status).send({'Error':'Error in proccess'})

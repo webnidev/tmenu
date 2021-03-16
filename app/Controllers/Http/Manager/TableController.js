@@ -12,6 +12,7 @@ const Database = use('Database')
 const Plan = use('App/Models/Plan')
 const Rate = use('App/Models/RoleRate')
 const Printer = use('App/Models/Printer')
+const Helpers = use('Helpers')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -245,8 +246,6 @@ class TableController {
           //rates_all.push(rates.rows)
         })
       )
-     
-      
       if(config.other_rate){
         await Promise.all(
           aditional_rate.data.map( async other=>{
@@ -267,9 +266,11 @@ class TableController {
       table.status=false
       table.waiter_id = null
       await table.save()
-      //const confirmPrinter = await order.closeTable({data, closed})
-      //return response.redirect({confirmPrinter})
-      return response.send({message:'Tacle closed'})
+      const confirmPrinter = await order.closeTable({data, closed})
+      console.log(confirmPrinter)
+      return response.send({pdf:confirmPrinter})
+      //return response.download(Helpers.publicPath(`tmp/${confirmPrinter}`))
+      //return response.download(`public/tmp/${confirmPrinter}`)
     } catch (error) {
         console.log(error)
         return response.status(400).send({message: error.message})
@@ -333,7 +334,7 @@ class TableController {
           card.waiter_id = waiter.id
           await card.save()
         })) 
-        return response.send({cards})
+        return response.send({message:'Waiter successfully added'})
       }
       return response.status(404).send({message:'Waiter not found!'})
     } catch (error) {

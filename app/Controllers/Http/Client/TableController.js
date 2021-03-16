@@ -49,7 +49,7 @@ class TableController {
       if(topic){
         topic.broadcast('new:table')
       }
-      return response.send({message:'Accont requested!'})
+      return response.send({message:`A conta da mesa ${table.number} foi solicitada`})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }
