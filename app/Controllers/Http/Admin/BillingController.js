@@ -22,10 +22,25 @@ class BillingController {
    */
   async index ({ request, response, pagination }) {
       try {
-        const billings = await Billing.query().orderBy('created_at', 'desc')
-        .paginate(pagination.page, pagination.limit)
-        return response.send({billings})
+        /*const query = Billing.query()
+        const billings = await query.orderBy('created_at', 'desc')
+        .with('company')
+        .paginate(pagination.page, pagination.limit)*/
+        const queryRow = `SELECT COMPANIES.NAME, COUNT(CARDS.ID) AS "CONTAS FECHADAS",
+        BILLINGS.DESCRIPTION, BILLINGS.VALUE, BILLINGS.BILLING_LINK,
+        BILLINGS.STATUS 
+        FROM COMPANIES, TABLES, CARDS, BILLINGS 
+        WHERE COMPANIES.ID = TABLES.COMPANY_ID 
+        AND CARDS.TABLE_ID=TABLES.ID
+        AND BILLINGS.COMPANY_ID = COMPANIES.ID
+        GROUP BY BILLINGS.DESCRIPTION, COMPANIES.NAME, 
+        BILLINGS.VALUE, BILLINGS.BILLING_LINK, BILLINGS.STATUS
+        LIMIT 10 OFFSET 2
+        `
+        const billings = await Database.raw(queryRow)//.paginate(pagination.page, pagination.limit)
+        return response.send({billings:billings.rows})
       } catch (error) {
+        console.log(error)
         return response.status(400).send({message:error.message})
       }
 }
