@@ -1,6 +1,7 @@
 'use strict'
 const Company = use('App/Models/Company')
-
+const Card = use('App/Models/Card')
+const Item = use('App/Models/ItemCard')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -15,14 +16,45 @@ class CompanyController {
    * @param {View} ctx.view
    */
   async index ({ request, response, pagination }) {
-      const company = await Company.query()
-      .with('tables')
-      .with('waiters')
-      .with('managers')
-      .with('images')
-      .with('address')
+      const query = Company.query()
+      const name = request.input('name')
+      const cnpj = request.input('cnpj')
+      if(name){
+        query.where('name', 'ILIKE', `%${name}%`)
+      }
+      if(cnpj){
+          query.where('cnpj', cnpj)
+      }
+      const company = await query
+      //.with('tables')
+      //.with('waiters')
+      //.with('managers')
+      //.with('images')
+      //.with('address')
       .paginate(pagination.page, pagination.limit)
       return response.send({company})
+}
+
+
+/**
+   * Show a list of all stocks.
+   * GET stocks
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async count ({ request, response, pagination }) {
+    const company = await Company.query()
+    .count()
+    const cards = await Card.query().where('status', false).count()
+    const itens = await Item.query().count()
+    const data = []
+    data.push({companies:company[0].count})
+    data.push({cards:cards[0].count})
+    data.push({itens:itens[0].count})
+    return response.send({data})
 }
 
 
@@ -57,7 +89,10 @@ async show ({ params, request, response, view }) {
     try {
         const company = await Company.query()
         .where('id', params.id)
-        .with('tables')
+        .with('tables', (builder)=>{
+            return builder
+            .with('cards')
+        })
         .with('waiters')
         .with('managers')
         .with('images')

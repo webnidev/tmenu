@@ -192,7 +192,7 @@ class CardController {
       const order = new Order
       const pdfValues = { company,address,table,card,client,orders,rates, waiter, printer }
       const confirmPrinter = await order.closeCard(pdfValues)
-      return response.send({confirmPrinter})
+      return response.send({pdf:confirmPrinter})
   } catch (error){
     console.log(error)
       return response.status(400).send({message:error.message})

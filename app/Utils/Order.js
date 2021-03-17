@@ -72,20 +72,20 @@ class Order extends Model{
           })
     }
     async closeCard(pdfValues){
-        console.log(pdfValues.printer.code)
         const pdf = new Pdf
         const pdfName = await pdf.createCardPdf(pdfValues)
-        const axios = new Axios()
-        const printed = await axios.toPrinter(pdfValues.printer.code, pdfName)
-        return printed
+        //const axios = new Axios()
+        //const printed = await axios.toPrinter(pdfValues.printer.code, pdfName)
+        return pdfName
     }
 
     async closeTable({data, closed}){
         const pdf = new Pdf
         const pdfName = pdf.createAccountTable({data,closed})
-        const axios = new Axios()
-        const printed = await axios.toPrinter(pdfValues.printer.code, pdfName)
-        return printed
+        //const axios = new Axios()
+        //const printed = await axios.toPrinter('69726159', pdfName)
+        //return printed
+        return pdfName
     }
 
 }

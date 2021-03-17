@@ -18,6 +18,7 @@ Route.group(()=>{
     Route.resource('configuration', 'ConfigurationController').only(['index', 'update'])
     Route.resource('value-attribute', 'ValueAttributeController').apiOnly()
     Route.resource('client', 'ClientController').apiOnly()
+    Route.resource('order-card', 'OrderCardController').apiOnly()
     Route.resource('image-product', 'ImageProductController').apiOnly()
     Route.resource('image-company', 'ImageCompanyController').apiOnly()
     Route.resource('user', 'UserController').apiOnly()

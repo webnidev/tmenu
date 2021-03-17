@@ -11,6 +11,8 @@ const Order = use('App/Utils/Order')
 const Database = use('Database')
 const Plan = use('App/Models/Plan')
 const Rate = use('App/Models/RoleRate')
+const Printer = use('App/Models/Printer')
+const Helpers = use('Helpers')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -41,6 +43,7 @@ class TableController {
     .groupBy('id','status')
     .orderBy('status','desc')
     .orderBy('updated_at', 'desc')
+    .with('waiter')
     .with('cards',(builder)=>{
       return builder
       .where('status','true')
@@ -120,6 +123,7 @@ class TableController {
         return builder
         .where('status','true')
         .with('user')
+        .with('itens')
         .orderBy('updated_at', 'desc')
       })
       .first()
@@ -204,6 +208,7 @@ class TableController {
       const company = await table.company().first()
       const plan = await company.plan().first()
       const config = await company.configuration().first()
+      const printer = await Printer.find(config.printer_card_id)
       const waiter = await table.waiter().first()
       const address = await company.address().first()
       const closed = []
@@ -241,8 +246,6 @@ class TableController {
           //rates_all.push(rates.rows)
         })
       )
-     
-      
       if(config.other_rate){
         await Promise.all(
           aditional_rate.data.map( async other=>{
@@ -259,11 +262,15 @@ class TableController {
 
       data.push({'len':len})
       data.push({'rates':rates_all})
+      //data.push({'printer_code': printer.code})
       table.status=false
       table.waiter_id = null
       await table.save()
       const confirmPrinter = await order.closeTable({data, closed})
-      return response.redirect({confirmPrinter})
+      console.log(confirmPrinter)
+      return response.send({pdf:confirmPrinter})
+      //return response.download(Helpers.publicPath(`tmp/${confirmPrinter}`))
+      //return response.download(`public/tmp/${confirmPrinter}`)
     } catch (error) {
         console.log(error)
         return response.status(400).send({message: error.message})
@@ -327,7 +334,7 @@ class TableController {
           card.waiter_id = waiter.id
           await card.save()
         })) 
-        return response.send({cards})
+        return response.send({message:'Waiter successfully added'})
       }
       return response.status(404).send({message:'Waiter not found!'})
     } catch (error) {

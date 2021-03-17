@@ -31,7 +31,7 @@ class ItemCardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {//Exibe o número de pedidos nos 30 dias
+  async index ({ request, response, auth, pagination }) {//Exibe o número de pedidos nos 30 dias
       try {
         const manager = await Manager.findBy('user_id',auth.user.id)
         if(!manager){
@@ -42,15 +42,20 @@ class ItemCardController {
         if(!company){
           return response.status(404).send({message: 'Company not found!'})
         }
-        const cards = await Database.raw(`
+        /*const cards = await Database.raw(`
         SELECT COUNT(I.ID) AS "PEDIDOS REALIZADOS" FROM COMPANIES AS E, TABLES AS T, CARDS AS C, 
         ITEM_CARDS AS I WHERE E.ID=T.COMPANY_ID 
         AND T.ID=C.TABLE_ID
         AND I.CARD_ID = C.ID
         AND I.CREATED_AT BETWEEN NOW() - INTERVAL '30 DAY' AND NOW()
         AND E.ID = ?
-        `,[company.id])
-        return response.send(cards.rows[0])
+        `,[company.id])//APROVEITAR CODIGO NO PAINEL*/
+
+        const query = ItemCard.query()
+
+        const cards = await query.where('owner', company.id)
+        .paginate(pagination.page, pagination.limit)
+        return response.send(cards)
           
       } catch (error) {
         console.log(error)
@@ -80,7 +85,26 @@ class ItemCardController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params, request, response, auth, pagination }) {
+    try {
+      const manager = await Manager.findBy('user_id',auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'Company not found!'})
+      }
+      const query = ItemCard.query()
+      const item = await query.where('id', params.id)
+      .with('atrributes')
+      .paginate(pagination.page, pagination.limit)
+      return response.send({item})
+    } catch (error) {
+      console.log(error)
+      return response.status(error.status).send(error.message)
+    }
 
   }
 

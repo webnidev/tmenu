@@ -7,8 +7,12 @@ const Model = use('Model')
 
 class Billing extends Model {
 
-    establishment(){
-        return this.belongsTo('App/Models/Estaablishment')
+    company(){
+        return this.belongsTo('App/Models/Company')
+    }
+
+    cards(){
+        return this.hasMany('App/Models/Card')
     }
 }
 

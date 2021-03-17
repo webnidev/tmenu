@@ -12,6 +12,7 @@ Route.group(()=>{
     Route.resource('billing','BillingController').apiOnly()
     Route.put('set-paied/:id','BillingController.setPaied').as('set.paied')
     Route.get('get-billing','BillingController.toBill').as('get.billing')
+    Route.get('company-data','CompanyController.count').as('company.count')
     Route.put('send-billing','BillingController.sendBilling').as('send-billing')
     Route.resource('product', 'ProductController').apiOnly()
     Route.resource('printer', 'PrinterController').apiOnly()
