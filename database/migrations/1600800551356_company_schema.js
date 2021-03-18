@@ -11,6 +11,7 @@ class EstablishmentSchema extends Schema {
       table.integer('address_id')
       table.string('email')
       table.string('responsible', 90)
+      table.string('responsible_phone', 15)
       table.string('cnpj',20)
       table.string('phone', 20).notNullable()
       table.integer('plan_id', 8)

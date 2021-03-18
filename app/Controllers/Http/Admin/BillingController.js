@@ -1,11 +1,10 @@
 'use strict'
 
-const Pagination = require('../../../Middleware/Pagination')
-
 const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Billing = use('App/Models/Billing')
 const Database = use('Database')
+const TPagination = use('App/Utils/TPagination')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -22,23 +21,42 @@ class BillingController {
    */
   async index ({ request, response, pagination }) {
       try {
-        /*const query = Billing.query()
-        const billings = await query.orderBy('created_at', 'desc')
-        .with('company')
-        .paginate(pagination.page, pagination.limit)*/
-        const queryRow = `SELECT COMPANIES.NAME, COUNT(CARDS.ID) AS "CONTAS FECHADAS",
+        const tpagination = new TPagination
+        let filterQuery = ""
+        const status = request.input('status')
+        const name = request.input('name')
+        const cnpj = request.input('cnpj')
+        const start = request.input('start')
+        const end = request.input('end')
+        if(status){
+          filterQuery = `AND BILLINGS.STATUS = '${status}'`
+        }
+        if(name){
+          filterQuery = `AND COMPANIES.NAME ILIKE '%${name}%'`
+        }
+        if(cnpj){
+          filterQuery = `AND COMPANIES.CNPJ = '${cnpj}'`
+        }
+        if(start && end){
+          filterQuery = `AND BILLINGS.CREATED_AT BETWEEN '${start}' AND '${end}'`
+        }
+        const queryPage = `SELECT COMPANIES.NAME, BILLINGS.CARDS,
         BILLINGS.DESCRIPTION, BILLINGS.VALUE, BILLINGS.BILLING_LINK,
         BILLINGS.STATUS 
         FROM COMPANIES, TABLES, CARDS, BILLINGS 
         WHERE COMPANIES.ID = TABLES.COMPANY_ID 
         AND CARDS.TABLE_ID=TABLES.ID
-        AND BILLINGS.COMPANY_ID = COMPANIES.ID
+        AND BILLINGS.COMPANY_ID = COMPANIES.ID 
+        ${filterQuery}
         GROUP BY BILLINGS.DESCRIPTION, COMPANIES.NAME, 
-        BILLINGS.VALUE, BILLINGS.BILLING_LINK, BILLINGS.STATUS
-        LIMIT 10 OFFSET 2
+        BILLINGS.VALUE, BILLINGS.BILLING_LINK,
+         BILLINGS.STATUS, BILLINGS.CARDS, BILLINGS.CREATED_AT   
+        ORDER BY BILLINGS.CREATED_AT DESC
         `
-        const billings = await Database.raw(queryRow)//.paginate(pagination.page, pagination.limit)
-        return response.send({billings:billings.rows})
+        const billings = await tpagination.paginate(queryPage, pagination.page, pagination.limit)
+
+        //const billings = await Database.raw(queryRow)//.paginate(pagination.page, pagination.limit)
+        return response.send({billings})
       } catch (error) {
         console.log(error)
         return response.status(400).send({message:error.message})
@@ -165,7 +183,7 @@ async store ({ request, response }) {
            })
          )
        }
-        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2), status:'GERADA'})
+        const billing = await Billing.create({...data, value:parseFloat(total_value).toFixed(2),cards:cards.length, status:'GERADA'})
         company.last_billing = new Date()
         await company.save()
         return response.send({billing})

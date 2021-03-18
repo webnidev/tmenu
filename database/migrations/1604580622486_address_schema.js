@@ -12,6 +12,7 @@ class AddressSchema extends Schema {
       table.string('district',128)
       table.string('city',128)
       table.string('state',128)
+      table.string('complement',512)
       table.string('country', 128)
       table.string('zipcode',12)
       table.timestamps()
