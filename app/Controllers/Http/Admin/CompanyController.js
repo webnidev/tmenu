@@ -2,6 +2,7 @@
 const Company = use('App/Models/Company')
 const Card = use('App/Models/Card')
 const Item = use('App/Models/ItemCard')
+const Address = use('App/Models/Address')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -69,7 +70,8 @@ class CompanyController {
 async store ({ request, response }) {
     try {
         const data = request.all()
-        const company = await Company.create({...data})
+        const address = await Address.create({...data})
+        const company = await Company.create({...data, address_id:address.id})
         return response.status(201).send({company})
     } catch (error) {
         return response.status(400).send({message: error.message})
