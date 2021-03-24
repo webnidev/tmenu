@@ -15,7 +15,7 @@ class EstablishmentSchema extends Schema {
       table.string('cnpj',20)
       table.string('phone', 20).notNullable()
       table.integer('plan_id', 8)
-      table.string('category',50).notNullable()
+      table.string('category',50)
       table.boolean('status').defaultTo(true)
       table.datetime('last_billing')
       table.timestamps()

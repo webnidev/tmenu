@@ -1,8 +1,13 @@
 'use strict'
+const Config = use('App/Models/Configuration')
 const Company = use('App/Models/Company')
+const Database = use('Database')
 const Card = use('App/Models/Card')
 const Item = use('App/Models/ItemCard')
 const Address = use('App/Models/Address')
+const User = use('App/Models/User')
+const Role = use('Role')
+const Plan = use('App/Models/Plan')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -68,12 +73,38 @@ class CompanyController {
  * @param {Response} ctx.response
  */
 async store ({ request, response }) {
+    const trx = await Database.beginTransaction()
     try {
+        const role = await Role.findBy('slug', 'manager')
+        const query = Plan.query() 
         const data = request.all()
-        const address = await Address.create({...data})
-        const company = await Company.create({...data, address_id:address.id})
+        console.log(data)
+        const first = data.responsible.responsible.split(" ")
+        const cnpjPart = data.company.cnpj.slice(0,5)
+        const username = first[0].toLowerCase()+cnpjPart
+        const address = await Address.create({...data.address},trx)
+        const responsible = await User.create({name:data.responsible.responsible, 
+            phone:data.responsible_phone, username,
+            email:data.company.email, 
+            password:'123456'}, trx)
+        await responsible.roles().attach([role.id], null, trx)
+        if(data.waiter_rate){
+             query.where('type','Cobrança sobre taxa do garçom') 
+        }else{
+            query.where('type','Cobrança de taxa comanda')
+        }
+        const plan = await query.first()
+        const company = await Company.create({...data.company, 
+            responsible: data.responsible.responsible,
+            responsible_phone:data.responsible.responsible_phone,
+            address_id:address.id, plan_id:plan.id},trx)
+        await company.managers().attach([responsible.id], null,trx)
+        const config = await Config.create({waiter_rate:data.waiter_rate, company_id:company.id}, trx)
+        await trx.commit()
         return response.status(201).send({company})
     } catch (error) {
+        console.log(error)
+        await trx.rollback()
         return response.status(400).send({message: error.message})
     }
 }

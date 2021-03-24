@@ -1,6 +1,8 @@
 'use strict'
 const User = use('App/Models/User')
 const Plan = use('App/Models/Plan')
+const Factory = use('Factory')
+const Role = use('Role')
 /*
 |--------------------------------------------------------------------------
 | ClientSeeder
@@ -12,8 +14,7 @@ const Plan = use('App/Models/Plan')
 */
 
 /** @type {import('@adonisjs/lucid/src/Factory')} */
-const Factory = use('Factory')
-const Role = use('Role')
+
 
 class ClientSeeder {
   async run () {

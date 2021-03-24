@@ -10,7 +10,7 @@ class BillingSchema extends Schema {
       table.string('description',256)
       table.date('due_date')
       table.float('value', 8, 2)
-      table.integer('cards'),notNullable().defaultTo(0)
+      table.integer('cards').notNullable().defaultTo(0)
       table.enu('status',['GERADA','ENVIADA','PAGA','CANCELADA'])
       table.string('billing_link',512)
       table.timestamps()

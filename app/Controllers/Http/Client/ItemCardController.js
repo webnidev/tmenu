@@ -61,7 +61,7 @@ class ItemCardController {
         let card = await Card.query().where('user_id', auth.user.id).where('table_id',table.id).where('status', true).first()
         let card_value = 0
         if(!client){
-          Client.create({
+            client = await  Client.create({
             name: auth.user.name,
             company_id:company.id, 
             user_id: auth.user.id}, trx)
@@ -73,6 +73,7 @@ class ItemCardController {
             table_id: table.id,
             user_id: auth.user.id,
             waiter_id:table.waiter_id,
+            owner:company.id,
             printer_id: config.printer_card_id
           },trx)
 
