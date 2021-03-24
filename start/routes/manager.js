@@ -19,6 +19,7 @@ Route.group(()=>{
     Route.resource('value-attribute', 'ValueAttributeController').apiOnly()
     Route.resource('client', 'ClientController').apiOnly()
     Route.resource('order-card', 'OrderCardController').apiOnly()
+    Route.get('order-printer/:id', 'OrderCardController.printer').as('printer.order')
     Route.resource('image-product', 'ImageProductController').apiOnly()
     Route.resource('image-company', 'ImageCompanyController').apiOnly()
     Route.resource('user', 'UserController').apiOnly()

@@ -2,7 +2,6 @@
 const Model = use('Model')
 const PDFKit = require('pdfkit')
 const fs = require('fs')
-
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 
 class Pdf extends Model{
@@ -212,6 +211,14 @@ class Pdf extends Model{
         pdf.pipe(fs.createWriteStream(`public/tmp/${pdfName}`))
         pdf.end()
         return pdfName
+    }
+
+    pdfOrder(oder){
+        try {
+           
+        } catch (error) {
+            return error.message
+        }
     }
      valorFormatado(valor){
         var formatado = valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});

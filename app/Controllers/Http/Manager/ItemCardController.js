@@ -14,6 +14,7 @@ const OrderAttributeValue = use('App/Models/OrderAttributeValue')
 const Attribute = use('App/Models/Attribute')
 const OrderCard = use('App/Models/OrderCard')
 const Manager = use('App/Models/Manager')
+const Waiter = use('App/Models/Waiter')
 //const Printer = use('App/Models/Printer')
 const Pdf = use('App/Utils/Pdf')
 const Database = use('Database')
@@ -82,6 +83,10 @@ class ItemCardController {
     try {
       const data = request.all()
       const table = await Table.find(data.table_id)
+      let waiter = ''
+      if(table.waiter_id){
+        waiter = await Waiter.find(table.waiter_id)
+      }
       //const card = await Card.find(data.card_id)
       const manager = await Manager.findBy('user_id', auth.user.id)
       const company = await Company.find(manager.company_id)
@@ -109,7 +114,8 @@ class ItemCardController {
           printer_id: config.printer_card_id
         },trx)
       }
-      const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento', company_id:company.id},trx)
+      const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento',
+       company_id:company.id, card_id: card.id, user_id:client.user_id, table_id:table.id},trx)
       let total_value_order = 0
       let orders = []
       await Promise.all(
@@ -158,7 +164,7 @@ class ItemCardController {
                  'company_address':`${address.street} Nº ${address.number} ${address.city} - ${address.state}`,
                  'company_cnpj':company.cnpj,
                  'client':auth.user.name,
-                 'garcom':'',
+                 'garcom':waiter.name,
                  'mesa':table.number,
                  'order_id':order.id,
                  'value':order.value, 
@@ -170,7 +176,7 @@ class ItemCardController {
                  'printer_id':product.printer_id
                })
           }
-          
+          //REMOVER DEPOIS ESTE COMENTARIO
         })
       )
       orderCard.value = total_value_order
@@ -182,7 +188,8 @@ class ItemCardController {
       const pdf = new Pdf
 
       const path = await pdf.pdfCreate({orders})
-      return response.send({path})
+      //return response.send({path})
+      return response.route('download.pdf',{name:path})
     } catch (error) {
       console.log(error)
       return response.status(400).send({error:error.message})

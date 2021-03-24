@@ -1,7 +1,10 @@
 'use strict'
 const OrderCard = use('App/Models/OrderCard')
 const Manager = use('App/Models/Manager')
-const Company =use('App/Models/Company')
+const Company =use ('App/Models/Company')
+const Waiter = use('App/Models/Waiter')
+const Table = use('App/Models/Table')
+const User = use('App/Models/User')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -107,6 +110,51 @@ class OrderCardController {
     }
   }
 
+  /**
+   * Printer the pdf of .
+   * GET stocks/:id/edit
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   * @param {View} ctx.view
+   */
+  async printer ({ params, request, response,auth }) {
+    try {
+      const order = await OrderCard.find(params.id)
+      const itens = order.itens().fetch()
+      const client = await User.find(order.user_id)
+      const company = await Company.find(order.company_id)
+      const address = await company.address().first()
+      const table = await Table.first(order.table_id)
+      let waiter = ''
+      if(table.waiter_id){
+        waiter = await Waiter.find(table.waiter_id)
+      }
+
+      /*const itens = []
+      'quantity':order.quantity,
+         'product_name': product.name,
+         'product_value':(product.value + item_value ),*/
+      const orderPrint = {
+        'company_id':company.id,
+         'company_name':company.name,
+         'company_address':`${address.street} Nº ${address.number} ${address.city} - ${address.state}`,
+         'company_cnpj':company.cnpj,
+         'client':client.name,
+         'garcom':waiter.name,
+         'mesa':table.number,
+         'order_id':order.id,
+         'value':order.value, 
+         'card_id':order.card_id,
+         'created_at':order.created_at,
+         'itens':itens
+       }
+      return response.send({itens})
+    } catch (error) {
+      return response.status(400).send({error:error.message})
+    }
+  }
 
   /**
    * Update ordercard details.
