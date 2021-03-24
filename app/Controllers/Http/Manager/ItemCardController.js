@@ -15,6 +15,7 @@ const Attribute = use('App/Models/Attribute')
 const OrderCard = use('App/Models/OrderCard')
 const Manager = use('App/Models/Manager')
 //const Printer = use('App/Models/Printer')
+const Pdf = use('App/Utils/Pdf')
 const Database = use('Database')
 const Order = use('App/Utils/Order')
 const Ws = use('Ws')
@@ -83,11 +84,12 @@ class ItemCardController {
       const table = await Table.find(data.table_id)
       //const card = await Card.find(data.card_id)
       const manager = await Manager.findBy('user_id', auth.user.id)
-      let client = await Client.query().where('user_id',data.user_id).where('company_id', company.id).first()
       const company = await Company.find(manager.company_id)
+      const address = await company.address().first()
+      let client = await Client.query().where('user_id',data.user_id).where('company_id', company.id).first()
       const config = await company.configuration().first()
       const printers = await company.printers().fetch()
-      const card = await Card.query().where('user_id', data.user.id).where('table_id',table.id).where('status', true).first()
+      const card = await Card.query().where('user_id', data.user_id).where('table_id',table.id).where('status', true).first()
       let card_value = 0
       if(!client){
         const user = await User.find(data.user_id)
@@ -109,12 +111,80 @@ class ItemCardController {
       }
       const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento', company_id:company.id},trx)
       let total_value_order = 0
+      let orders = []
       await Promise.all(
-        //continua
+        data.itens.map(async item=>{
+          let product = await Product.query().where('id',item.product_id ).first()
+          if(product){
+            table.changed_status = new Date()
+            table.status = true
+            let order = await ItemCard.create({
+              product_name:product.name,
+              product_value:product.value,
+              quantity: item.quantity,
+              value: 0,
+              observation:item.observation,
+              table:table.number,
+              status:'Em Andamento',
+              owner:company.id,
+              order_card_id:orderCard.id,
+              card_id: card.id,
+              product_id: product.id
+           },trx)
+            product.ranking += item.quantity
+            await product.save(trx)
+            let item_value = 0.0
+            await Promise.all(
+            item.attributes.map(async attribute=>{
+              let attr = await Attribute.findBy('id', attribute.attribute_id)
+              if(attr){
+                let orderAttribute = await OrderAttribute.create({attribute_name:attr.title, quantity: attribute.quantity,item_card_id:order.id},trx)
+                await Promise.all(
+                  attribute.values.map(async value=>{
+                    const orderValue = await OrderAttributeValue.create({name_value:value.name_value, additional_value:value.additional_value, quantity:value.quantity, order_attribute_id:orderAttribute.id}, trx)
+                    item_value += (orderValue.additional_value * orderValue.quantity)
+                  })
+                )
+              }
+            }))
+            order.product_value = product.value + item_value
+              order.value = (product.value + item_value ) * item.quantity
+              await order.save(trx)
+              total_value_order += order.value
+              card_value += order.value
+              orders.push({
+                'company_id':company.id,
+                 'company_name':company.name,
+                 'company_address':`${address.street} Nº ${address.number} ${address.city} - ${address.state}`,
+                 'company_cnpj':company.cnpj,
+                 'client':auth.user.name,
+                 'garcom':'',
+                 'mesa':table.number,
+                 'order_id':order.id,
+                 'value':order.value, 
+                 'card_id':order.card_id,
+                 'created_at':order.created_at,
+                 'quantity':order.quantity,
+                 'product_name': product.name,
+                 'product_value':(product.value + item_value ),
+                 'printer_id':product.printer_id
+               })
+          }
+          
+        })
       )
-      console.log(data.itens)
-      return response.send({card})
+      orderCard.value = total_value_order
+      await orderCard.save(trx) 
+      card.value += card_value   
+      await card.save(trx)
+      await table.save(trx)
+      await trx.commit()
+      const pdf = new Pdf
+
+      const path = await pdf.pdfCreate({orders})
+      return response.send({path})
     } catch (error) {
+      console.log(error)
       return response.status(400).send({error:error.message})
     }
   }

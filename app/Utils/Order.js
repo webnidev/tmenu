@@ -36,7 +36,6 @@ class Order extends Model{
                     const axios = new Axios()
                     const printed = await axios.toPrinter(printOrd.code, path)//Em prod
                      if(printed){
-                         console.log('Entrou no if')
                          try{
                              await Promise.all([unlink(`public/tmp/${path}`)])
                          }catch(error){
