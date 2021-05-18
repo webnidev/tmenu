@@ -21,15 +21,10 @@ class UserController {
    */
   async index ({ request, response, auth }) {
     try {
-      const user = await Database.raw(`SELECT 
-          U.ID, U.NAME, U.EMAIL, U.CPF, U.PHONE, U.CREATED_AT AS "Data de Cadastro", R.NAME AS "Usuário" 
-          FROM USERS AS U, ROLE_USER AS T, ROLES AS R WHERE U.ID = T.USER_ID AND R.ID = T.ROLE_ID 
-          AND U.ID = ? 
-          `,[auth.user.id])  
-      if(!user.rows[0]){
-        return response.status(404).send({message:'Usuário não encontrado'})
-      }
-      return response.send({user:user.rows[0]})
+      const waiter = await Waiter.query().where('user_id', auth.user.id)
+      .with('user')
+      .first()
+      return response.send({waiter})
     } catch (error) {
       return response.status(400).send({message:error.message})
     }

@@ -78,7 +78,8 @@ class ItemCardController {
           },trx)
 
         }
-        const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento', company_id:company.id},trx)
+        const orderCard = await OrderCard.create({table:table.number, value:0,status:'Em Andamento', company_id:company.id,
+        card_id: card.id, user_id:auth.user.id, table_id:table.id},trx)
         let total_value_order = 0  
         let orders = []
           await Promise.all(
