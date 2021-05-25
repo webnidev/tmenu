@@ -3,6 +3,7 @@
 const User = use('App/Models/User')
 const Database = use('Database')
 const Role = use('Role')
+const Company = use('App/Models/Company')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -44,16 +45,28 @@ class UserController {
 async store ({ request, response }) {
   const trx = await Database.beginTransaction()
   try {
-    const {name, email, password, cpf, phone, role} = request.all()
+    const {name, email, password, cpf, phone, role, company_id} = request.all()
     const userRole = await Role.findBy('slug', role)
     if(!userRole){
       return response.status(400).send({"message":"Tipo de usuário inexistente!"})
     }
+   
     const first = name.split(" ")
     const cpfPart = cpf.slice(0,5)
     const username = first[0].toLowerCase()+cpfPart
     const user = await User.create({name, username, email, password, cpf, phone}, trx)
     await user.roles().attach([userRole.id], null, trx)
+    if(userRole.slug !== 'client' && userRole.slug !== 'admin'){
+      const company = await Company.find(company_id)
+      if(!company){
+        return response.status(404).send({"message":"Company not found!"})
+      }
+      if(userRole.slug == 'manager'){
+        await company.managers().attach([user.id], null, trx)
+      }else{
+        await company.waiters().attach([user.id], null, trx)
+      }
+    }
     await trx.commit()
     return response.status(201).send({user})
   } catch (error) {

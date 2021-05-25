@@ -78,7 +78,6 @@ async store ({ request, response }) {
         const role = await Role.findBy('slug', 'manager')
         const query = Plan.query() 
         const data = request.all()
-        console.log(data)
         const first = data.responsible.responsible.split(" ")
         const cnpjPart = data.company.cnpj.slice(0,5)
         const username = first[0].toLowerCase()+cnpjPart
