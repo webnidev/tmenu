@@ -19,13 +19,16 @@ class UserController {
    */
   async index ({ request, response, pagination }) {
       try {
-        /*const users = await Database.raw(`SELECT 
-        U.ID, U.NAME, U.EMAIL, U.CPF, U.PHONE, U.CREATED_AT AS "Data de Cadastro", R.NAME AS "Usuário" 
-        FROM USERS AS U, ROLE_USER AS T, ROLES AS R WHERE U.ID = T.USER_ID AND R.ID = T.ROLE_ID
-        `)
-        return response.send({users:users.rows})*/
+        const name = request.input('name')
+        const cpf = request.input('cpf')
+        
         const query = User.query()
-        query.where('id','>',0)
+        if(name){
+          query.where('name', 'ILIKE', `%${name}%`)
+        }
+        if(cnpj){
+            query.where('cnpj', cnpj)
+        }
         const users = await query.with('roles').paginate(pagination.page, pagination.limit)
         return response.send({users})
       } catch (error) {
