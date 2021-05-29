@@ -32,11 +32,6 @@ class CompanyController {
           query.where('cnpj', cnpj)
       }
       const company = await query
-      //.with('tables')
-      //.with('waiters')
-      //.with('managers')
-      //.with('images')
-      //.with('address')
       .paginate(pagination.page, pagination.limit)
       return response.send({company})
 }
