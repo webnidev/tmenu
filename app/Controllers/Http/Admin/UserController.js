@@ -26,8 +26,8 @@ class UserController {
         if(name){
           query.where('name', 'ILIKE', `%${name}%`)
         }
-        if(cnpj){
-            query.where('cnpj', cnpj)
+        if(cpf){
+            query.where('cpf', cpf)
         }
         const users = await query.with('roles').paginate(pagination.page, pagination.limit)
         return response.send({users})
