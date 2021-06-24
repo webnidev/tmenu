@@ -20,6 +20,11 @@ class RoleSeeder {
       slug:'admin',
       description:'Administrator of TMenu'
     })
+    await Role.create({
+      name: 'Ceo',
+      slug: 'ceo',
+      description: 'Manager of establishments clients of TMenu'
+    })
 
     await Role.create({
       name: 'Manager',

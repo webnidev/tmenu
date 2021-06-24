@@ -17,6 +17,10 @@ class Company extends Model {
         return this.belongsToMany('App/Models/User').pivotTable('managers')
     }
 
+    admins(){
+        return this.belongsToMany('App/Models/User').pivotTable('ceos')
+    }
+
     billings(){
         return this.hasMany('App/Models/Billing')
     }

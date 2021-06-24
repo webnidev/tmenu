@@ -23,6 +23,7 @@ class ClientSeeder {
     const roleWaiter = await Role.findBy('slug','waiter')
     const roleManeger = await Role.findBy('slug', 'manager')
     const roleAdmin = await Role.findBy('slug', 'admin')
+    const roleCeo = await Role.findBy('slug', 'ceo')
 
     const clients = await Factory.model('App/Models/User').createMany(3)
     await Promise.all(
@@ -51,12 +52,16 @@ class ClientSeeder {
         companies.map( async company =>{
         const manager = await Factory.model('App/Models/User').create()
         await manager.roles().attach([roleManeger.id])
+
+        const admin = await Factory.model('App/Models/User').create()
+        await admin.roles().attach([roleCeo.id])
        
         const address =await Factory.model('App/Models/Address').create()
         let plan = await Plan.find(i+=1)
         company.plan_id = plan.id
         company.address_id = address.id
         await company.managers().attach([manager.id]) 
+        await company.admins().attach([admin.id]) 
         await company.save()
         const printers = await Factory.model('App/Models/Printer').createMany(3)
         await Promise.all(
