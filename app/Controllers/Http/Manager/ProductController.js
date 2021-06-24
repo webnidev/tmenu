@@ -71,10 +71,19 @@ class ProductController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
     try {
       const data = request.all()
-      const product = await Product.create({...data})
+      const manager = await Manager.findBy('user_id', auth.user.id)
+      if(!manager){
+        return response.status(404).send({message: 'Manager not found!'})
+      }
+      const company = await Company.query().where('id', manager.company_id)
+      .first()
+      if(!company){
+        return response.status(404).send({message: 'company not found!'})
+      }
+      const product = await Product.create({...data, owner:company.id })
       return response.status(201).send({product})
     } catch (error) {
       console.log(error)
