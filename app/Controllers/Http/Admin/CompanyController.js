@@ -70,7 +70,7 @@ class CompanyController {
 async store ({ request, response }) {
     const trx = await Database.beginTransaction()
     try {
-        const role = await Role.findBy('slug', 'manager')
+        const role = await Role.findBy('slug', 'ceo')
         const query = Plan.query() 
         const data = request.all()
         const first = data.responsible.responsible.split(" ")
@@ -80,7 +80,7 @@ async store ({ request, response }) {
         const responsible = await User.create({name:data.responsible.responsible, 
             phone:data.responsible_phone, username,
             email:data.company.email, 
-            password:'123456'}, trx)
+            password:responsible.password}, trx)
         await responsible.roles().attach([role.id], null, trx)
         if(data.waiter_rate){
              query.where('type','Cobrança sobre taxa do garçom') 
@@ -92,7 +92,7 @@ async store ({ request, response }) {
             responsible: data.responsible.responsible,
             responsible_phone:data.responsible.responsible_phone,
             address_id:address.id, plan_id:plan.id},trx)
-        await company.managers().attach([responsible.id], null,trx)
+        await company.admins().attach([responsible.id], null,trx)
         const config = await Config.create({waiter_rate:data.waiter_rate, company_id:company.id}, trx)
         await trx.commit()
         return response.status(201).send({company})
@@ -122,6 +122,7 @@ async show ({ params, request, response, view }) {
         })
         .with('waiters')
         .with('managers')
+        .with('admins')
         .with('images')
         .with('address')
         .first()
