@@ -13,4 +13,5 @@ Route.group(()=>{
     Route.post('reset-password', 'AuthController.forgot').as('auth.forgot')//.middleware('guest')
     Route.get('reset-password','AuthController.remember').as('auth.remember')//.middleware('guest')
     Route.put('reset-password','AtuhController.remember').as('auth.reset')//.middleware('guest')
+    Route.get('validate/:slug','AuthController.validate').as('auth.validate')
 }).prefix('v1/auth').namespace('Auth')

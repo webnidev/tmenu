@@ -1,7 +1,7 @@
 'use strict'
 
 const Database = use('Database')
-
+const User = use('App/Models/User')
 const Role = use('Role')
 class AuthController {
     async register({request, response}){
@@ -53,6 +53,22 @@ class AuthController {
     
     async reset({request, response}){
 
+    }
+
+    async validate({request, response, auth, params}){
+        try {
+            const check =await auth.check()
+            if(!check){
+                return response.status(240).send({check})
+            }
+            const role = await auth.user.roles().first()
+            if(role.slug != params.slug){
+                return response.status(240).send({check:false})
+            }
+            return response.send({check})
+        } catch (error) {
+            return response.status(240).send({error:error.message})
+        }
     }
 }
 
