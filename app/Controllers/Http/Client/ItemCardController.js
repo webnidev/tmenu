@@ -147,6 +147,7 @@ class ItemCardController {
             })
           )
         orderCard.value = total_value_order
+        table.asking = true
         await orderCard.save(trx) 
         card.value += card_value   
         await card.save(trx)

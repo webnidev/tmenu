@@ -103,6 +103,7 @@ async update ({ params, request, response, auth }) {
     const config = await company.configuration().first()
     const address = await company.address().first()
     const pdf = new Pdf
+    table.calling = true
     /*if(config.waiter_rate){
       const waiter_rate = await Rate.create({
         name:"Taxa do garçom",
@@ -143,6 +144,7 @@ async update ({ params, request, response, auth }) {
       table.status = false
       await table.save()
     }*/
+    await table.save()
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
         topic.broadcast('new:card')
