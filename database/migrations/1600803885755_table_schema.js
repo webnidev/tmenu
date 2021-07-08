@@ -12,6 +12,7 @@ class TableSchema extends Schema {
       table.boolean('status').notNullable().defaultTo(false)
       table.boolean('asking').notNullable().defaultTo(false)
       table.boolean('calling').notNullable().defaultTo(false)
+      table.integer('orders').notNullable().defaultTo(0)
       table.integer('waiter_id')
       table.datetime('changed_status')
       table.timestamps()

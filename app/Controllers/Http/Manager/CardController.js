@@ -185,6 +185,9 @@ class CardController {
           if(table.waiter_id){
             table.waiter_id=null
           }
+          table.orders = 0
+          table.asking = false
+          table.calling = false
           table.status = false
           await table.save()
         }

@@ -148,6 +148,7 @@ class ItemCardController {
           )
         orderCard.value = total_value_order
         table.asking = true
+        table.orders = itens.length
         await orderCard.save(trx) 
         card.value += card_value   
         await card.save(trx)
@@ -157,7 +158,7 @@ class ItemCardController {
         if(printering.printers(printers.rows, orders)){
           const topic = Ws.getChannel('notifications').topic('notifications')
           if(topic){
-            topic.broadcast('new:order')
+            topic.broadcast('new:order',`Novo pedido na mesa ${table.number}!`)
           }
           return response.status(201).send({orders})
         }else{
