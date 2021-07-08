@@ -144,6 +144,9 @@ async update ({ params, request, response, auth }) {
       table.status = false
       await table.save()
     }*/
+    table.orders = 0
+    table.asking = false
+    table.calling = true
     await table.save()
     const topic = Ws.getChannel('account').topic('account')
       if(topic){
