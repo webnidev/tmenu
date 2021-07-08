@@ -46,6 +46,7 @@ class TableController {
     .with('waiter')
     .with('cards',(builder)=>{
       return builder
+      .with('itens')
       .where('status','true')
       .orderBy('updated_at', 'desc')
     })

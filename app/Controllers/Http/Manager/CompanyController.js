@@ -31,7 +31,7 @@ class CompanyController {
     .with('managers')
     .with('images')
     .with('configuration')
-    .fetch()
+    .first()
     return response.send({companys})
   }
 
