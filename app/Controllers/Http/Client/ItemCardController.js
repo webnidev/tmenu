@@ -152,6 +152,7 @@ class ItemCardController {
         await orderCard.save(trx) 
         card.value += card_value   
         await card.save(trx)
+        table.last_order = orderCard.id
         await table.save(trx)
         await trx.commit()
         const printering = new Order
