@@ -55,6 +55,7 @@ class ProductController {
       if(code){
         query.where('name', 'ILIKE',`%${code}%`)
       }
+      query.with('images')
       const products = await query.paginate(pagination.page, pagination.limit)
    
     return response.send({products})
