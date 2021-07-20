@@ -22,7 +22,7 @@ class ClientController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
+  async index ({ request, response, auth, pagination }) {
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
@@ -33,7 +33,7 @@ class ClientController {
       if(!company){
         return response.status(404).send({message: 'Company not found!'})
       }
-      const clients = await company.clients().fetch()
+      const clients = await company.clients().paginate(pagination.page, pagination.limit)
     return response.send({clients})
     } catch (error) {
       console.log(error)

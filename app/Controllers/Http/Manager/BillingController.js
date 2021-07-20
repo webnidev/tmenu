@@ -21,7 +21,7 @@ class BillingController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
+  async index ({ request, response, auth, pagination }) {
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
@@ -34,8 +34,8 @@ class BillingController {
       }
       const billings = await company.billings().whereNot('status','NÃO ENVIADA')
       .orderBy('created_at','desc')
-      .fetch()
-      return response.send(billings)
+      .paginate(pagination.page, pagination.limit)
+      return response.send({billings})
     } catch (error) {
         return response.status(400).send({message: error.message})
     }

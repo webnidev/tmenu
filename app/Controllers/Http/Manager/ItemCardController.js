@@ -59,9 +59,9 @@ class ItemCardController {
 
         const query = ItemCard.query()
 
-        const cards = await query.where('owner', company.id)
+        const orders = await query.where('owner', company.id)
         .paginate(pagination.page, pagination.limit)
-        return response.send(cards)
+        return response.send({orders})
           
       } catch (error) {
         console.log(error)
