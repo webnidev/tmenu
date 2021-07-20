@@ -24,7 +24,7 @@ class CompanyController {
     if(!manager){
       return response.status(404).send({message: 'Manager not found!'})
     }
-    const companys = await Company.query()
+    const company = await Company.query()
     .where('id', manager.company_id)
     .with('address')
     .with('tables')
@@ -34,7 +34,7 @@ class CompanyController {
     .with('images')
     .with('configuration')
     .first()
-    return response.send({companys})
+    return response.send({company})
   }
 
 
