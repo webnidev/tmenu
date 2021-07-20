@@ -26,7 +26,9 @@ class CompanyController {
     }
     const companys = await Company.query()
     .where('id', manager.company_id)
+    .with('address')
     .with('tables')
+    .with('admins')
     .with('waiters')
     .with('managers')
     .with('images')
