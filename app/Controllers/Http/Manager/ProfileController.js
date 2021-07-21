@@ -21,7 +21,7 @@ class ProfileController {
    */
   async index ({ request, response, auth }) {
     try {
-      const profile = await Manager.query().where('id',auth.user.id)
+      const profile = await Manager.query().where('user_id',auth.user.id)
       .with('user')
       .first()
       return response.send({profile})
@@ -69,7 +69,7 @@ class ProfileController {
       if(params.id != auth.user.id){
         return response.status(404).send({message:'You not have permission'})
       }
-      const {data} = request.all()
+      const data = request.all()
       const profile = await User.find(params.id)
       profile.merge({...data})
       await profile.save()

@@ -19,7 +19,7 @@ class CategoryController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, auth }) {
+  async index ({ request, response, auth, pagination }) {
     try {
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
@@ -31,7 +31,7 @@ class CategoryController {
         return response.status(404).send({message: 'company not found!'})
       }
       const categories = await company.categories()
-      .fetch()
+      .paginate(pagination.page, pagination.limit)
       return response.send({categories})
     } catch (error) {
       return response.status(400).send({message: error.message})
