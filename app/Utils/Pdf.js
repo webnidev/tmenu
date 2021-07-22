@@ -6,6 +6,7 @@ const fs = require('fs')
 
 class Pdf extends Model{
     async pdfCreate(printOrd){
+        console.log('PRINTORDER',printOrd)
         const pageHeight = printOrd.orders.length * 10 + 160
         const pdfName = `${Date.now()}company${printOrd.orders[0].company_id}card${printOrd.orders[0].card_id}orders${printOrd.orders[0].order_id}.pdf`
         const date = new Date()

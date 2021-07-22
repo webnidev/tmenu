@@ -11,6 +11,8 @@ class CategorySchema extends Schema {
       table.timestamps()
       table.integer('company_id')
       table.foreign('company_id').references('companies.id').onDelete('cascade')
+      table.integer('printer_id')
+      table.foreign('printer_id').references('printers.id').onDelete('cascade')
     })
   }
 

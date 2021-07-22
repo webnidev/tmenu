@@ -91,12 +91,12 @@ class ClientSeeder {
           await Promise.all(
             categories.map( async category => {
               category.company_id = company.id
+              category.printer_id = 1
               await category.save()
               const products = await Factory.model('App/Models/Product').createMany(2)
               await Promise.all(
                 products.map(async product =>{
                   product.category_id = category.id
-                  product.printer_id = 1
                   product.owner = company.id
                 await  product.save()
                 })

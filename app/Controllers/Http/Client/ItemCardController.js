@@ -84,7 +84,9 @@ class ItemCardController {
         let orders = []
           await Promise.all(
             itens.map(async item=>{ 
-              let product = await Product.query().where('id',item.product_id ).first()
+              let product = await Product.query().where('id',item.product_id )
+              .first()
+              const category = await product.category().first()
               if(product){
                 table.changed_status = new Date()
                 table.status = true
@@ -120,6 +122,7 @@ class ItemCardController {
                 }
                 })
               )
+              console.log('PRODUTO CATEGORIA PRINTER ID',category.printer_id)
               order.product_value = product.value + item_value
               order.value = (product.value + item_value ) * item.quantity
               await order.save(trx)
@@ -140,7 +143,7 @@ class ItemCardController {
                  'quantity':order.quantity,
                  'product_name': product.name,
                  'product_value':(product.value + item_value ),
-                 'printer_id':product.printer_id
+                 'printer_id':category.printer_id
                })
               }
              

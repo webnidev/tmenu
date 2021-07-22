@@ -12,6 +12,8 @@ const Model = use('Model')
 
 class Order extends Model{    
     async printers(printers, orders){
+        console.log('PRINTERS',printers)
+        console.log('ORDERS',orders)
         let printerToProduct = []
         await Promise.all(
             printers.map(async printer=>{

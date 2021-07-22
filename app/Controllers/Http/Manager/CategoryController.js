@@ -2,6 +2,7 @@
 const Category = use('App/Models/Category')
 const Company = use('App/Models/Company')
 const Manager = use('App/Models/Manager')
+const Printer = use('App/Models/Printer')
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -30,8 +31,15 @@ class CategoryController {
       if(!company){
         return response.status(404).send({message: 'company not found!'})
       }
-      const categories = await company.categories()
-      .paginate(pagination.page, pagination.limit)
+      const name = request.input('name')
+      
+      const query = Category.query()
+      query.where('company_id', company.id)
+      if(name){
+        query.where('name', 'ILIKE',`%${name}%`)
+      }
+      query.with('printer')
+      const categories = await query.paginate(pagination.page, pagination.limit)
       return response.send({categories})
     } catch (error) {
       return response.status(400).send({message: error.message})
@@ -49,6 +57,7 @@ class CategoryController {
    */
   async store ({ request, response, auth }) {
     try {
+      const {name, printer_id} = request.all()
       const manager = await Manager.findBy('user_id',auth.user.id)
       if(!manager){
         return response.status(404).send({message: 'Manager not found!'})
@@ -58,8 +67,12 @@ class CategoryController {
       if(!company){
         return response.status(404).send({message: 'company not found!'})
       }
-      const data = request.only(["name"])
-      const category = await Category.create({...data, company_id: company.id})
+      const printer = await Printer.query().where('id',printer_id).where('company_id',company.id).first()
+      if(!printer){
+        return response.status(404).send({message: 'Printer not found!'})
+      }
+      
+      const category = await Category.create({name, printer_id, company_id: company.id})
       return response.send({category})
     } catch (error) {
       return response.status(400).send({message: error.message})
@@ -111,8 +124,8 @@ class CategoryController {
         if(!category){
           return response.status(404).send({'Erro':'Category not found'})
       }
-        const {name} = request.all()
-        category.name = name
+        const data = request.all()
+        category.merge({...data})
         await category.save()
         return response.send({category})
     } catch (error) {

@@ -11,6 +11,9 @@ class Category extends Model {
     company(){
         return this.belongsTo('App/Models/Company')
     }
+    printer(){
+        return this.belongsTo('App/Models/Printer')
+    }
 }
 
 module.exports = Category

@@ -22,7 +22,9 @@ class Product extends Model {
     values(){
         return this.manyThrough('App/Models/Attribute', 'values')
     }
-
+    category(){
+        return this.belongsTo('App/Models/Category')
+    }
     combo(){
         return this.belongsToMany('App/Models/Product').pivotTable('combos')
     }
